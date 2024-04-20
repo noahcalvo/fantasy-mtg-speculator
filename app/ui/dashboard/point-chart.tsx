@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { EPOCH } from '@/app/page';
 
 function getSettings(cardPoints: CardPoints[], containerWidth: number) {
-  const maxLabelLength = Math.max(...cardPoints.map(item => item.card_name.length));
-  const marginPerChar = 6; // Adjust this value based on your font size
+  const maxLabelLength = Math.max(...cardPoints.map(item => item.name.length));
+  const marginPerChar = 8; // Adjust this value based on your font size
   return {
     xAxis: [
       {
@@ -27,6 +27,7 @@ export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
+  // for graph size responsiveness
   useEffect(() => {
     function handleResize() {
       if (containerRef.current) {
@@ -66,8 +67,8 @@ export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint
     <div ref={containerRef} className='border border-gray-200 rounded-md p-4 inline-block mt-5'>
       {cardPoints.length > 0 ? <BarChart
       dataset={cardPoints}
-      yAxis={[{ scaleType: 'band', dataKey: 'card_name' }]}
-      series={[{ dataKey: 'points', label: chartLabel, valueFormatter }]}
+      yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
+      series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
       layout="horizontal"
       {...getSettings(cardPoints, containerWidth)}
     /> : <p>No data available</p>}

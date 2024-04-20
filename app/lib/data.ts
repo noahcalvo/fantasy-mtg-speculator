@@ -1,26 +1,93 @@
 import { sql } from '@vercel/postgres';
-import {
-  CardPoints,
-} from './definitions';
+import { CardPoints } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
-
-export async function fetchCardPoints(week: number) {
+export async function fetchTopWeeklyCards(week: number) {
   noStore();
-  try {
+    try {
     console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
     const data = await sql<CardPoints>`
-      SELECT card_name, points FROM points
-      WHERE week = ${week}
-      ORDER BY points DESC
-      LIMIT 15
+        SELECT 
+            Cards.card_id,
+            Cards.name,
+            SUM(
+                COALESCE(ChallengePerformance.champs * 5, 0) +
+                COALESCE(ChallengePerformance.copies * 0.5, 0) +
+                COALESCE(LeaguePerformance.copies * 0.25, 0)
+            ) AS total_points
+        FROM 
+            Cards
+        JOIN 
+            Performance ON Cards.card_id = Performance.card_id
+        LEFT JOIN 
+            ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
+        LEFT JOIN 
+            LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
+        WHERE 
+            Performance.week = ${week}
+        GROUP BY 
+            Cards.card_id,
+            Cards.name
+        ORDER BY 
+            total_points DESC
+        LIMIT 15;
     `;
+     console.log("hi")       
+    console.log(data)
 
     // Convert points to numbers
-    const convertedData = data.rows.map(row => ({
+    const convertedData = data.rows.map((row) => ({
       ...row,
-      points: Number(row.points)
+      total_points: Number(row.total_points),
+    }));
+    console.log('Data fetch completed after 3 seconds.');
+    return convertedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card point data for week');
+  }
+}
+
+export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
+  noStore();
+    try {
+    console.log('Fetching revenue data...');
+    console.log(set)
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    const data = await sql<CardPoints>`
+        SELECT 
+            Cards.card_id,
+            Cards.name,
+            SUM(
+                COALESCE(ChallengePerformance.champs * 5, 0) +
+                COALESCE(ChallengePerformance.copies * 0.5, 0) +
+                COALESCE(LeaguePerformance.copies * 0.25, 0)
+            ) AS total_points
+        FROM 
+            Cards
+        JOIN 
+            Performance ON Cards.card_id = Performance.card_id
+        LEFT JOIN 
+            ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
+        LEFT JOIN 
+            LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
+        WHERE 
+            Performance.week = ${week} AND Cards.origin = ${set}
+        GROUP BY 
+            Cards.card_id,
+            Cards.name
+        ORDER BY 
+            total_points DESC
+        LIMIT 15;
+    `;
+     console.log("hi")       
+    console.log(data)
+
+    // Convert points to numbers
+    const convertedData = data.rows.map((row) => ({
+      ...row,
+      total_points: Number(row.total_points),
     }));
     console.log('Data fetch completed after 3 seconds.');
     return convertedData;

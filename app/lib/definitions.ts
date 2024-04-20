@@ -27,8 +27,8 @@
 // };
 
 export type CardPoints = {
-  card_name: string;
-  points: number;
+  name: string;
+  total_points: number;
 };
 
 // export type LatestInvoice = {
