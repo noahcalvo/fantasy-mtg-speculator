@@ -26,7 +26,7 @@
 //   status: 'pending' | 'paid';
 // };
 
-export type CardPoints = {
+export type CardPoint = {
   name: string;
   total_points: number;
 };

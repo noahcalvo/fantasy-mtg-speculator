@@ -1,10 +1,9 @@
 
-from challenge_result_parser import extract_deck_links
+from tournement_result_parser import extract_deck_links
 from db import connect_to_database, insert_stats
 from tournements import create_url, generate_tournement_page_links
 from fetch import fetch_webpage
 from fish_scraper import extract_deck_list
-from point_generator import generate_points
 from stat_generator import generate_stats
 
 class ResultType:
@@ -12,7 +11,9 @@ class ResultType:
         self.name = name
         self.place = place
 
-def scrape_tournaments(type, combined_stats_dict):
+base_url = "https://www.mtggoldfish.com"
+
+def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
     searchKeyword = {
         "challenge": "Modern Challenge",
         "league": "Modern League"
@@ -33,7 +34,7 @@ def scrape_tournaments(type, combined_stats_dict):
             print("fetching tournement page:", url)
             html_content = fetch_webpage(url)
             if html_content:
-                deck_list_links = extract_deck_links(html_content)
+                deck_list_links = extract_deck_links(html_content, type)
                 for deck in deck_list_links:
                     print("fetching deck list page:", "https://www.mtggoldfish.com"+deck[1])
                     deck_list_html = fetch_webpage("https://www.mtggoldfish.com"+deck[1])
@@ -53,17 +54,17 @@ def scrape_tournaments(type, combined_stats_dict):
                             combined_stats_dict[card] = combined_card_stats
         page += 1
 
-week_to_scrape = 1
-base_url = "https://www.mtggoldfish.com"
+weeks_to_scrape = [0, 1]
 
 combined_stats_dict = {} # Initialize an empty dictionary to store combined points
-scrape_tournaments("league", combined_stats_dict)
-scrape_tournaments("challenge", combined_stats_dict)
+for week_to_scrape in weeks_to_scrape:    
+    scrape_tournaments("league", combined_stats_dict, week_to_scrape)
+    scrape_tournaments("challenge", combined_stats_dict, week_to_scrape)
             
-# Connect to the database
-connection = connect_to_database()
-if connection:
-    # Assuming combined_points_dict is your dictionary of card -> points
-    insert_stats(connection, combined_stats_dict, week_to_scrape, 0)  # Assuming the week starts on 04/08/2024
-    connection.close()  # Close the database connection when done
+    # Connect to the database
+    connection = connect_to_database()
+    if connection:
+        # Assuming combined_points_dict is your dictionary of card -> points
+        insert_stats(connection, combined_stats_dict, week_to_scrape, 0)  # Assuming the week starts on 04/08/2024
+        connection.close()  # Close the database connection when done
 

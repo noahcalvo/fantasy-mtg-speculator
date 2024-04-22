@@ -130,5 +130,30 @@ challenge_performance_seed = [
     }
 ]
 
+players_seed = [
+    {
+        "name": "Noah"
+    },
+    {
+        "name": "Jonah"
+    }
+]
+
+ownership_seed = [
+    {
+        "name": "noah",
+        "cards": [
+            "Ragavan, Nimble Pilferer",
+            "Wooded Foothills",
+        ]
+    },
+    {
+        "name": "jonah",
+        "cards": [
+            "Mishra's Bauble",
+        ]
+    }
+]
+
 
 # https://scryfall.com/search?q=is%3Afirstprint+&unique=cards&as=grid&order=name

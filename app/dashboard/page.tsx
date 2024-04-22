@@ -1,9 +1,11 @@
 import PointChart from '@/app/ui/dashboard/point-chart';
-import { fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/data';
-import WeekPicker from '../ui/week-picker';
-import SetPicker from '../ui/set-picker';
+import { fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet, fetchTopCards, fetchTopCardsFromSet } from '@/app/lib/data';
+import { WeekPicker, SetPicker } from '../ui/picker';
 import LatestInvoices from '../ui/dashboard/latest-invoices';
 import { fetchRecentSets } from '@/app/lib/sets';
+import { fetchPlayerCollection } from '../lib/collection';
+import { Card } from '../ui/dashboard/cards';
+import CardTable from "@/app/ui/dashboard/table"
 
 const week = 0;
 export default async function Page({
@@ -14,37 +16,47 @@ export default async function Page({
     set: string;
   }
 }) {
-  const week = searchParams?.week || 0;
+  const week = searchParams?.week || null;
   const set = searchParams?.set || "";
   let cardPoints = [];
-  if(set.length > 0) {
-    // fetch data for the selected set
-    cardPoints = await fetchTopWeeklyCardsFromSet(week, set);
-  } else {
-    // or fetch all sets
+  if (week === null && set === "") {
+    // Both week and set are null
+    cardPoints = await fetchTopCards();
+  } else if (week === null) {
+    // Only week is null
+    cardPoints = await fetchTopCardsFromSet(set);
+  } else if (set === "") {
+    // Only set is null
     cardPoints = await fetchTopWeeklyCards(week);
+  } else {
+    // Neither week nor set is null
+    cardPoints = await fetchTopWeeklyCardsFromSet(week, set);
   }
+  const collection = await fetchPlayerCollection('noah', 1);
+  console.log(collection)
   const sets = await fetchRecentSets()
 
   return (
     <main>
       <h1 className="mb-4 text-xl md:text-2xl">Dashboard</h1>
-      <div className='space-x-5'>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Card title="Total Cards In Your Collection" value={5} type="collected" />
+        <Card title="Weekly Best Performing Card" value={"ragavan"} type="pending" />
+        <Card title="Weekly Position in League" value={1} type="invoices" />
+        <Card
+          title="Weekly Points"
+          value={200}
+          type="customers"
+        />
+      </div>
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <WeekPicker placeholder="Select week" />
         <SetPicker placeholder="Select set" sets={sets} />
-        {/* <Card title="Collected" value={totalPaidInvoices} type="collected" /> */}
-        {/* <Card title="Pending" value={totalPendingInvoices} type="pending" /> */}
-        {/* <Card title="Total Invoices" value={numberOfInvoices} type="invoices" /> */}
-        {/* <Card
-          title="Total Customers"
-          value={numberOfCustomers}
-          type="customers"
-        /> */}
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2 2xl:grid-cols-3">
-        {/* form to select a date*/}        
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <PointChart cardPoints={cardPoints} week={week}/>
-        <LatestInvoices latestInvoices={[]} />
+        <CardTable collection={collection} />
+        {/* <LatestInvoices collection={collection} /> */}
       </div>
     </main>
   );
