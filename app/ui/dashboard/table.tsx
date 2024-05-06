@@ -6,13 +6,16 @@ import { CardPoint } from '@/app/lib/definitions';
 
 export default async function CardTable({
   collection,
+  userName
 }: {
   collection: CardPoint[];
+  userName: string;
 }) {
+  console.log(userName)
   return (
     <div className="">
       <h1 className="mb-8 text-xl md:text-2xl">
-        Cards
+        {userName}'s Collection
       </h1>
       <Search placeholder="Search customers..." />
       <div className="mt-6 flow-root">

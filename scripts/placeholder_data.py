@@ -141,17 +141,31 @@ players_seed = [
 
 ownership_seed = [
     {
-        "name": "noah",
+        "email": "noah.calvo@gmail.com",
         "cards": [
             "Ragavan, Nimble Pilferer",
             "Wooded Foothills",
         ]
     },
     {
-        "name": "jonah",
+        "email": "jonah.calvo@gmail.com",
         "cards": [
             "Mishra's Bauble",
         ]
+    }
+]
+
+players_seed = [
+    {
+        "name": "Noah",
+        "email": "noah.calvo@gmail.com",
+        "password": "password"
+
+    },
+    {
+        "name": "Jonah",
+        "email": "jonah.calvo@gmail.com",
+        "password": "password"
     }
 ]
 

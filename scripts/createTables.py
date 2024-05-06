@@ -19,7 +19,7 @@ def createTables(conn):
             print("Created 'points' table")
 
             create_performance_table_query = """
-            CREATE TABLE Performance (
+            CREATE TABLE IF NOT EXISTS Performance (
             performance_id SERIAL PRIMARY KEY,
             card_id INT,
             week INT,
@@ -33,7 +33,7 @@ def createTables(conn):
 
             # -- challenge table
             create_challenge_performance_table_query = """
-            CREATE TABLE ChallengePerformance (
+            CREATE TABLE IF NOT EXISTS ChallengePerformance (
             performance_id INT PRIMARY KEY,
             champs INT,
             decks INT,
@@ -46,7 +46,7 @@ def createTables(conn):
 
             # create league performance table query
             create_league_performance_table_query = """
-            CREATE TABLE LeaguePerformance (
+            CREATE TABLE IF NOT EXISTS LeaguePerformance (
             performance_id INT PRIMARY KEY,
             decks INT,
             copies INT,
@@ -58,23 +58,25 @@ def createTables(conn):
 
             # -- Players
             # create players table query
-            create_players_table_query = """
-            CREATE TABLE Players (
+            create_users_table_query = """
+            CREATE TABLE IF NOT EXISTS Users (
             player_id SERIAL PRIMARY KEY,
-            name VARCHAR(255)
+            name VARCHAR(255) NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
             );
             """
-            cur.execute(create_players_table_query)
-            print("Created 'players' table")
+            cur.execute(create_users_table_query)
+            print("Created 'users' table")
 
             # -- Library / Ownership
             create_ownership_table_query = """
-            CREATE TABLE Ownership (
+            CREATE TABLE IF NOT EXISTS Ownership (
             player_id INT,
             card_id INT,
-            FOREIGN KEY (player_id) REFERENCES Players(player_id),
+            FOREIGN KEY (player_id) REFERENCES Users(player_id),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
-            PRIMARY KEY(player_id, card_id)
+            PRIMARY KEY(card_id)
             );
             """
             cur.execute(create_ownership_table_query)
