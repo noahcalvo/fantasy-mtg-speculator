@@ -7,8 +7,11 @@ import { fetchPlayerCollection } from '../lib/collection';
 import { Card } from '../ui/dashboard/cards';
 import CardTable from "@/app/ui/dashboard/table"
 import { auth } from '@/auth';
+import { EPOCH } from '@/app/page';
+import { fetchUniqueWeekNumbers } from '@/app/lib/data';
 
-const week = 0;
+
+// const week = 0;
 export default async function Page({
   searchParams,
 }:{
@@ -17,23 +20,19 @@ export default async function Page({
     set: string;
   }
 }) {
-  const week = searchParams?.week || null;
+  const week = searchParams?.week || getCurrentWeek();
   const set = searchParams?.set || "";
 
 
 
   let cardPoints = [];
   if (week === null && set === "") {
-    // Both week and set are null
     cardPoints = await fetchTopCards();
   } else if (week === null) {
-    // Only week is null
     cardPoints = await fetchTopCardsFromSet(set);
   } else if (set === "") {
-    // Only set is null
     cardPoints = await fetchTopWeeklyCards(week);
   } else {
-    // Neither week nor set is null
     cardPoints = await fetchTopWeeklyCardsFromSet(week, set);
   }
 
@@ -60,7 +59,7 @@ export default async function Page({
         />
       </div>
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <WeekPicker placeholder="This week" />
+        <WeekPicker placeholder="This week" availableWeeks={await fetchUniqueWeekNumbers()}/>
         <SetPicker placeholder="Select set" sets={sets} />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -70,4 +69,14 @@ export default async function Page({
       </div>
     </main>
   );
+}
+
+function getCurrentWeek() {
+  const startDate = new Date(EPOCH);
+  const today = new Date();
+
+  const timeDiff = Math.abs(today.getTime() - startDate.getTime());
+  const diffWeeks = Math.ceil(timeDiff / (1000 * 60 * 60 * 24 * 7));
+
+  return diffWeeks;
 }

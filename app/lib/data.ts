@@ -1,12 +1,12 @@
 import { sql } from '@vercel/postgres';
-import { CardPoints } from './definitions';
+import { CardPoint } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchTopCards() {
   noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-    const data = await sql<CardPoints>`
+    const data = await sql<CardPoint>`
         SELECT 
             Cards.card_id,
             Cards.name,
@@ -46,7 +46,7 @@ export async function fetchTopWeeklyCards(week: number) {
   noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-    const data = await sql<CardPoints>`
+    const data = await sql<CardPoint>`
         SELECT 
             Cards.card_id,
             Cards.name,
@@ -89,7 +89,7 @@ export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
   noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-    const data = await sql<CardPoints>`
+    const data = await sql<CardPoint>`
         SELECT 
             Cards.card_id,
             Cards.name,
@@ -131,7 +131,7 @@ export async function fetchTopCardsFromSet(set: string) {
   noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-    const data = await sql<CardPoints>`
+    const data = await sql<CardPoint>`
           SELECT 
               Cards.card_id,
               Cards.name,
@@ -366,3 +366,24 @@ export async function fetchTopCardsFromSet(set: string) {
 //     throw new Error('Failed to fetch user.');
 //   }
 // }
+
+export async function fetchUniqueWeekNumbers() {
+    noStore();
+    try {
+      const data = await sql`
+          SELECT DISTINCT
+              Performance.week
+          FROM 
+              Performance
+          ORDER BY 
+              Performance.week;
+      `;
+  
+      // Convert week numbers to numbers
+      const convertedData = data.rows.map((row) => Number(row.week));
+      return convertedData;
+    } catch (error) {
+      console.error('Database Error:', error);
+      throw new Error('Failed to fetch unique week numbers');
+    }
+  }

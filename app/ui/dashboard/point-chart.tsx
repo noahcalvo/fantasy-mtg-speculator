@@ -1,7 +1,7 @@
 'use client'
 import { CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { EPOCH } from '@/app/page';
 
 function getSettings(cardPoints: CardPoint[], containerWidth: number) {
@@ -26,6 +26,11 @@ const valueFormatter = (value: number | null) => `${value}pts`;
 export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint[], week: number|null }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [hasMounted, setHasMounted] = useState(false); // New state variable
+  
+  useLayoutEffect(() => {
+    setHasMounted(true); // Set hasMounted to true when the component mounts
+  }, []);
 
   // for graph size responsiveness
   useEffect(() => {
@@ -77,14 +82,14 @@ export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint
     </h1>
 
     <div ref={containerRef} className=''>
-      {cardPoints.length > 0 ? <BarChart
-      dataset={cardPoints}
-      yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-      series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
-      layout="horizontal"
-      {...getSettings(cardPoints, containerWidth)}
-    /> : <p>No data available</p>}
-    </div>
+        {hasMounted && cardPoints.length > 0 ? <BarChart
+          dataset={cardPoints}
+          yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
+          series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
+          layout="horizontal"
+          {...getSettings(cardPoints, containerWidth)}
+        /> : <p>No data available</p>}
+      </div>
     </div>
   );
 }

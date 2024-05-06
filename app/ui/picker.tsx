@@ -3,6 +3,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { EPOCH } from '@/app/page';
+import { toZonedTime, format } from 'date-fns-tz';
 
 export function SetPicker({
   placeholder,
@@ -50,12 +52,11 @@ export function SetPicker({
   );
 }
 
-export function WeekPicker({ placeholder }: { placeholder: string }) {
+export function WeekPicker({ placeholder, availableWeeks }: { placeholder: string, availableWeeks: number[] }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-const weekOptions = [{"label":"week 0 - 4/8/2024", "week": 0}, {"label":"week 1 - 4/15/2024", "week": 1}];
 const handleSearch = useDebouncedCallback((week) => {
   const params = new URLSearchParams(searchParams);
   if (week) {
@@ -65,6 +66,8 @@ const handleSearch = useDebouncedCallback((week) => {
   }
   replace(`${pathname}?${params.toString()}`);
 }, 300);
+
+const weekOptions = getWeekStrings(availableWeeks);
 
 return (
   <div className="relative flex-shrink-0 inline-block">
@@ -89,4 +92,14 @@ return (
     <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
   </div>
 );
+}
+
+function getWeekStrings(weeks: number[]) {
+  return weeks.map(week => {
+    const date = new Date(EPOCH);
+    date.setUTCDate(date.getUTCDate() + week * 7);
+    const cstDate = toZonedTime(date, 'America/Chicago');
+    const dateString = format(cstDate, 'MM/dd/yyyy', { timeZone: 'America/Chicago' });
+    return { label: `week ${week} - ${dateString}`, week };
+  });
 }
