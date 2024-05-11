@@ -26,7 +26,6 @@ export const { auth, signIn, signOut } = NextAuth({
           .safeParse(credentials);
  
         if (parsedCredentials.success) {
-          console.log("safe parse")
           const { email, password } = parsedCredentials.data;
           const user = await getUser(email);
           if (!user) return null;
@@ -34,7 +33,6 @@ export const { auth, signIn, signOut } = NextAuth({
  
           if (passwordsMatch) return user;
         }
-        console.log('Invalid credentials');
         return null;
       },
     }),

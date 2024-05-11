@@ -2,6 +2,7 @@ import requests
 import time
 import psycopg2
 import os
+from unidecode import unidecode
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
@@ -10,7 +11,7 @@ def set_origin(db_connection):
     cursor = db_connection.cursor()
 
     # Fetch all card names from the Cards table in your database.
-    cursor.execute("SELECT card_id, name FROM Cards WHERE origin IS NULL;")
+    cursor.execute("SELECT card_id, name FROM Cards WHERE origin IS NULL OR origin = 'unknown';")
     cards = cursor.fetchall()
 
     for card_id, name in cards:
@@ -27,13 +28,31 @@ def set_origin(db_connection):
 
             # Extract card data from response (assuming there's one match)
             card_data = response.json()
-            first_print_set = card_data['data'][0]['set_name']
-            
-            print(f'Updating {name} with origin: {first_print_set}')
-            
+
+            originSet = "unknown"
+
+            i = 0
+            while i < len(card_data['data']):
+                if unidecode(card_data['data'][i]['name']) == unidecode(name):
+                    print(f'Found {name} in set {card_data["data"][i]["set_name"]}')
+                    originSet = card_data['data'][i]['set_name']
+                    break
+                card_faces = card_data['data'][i].get('card_faces')
+                print(f'card_faces: {card_faces}')
+                if card_faces and unidecode(card_faces[0]['name']) == unidecode(name):
+                    print(f'Found {name} in set {card_data["data"][i]["set_name"]} (double sided card)')
+                    # double sided cards require this edge case
+                    originSet = card_data['data'][i]['set_name']
+                    break
+                print(f'Found {card_data["data"][i]["name"]} instead of {name}')
+                # print(f'Looking for {name} in {card_data["data"][i]["card_faces"]} instead')
+                i += 1
+
+            print(f'Updating {name} with origin: {originSet}')            
+
             # Update the origin column for this card in your database
             update_query = "UPDATE Cards SET origin = %s WHERE card_id = %s;"
-            cursor.execute(update_query, (first_print_set, card_id))
+            cursor.execute(update_query, (originSet, card_id))
             
         except requests.exceptions.HTTPError as errh:
             print(f"Http Error for {name}: ", errh)

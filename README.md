@@ -49,3 +49,12 @@ FOREIGN KEY (card_id) REFERENCES Cards(card_id),
 PRIMARY KEY(player_id, card_id)
 );
 ```
+
+To scrape and seed weekly data run
+
+`python main.py {space seperated week numbers}`
+i.e. `python main.py 5 6 7`
+
+To drop the tables (start from scratch):
+`python3 scripts/dropTables.py`
+`python3 scripts/createTables.py`

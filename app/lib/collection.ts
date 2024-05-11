@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 export async function fetchPlayerCollection(userEmail: string, week: number) {
   noStore();
   try {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
     const data = await sql<CardPoint>`
         SELECT 
         C.card_id, 

@@ -7,16 +7,16 @@ load_dotenv()  # take environment variables from .env.
 def createTables(conn):
     try:
         with conn.cursor() as cur:
-            # Create the "points" table if it doesn't exist
-            create_points_table_query = """
+            # Create Cards table
+            create_cards_table_query = """
             CREATE TABLE IF NOT EXISTS Cards (
             card_id SERIAL PRIMARY KEY,
             name VARCHAR(255) UNIQUE,
             origin VARCHAR(255)
             );
             """
-            cur.execute(create_points_table_query)
-            print("Created 'points' table")
+            cur.execute(create_cards_table_query)
+            print("Created 'cards' table")
 
             create_performance_table_query = """
             CREATE TABLE IF NOT EXISTS Performance (
@@ -31,7 +31,7 @@ def createTables(conn):
             cur.execute(create_performance_table_query)
             print("Created 'performance' table")
 
-            # -- challenge table
+            # -- challenge performance table
             create_challenge_performance_table_query = """
             CREATE TABLE IF NOT EXISTS ChallengePerformance (
             performance_id INT PRIMARY KEY,
@@ -44,7 +44,7 @@ def createTables(conn):
             cur.execute(create_challenge_performance_table_query)
             print("Created 'challenge performance' table")
 
-            # create league performance table query
+            # -- league performance table
             create_league_performance_table_query = """
             CREATE TABLE IF NOT EXISTS LeaguePerformance (
             performance_id INT PRIMARY KEY,
@@ -57,7 +57,7 @@ def createTables(conn):
             print("Created 'league performance' table")
 
             # -- Players
-            # create players table query
+            # create Users table query
             create_users_table_query = """
             CREATE TABLE IF NOT EXISTS Users (
             player_id SERIAL PRIMARY KEY,
@@ -69,7 +69,7 @@ def createTables(conn):
             cur.execute(create_users_table_query)
             print("Created 'users' table")
 
-            # -- Library / Ownership
+            # -- Ownership
             create_ownership_table_query = """
             CREATE TABLE IF NOT EXISTS Ownership (
             player_id INT,

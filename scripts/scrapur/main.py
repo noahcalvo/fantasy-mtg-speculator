@@ -5,7 +5,12 @@ from tournements import create_url, generate_tournement_page_links
 from fetch import fetch_webpage
 from fish_scraper import extract_deck_list
 from stat_generator import generate_stats
+from add_origin import set_origin
+import sys
 
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class ResultType:
     def __init__(self, name, place=None):
         self.name = name
@@ -14,6 +19,7 @@ class ResultType:
 base_url = "https://www.mtggoldfish.com"
 
 def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
+    print("Scraping", type, "for week", week_to_scrape)
     searchKeyword = {
         "challenge": "Modern Challenge",
         "league": "Modern League"
@@ -54,17 +60,31 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
                             combined_stats_dict[card] = combined_card_stats
         page += 1
 
-weeks_to_scrape = [0, 1]
+# Convert command-line arguments to integers and store in weeks_to_scrape
+weeks_to_scrape = list(map(int, sys.argv[1:]))
 
-combined_stats_dict = {} # Initialize an empty dictionary to store combined points
 for week_to_scrape in weeks_to_scrape:    
+    combined_stats_dict = {} # Initialize an empty dictionary to store combined points for the week
     scrape_tournaments("league", combined_stats_dict, week_to_scrape)
     scrape_tournaments("challenge", combined_stats_dict, week_to_scrape)
             
+    # Sort the combined_stats_dict by league_copies in descending order
+    sorted_stats = sorted(combined_stats_dict.items(), key=lambda item: item[1]['league_copies'], reverse=True)
+
+    # Print the top 5 cards
+    print("Top 5 cards of the week from league copies number:")
+    for i in range(min(5, len(sorted_stats))):
+        print(f"{i+1}. {sorted_stats[i][0]}: {sorted_stats[i][1]['league_copies']} copies")
+
     # Connect to the database
     connection = connect_to_database()
     if connection:
         # Assuming combined_points_dict is your dictionary of card -> points
         insert_stats(connection, combined_stats_dict, week_to_scrape, 0)  # Assuming the week starts on 04/08/2024
         connection.close()  # Close the database connection when done
+    
+    
+conn = connect_to_database()
+set_origin(conn)
+conn.close()
 

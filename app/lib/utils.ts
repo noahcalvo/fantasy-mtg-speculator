@@ -25,7 +25,7 @@ export const generateYAxis = (cardPoints: CardPoint[]) => {
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s
   const yAxisLabels = [];
-  const highestRecord = Math.max(...cardPoints.map((cardName) => cardName.points));
+  const highestRecord = Math.max(...cardPoints.map((cardName) => cardName.total_points));
   console.log(highestRecord);
   const topLabel = Math.ceil(highestRecord / 10) * 10;
 
