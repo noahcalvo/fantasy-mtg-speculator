@@ -5,7 +5,8 @@ import { unstable_noStore as noStore } from 'next/cache';
 export async function fetchTopCards() {
   noStore();
   try {
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log(`finished top cards timeout`)
     const data = await sql<CardPoint>`
         SELECT 
             Cards.card_id,
@@ -44,8 +45,10 @@ export async function fetchTopCards() {
 
 export async function fetchTopWeeklyCards(week: number) {
   noStore();
+  console.log(`fetching top weekly cards: start`)
   try {
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log(`fetching top weekly cards: timeout done`)
     const data = await sql<CardPoint>`
         SELECT 
             Cards.card_id,
@@ -78,6 +81,7 @@ export async function fetchTopWeeklyCards(week: number) {
       ...row,
       total_points: Number(row.total_points),
     }));
+    console.log(`fetching top weekly cards: done`)
     return convertedData;
   } catch (error) {
     console.error('Database Error:', error);

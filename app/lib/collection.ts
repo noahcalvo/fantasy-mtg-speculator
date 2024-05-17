@@ -4,8 +4,10 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchPlayerCollection(userEmail: string, week: number) {
   noStore();
+console.log(`fetching collection for user: start`);
   try {
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log(`fetching collection for user: timeout`)
     const data = await sql<CardPoint>`
         SELECT 
         C.card_id, 
@@ -41,6 +43,7 @@ export async function fetchPlayerCollection(userEmail: string, week: number) {
       ...row,
       total_points: Number(row.total_points),
     }));
+    console.log(`fetching collection for user: end`)
     return convertedData;
   } catch (error) {
     console.error('Database Error:', error);

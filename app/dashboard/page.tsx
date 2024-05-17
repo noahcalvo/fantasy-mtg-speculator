@@ -23,22 +23,26 @@ export default async function Page({
   const week = searchParams?.week || getCurrentWeek();
   const set = searchParams?.set || "";
 
-  let cardPoints = [];
-  if (week === null && set === "") {
-    cardPoints = await fetchTopCards();
-  } else if (week === null) {
-    cardPoints = await fetchTopCardsFromSet(set);
-  } else if (set === "") {
-    cardPoints = await fetchTopWeeklyCards(week);
-  } else {
-    cardPoints = await fetchTopWeeklyCardsFromSet(week, set);
-  }
-
   const user = await auth().then((res) => res?.user);
   const userName = user?.name || "";
   const userEmail = user?.email || "";
 
-  const collection = await fetchPlayerCollection(userEmail, 1);
+
+  let cardPointsPromise;
+  if (week === null && set === "") {
+    cardPointsPromise = fetchTopCards();
+  } else if (week === null) {
+    cardPointsPromise = fetchTopCardsFromSet(set);
+  } else if (set === "") {
+    cardPointsPromise = fetchTopWeeklyCards(week);
+  } else {
+    cardPointsPromise = fetchTopWeeklyCardsFromSet(week, set);
+  }
+  
+  const collectionPromise = fetchPlayerCollection(userEmail, 1);
+  
+  const [cardPoints, collection] = await Promise.all([cardPointsPromise, collectionPromise]);
+  
   const totalCollectionPoints = collection.reduce((acc, card) => acc + card.total_points, 0);
   const sets = await fetchRecentSets()
 
