@@ -58,3 +58,10 @@ i.e. `python main.py 5 6 7`
 To drop the tables (start from scratch):
 `python3 scripts/dropTables.py`
 `python3 scripts/createTables.py`
+
+To create seed users
+`python3 scripts/seed_player_data.py`
+This will create a user
+```
+noah.calvo@gmail.com password
+```
