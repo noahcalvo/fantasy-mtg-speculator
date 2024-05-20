@@ -1,3 +1,5 @@
+'use server';
+
 import { sql } from '@vercel/postgres';
 import { CardPoint } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';

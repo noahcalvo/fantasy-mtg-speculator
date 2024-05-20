@@ -33,21 +33,31 @@ export function Card({
   title,
   value,
   type,
+  paragraphSize,
+  headerSize
 }: {
   title: string;
   value: number | string;
   type: 'invoices' | 'customers' | 'pending' | 'collected';
+  paragraphSize?: string;
+  headerSize?: string;
 }) {
   const Icon = iconMap[type];
-
+  paragraphSize ? 'text-2xl' : ''
+  headerSize ? 'text-3xl' : ''
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm">
+    <div className="rounded-xl bg-gray-50 p-2 shadow-sm flex flex-col justify-between">
       <div className="flex p-4">
         {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
-        <h3 className="ml-2 text-sm font-medium">{title}</h3>
+        <h3 className="ml-2 font-medium"
+        style={{ fontSize: headerSize}}
+        >
+          {title}
+        </h3>
       </div>
       <p
-        className="truncate rounded-xl bg-white px-4 py-8 text-center text-2xl"
+        className="truncate rounded-xl bg-white px-4 py-8 text-center"
+        style={{ fontSize: paragraphSize }}
       >
         {value}
       </p>

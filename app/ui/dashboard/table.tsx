@@ -1,20 +1,24 @@
-import Image from 'next/image';
+'use client'
 import Search from '@/app/ui/search';
-import {
-} from '@/app/lib/definitions';
-import { CardPoint } from '@/app/lib/definitions';
+import { Card } from '@/app/lib/definitions';
+import { fetchPlayerCollection } from '@/app/lib/collection';
+import { useState, useEffect } from 'react';
 
-export default async function CardTable({
-  collection,
-  userName
-}: {
-  collection: CardPoint[];
-  userName: string;
-}) {
+export default function CardTable ({email, name}: {email: string, name: string}) {
+  const [collection, setCollection] = useState<Card[]>([]);  
+  console.log(email)
+  useEffect(() => {
+    fetchPlayerCollection(email).then((result) => {
+      setCollection(result.rows);
+    }).catch((error) => {
+      console.error('Failed to fetch card data:', error);
+    });
+  }, [email]);
+  
   return (
     <div className="">
       <h1 className="mb-8 text-xl md:text-2xl">
-        {userName}&apos;s Collection
+        {name}&apos;s Collection
       </h1>
       <Search placeholder="Search customers..." />
       <div className="mt-6 flow-root">
@@ -39,7 +43,7 @@ export default async function CardTable({
                     <div className="flex w-full items-center justify-between border-b py-5">
                       <div className="flex w-1/2 flex-col">
                         <p className="text-xs">Pending</p>
-                        <p className="font-medium">{card.total_points}</p>
+                        <p className="font-medium">{card.name}</p>
                       </div>
                       <div className="flex w-1/2 flex-col">
                         <p className="text-xs">Paid</p>
@@ -76,7 +80,7 @@ export default async function CardTable({
                         </div>
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {card.total_points}
+                        {card.name}
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
                         not implemented yet

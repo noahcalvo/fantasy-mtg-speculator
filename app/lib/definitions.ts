@@ -29,6 +29,12 @@ export type User = {
 export type CardPoint = {
   name: string;
   total_points: number;
+  week: number;
+};
+
+export type Card = {
+  card_id: string;
+  name: string;
 };
 
 // export type LatestInvoice = {

@@ -1,22 +1,23 @@
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { EPOCH } from '@/app/page';
 import { toZonedTime, format } from 'date-fns-tz';
+import { fetchRecentSets } from '../lib/sets';
 
-export function SetPicker({
-  placeholder,
-  sets,
-}: {
-  placeholder: string;
-  sets: string[];
-}) {
+export function SetPicker() {
+  const [sets, setSets] = useState<string[]>([]);
+  useEffect(() => {
+    fetchRecentSets().then((result) => {
+      setSets(result);
+    });
+  });
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-
+  
   const handleSearch = useDebouncedCallback((set) => {
     const params = new URLSearchParams(searchParams);
     if (set) {
@@ -40,7 +41,7 @@ export function SetPicker({
         }}
         defaultValue={searchParams.get('set')?.toString()}
       >
-        <option value="">{placeholder}</option>
+        <option value="">All sets</option>
         {sets.map((option, index) => (
           <option key={index} value={option}>
             {option}
