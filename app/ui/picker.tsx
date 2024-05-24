@@ -65,7 +65,6 @@ export function WeekPicker({
   const { replace } = useRouter();
 
   const handleSearch = (week: string) => {
-    console.log("begin new week search")
     const params = new URLSearchParams(searchParams);
     if (week) {
       params.set('week', week);
@@ -73,7 +72,6 @@ export function WeekPicker({
       params.delete('week');
     }
     replace(`${pathname}?${params.toString()}`);
-    console.log("end new week search")
   };
 
   const weekOptions = getWeekStrings(availableWeeks);

@@ -3,12 +3,33 @@ import { sql } from '@vercel/postgres';
 import { Card, CardPoint } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
+export async function fetchCardPerformanceByWeek(collectionIDs: number[], week: number) {
+  noStore();
+  const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points
+  FROM Cards C
+  JOIN Performance PF ON C.card_id = PF.card_id
+  LEFT JOIN ChallengePerformance CP ON PF.performance_id = CP.performance_id
+  LEFT JOIN LeaguePerformance LP ON PF.performance_id = LP.performance_id
+  WHERE PF.week = $1 AND C.card_id = ANY($2)
+  GROUP BY C.card_id, C.name`;
+  let params = [week, collectionIDs];
+  try {
+    const result = await sql.query(queryString, params);
+    // Convert points to numbers
+    const convertedData = result.rows.map((row) => ({
+      ...row,
+      total_points: Number(row.total_points),
+    }));
+    return convertedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card point data for week');
+  }
+}
+
 export async function fetchPlayerCollection(userEmail: string) {
   noStore();
-  console.log(`fetching collection for user: start`);
   try {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    console.log(`fetching collection for user: timeout`);
     const data = await sql<Card>`
         SELECT 
         C.card_id, 
@@ -28,7 +49,6 @@ export async function fetchPlayerCollection(userEmail: string) {
             C.name DESC;
       `;
     // Convert points to numbers
-    console.log(`fetching collection for user: end`);
     return data;
   } catch (error) {
     console.error('Database Error:', error);
@@ -38,10 +58,7 @@ export async function fetchPlayerCollection(userEmail: string) {
 
 export async function fetchPlayerCollectionWithPerformance(userEmail: string) {
   noStore();
-  console.log(`fetching collection for user: start`);
   try {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    console.log(`fetching collection for user: timeout`);
     const data = await sql<CardPoint>`
     SELECT 
     C.card_id, 
@@ -79,7 +96,6 @@ export async function fetchPlayerCollectionWithPerformance(userEmail: string) {
       ...row,
       total_points: Number(row.total_points),
     }));
-    console.log(`fetching collection for user: end`)
     return convertedData;
   } catch (error) {
     console.error('Database Error:', error);

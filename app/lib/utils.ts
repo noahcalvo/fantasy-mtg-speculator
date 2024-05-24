@@ -1,3 +1,4 @@
+import { EPOCH } from '../page';
 import { CardPoint } from './definitions';
 
 export const formatCurrency = (amount: number) => {
@@ -26,7 +27,6 @@ export const generateYAxis = (cardPoints: CardPoint[]) => {
   // based on highest record and in 1000s
   const yAxisLabels = [];
   const highestRecord = Math.max(...cardPoints.map((cardName) => cardName.total_points));
-  console.log(highestRecord);
   const topLabel = Math.ceil(highestRecord / 10) * 10;
 
   for (let i = topLabel; i >= 0; i -= 10) {
@@ -68,3 +68,13 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+export function getCurrentWeek() {
+  const startDate = new Date(EPOCH);
+  const today = new Date();
+
+  const timeDiff = Math.abs(today.getTime() - startDate.getTime());
+  const diffWeeks = Math.ceil(timeDiff / (1000 * 60 * 60 * 24 * 7));
+  const weekNo = diffWeeks - 1;
+  return weekNo;
+}

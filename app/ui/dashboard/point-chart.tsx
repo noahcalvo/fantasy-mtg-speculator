@@ -6,6 +6,7 @@ import { EPOCH } from '@/app/page';
 import { useSearchParams } from 'next/navigation';
 import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/data';
 import { RevenueChartSkeleton } from '../skeletons';
+import { getCurrentWeek } from '@/app/lib/utils';
 
 function getSettings(cardPoints: CardPoint[], containerWidth: number) {
   const maxLabelLength = Math.max(...cardPoints.map(item => item.name.length));
@@ -33,8 +34,6 @@ export default function PointChart() {
   const set = searchParams.get('set') || "";
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
-
-  console.log(week, set);
 
   useEffect(() => {
     setCardDataLoading(true);
@@ -81,7 +80,7 @@ export default function PointChart() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [cardDataLoading]);
   
   let chartLabel = '';
 
@@ -123,19 +122,9 @@ export default function PointChart() {
               series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
               layout="horizontal"
               {...getSettings(cardData, containerWidth)}
-            /> : <p>No data available</p>}
+            /> : <p>No data available for week {week}</p>}
           </div>
     </>}
     </div>
   );
-}
-
-function getCurrentWeek() {
-  const startDate = new Date(EPOCH);
-  const today = new Date();
-
-  const timeDiff = Math.abs(today.getTime() - startDate.getTime());
-  const diffWeeks = Math.ceil(timeDiff / (1000 * 60 * 60 * 24 * 7));
-  const weekNo = diffWeeks - 1;
-  return weekNo;
 }
