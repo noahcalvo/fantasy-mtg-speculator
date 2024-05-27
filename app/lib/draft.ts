@@ -1,7 +1,7 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { Draft, Pick } from './definitions';
+import { CardDetails, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -157,10 +157,21 @@ const addPicks = async (draftId: string, playerId: number) => {
 
 export const fetchPicks = async (draftId: string) => {
   try {
-    const res = await sql<Pick>`SELECT * FROM picks WHERE draft_id = ${draftId};`;
+    const res = await sql<DraftPick>`SELECT * FROM picks WHERE draft_id = ${draftId};`;
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch picks');
+  }
+}
+
+export const fetchAvailableCards = async (cards: CardDetails[], draftId: string) => {
+  try {
+    const res = await sql`SELECT * FROM picks WHERE draft_id = ${draftId});`;
+    const undraftedCards = cards.filter(card => !res.rows.some(pick => pick.card_id === card.name));
+    return undraftedCards;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch available cards');
   }
 }

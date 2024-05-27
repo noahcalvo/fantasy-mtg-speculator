@@ -43,6 +43,20 @@ export type Card = {
   name: string;
 };
 
+export type Price = {
+  tix: number;
+  usd: number;
+};
+
+export type CardDetails = {
+    name: string;
+    image: string;
+    price: Price;
+    scryfallUri: string;
+    colorIdentity: string[];
+    typeLine: string;
+}
+
 export type Draft = {
   draft_id: string;
   set: string;
@@ -52,7 +66,7 @@ export type Draft = {
   rounds: number;
 };
 
-export type Pick = {
+export type DraftPick = {
   pick_id: string;
   draft_id: string;
   round: number;
