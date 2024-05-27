@@ -9,6 +9,12 @@ export type User = {
   password: string;
 };
 
+export type Player = {
+  player_id: number;
+  name: string;
+  email: string;
+};
+
 // export type Customer = {
 //   id: string;
 //   name: string;
@@ -35,6 +41,24 @@ export type CardPoint = {
 export type Card = {
   card_id: string;
   name: string;
+};
+
+export type Draft = {
+  draft_id: string;
+  set: string;
+  active: boolean;
+  participants: number[];
+  name: string;
+  rounds: number;
+};
+
+export type Pick = {
+  pick_id: string;
+  draft_id: string;
+  round: number;
+  player_id: number;
+  card_id: string;
+  pick_number: number;
 };
 
 // export type LatestInvoice = {

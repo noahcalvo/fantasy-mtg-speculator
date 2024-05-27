@@ -2,7 +2,7 @@ const MODERN_LEGAL = ["core", "expansion"]
 
 const OUTLIERS = ["Modern Horizons 3", "Modern Horizons 2", "Assassin's Creed", "Modern Horizons", "The Lord of the Rings: Tales of Middle-earth"]
 
-export async function fetchRecentSets() {
+export async function fetchRecentSets(): Promise<string[]>{
     const response = await fetch('https://api.scryfall.com/sets', {
         next: { revalidate: 600 },
     })

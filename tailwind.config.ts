@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'inner-shadow': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.5)',
+      },
+
       gridTemplateColumns: {
         '13': 'repeat(13, minmax(0, 1fr))',
         // Simple 16 column grid

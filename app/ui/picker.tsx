@@ -7,7 +7,10 @@ import { EPOCH } from '@/app/page';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
 
-export function SetPicker() {
+export function SetPicker({
+  placeholder}: {
+  placeholder: string;
+}) {
   const [sets, setSets] = useState<string[]>([]);
   useEffect(() => {
     fetchRecentSets().then((result) => {
@@ -41,7 +44,7 @@ export function SetPicker() {
         }}
         defaultValue={searchParams.get('set')?.toString()}
       >
-        <option value="">All sets</option>
+        <option value="">{placeholder}</option>
         {sets.map((option, index) => (
           <option key={index} value={option}>
             {option}

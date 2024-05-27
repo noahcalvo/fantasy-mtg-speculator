@@ -19,6 +19,7 @@ const links = [
     icon: BoltIcon,
   },
   { name: 'Cards', href: '/dashboard/cards', icon: BeakerIcon },
+  { name: 'Draft', href: '/draft', icon: BoltIcon },
 ];
 
 export default function NavLinks() {

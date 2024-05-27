@@ -38,8 +38,6 @@ export default function CardTable({
       });
   }, [email]);
 
-  console.log(collection);
-
   useEffect(() => {
     setCardDataLoading(true);
     fetchCardPerformanceByWeek(
@@ -64,7 +62,6 @@ export default function CardTable({
       });
   }, [collection, week]);
 
-  console.log(cardPoints);
   return (
     <div className="">
       <h1 className="mb-8 text-xl md:text-2xl">{name}&apos;s Collection</h1>

@@ -31,7 +31,7 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <WeekPicker placeholder="This week" availableWeeks={await fetchUniqueWeekNumbers()}/>
-        <SetPicker />
+        <SetPicker placeholder="All Sets"/>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <PointChart/>
