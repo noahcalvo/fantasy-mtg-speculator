@@ -3,9 +3,9 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { use, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { EPOCH } from '@/app/page';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
+import { EPOCH } from '../consts';
 
 export function SetPicker({
   placeholder}: {

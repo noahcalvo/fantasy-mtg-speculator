@@ -4,7 +4,6 @@ import { fetchRecentSets } from '@/app/lib/sets';
 import { Card } from '../ui/dashboard/cards';
 import CardTable from "@/app/ui/dashboard/table"
 import { auth } from '@/auth';
-import { EPOCH } from '@/app/page';
 import { fetchUniqueWeekNumbers } from '@/app/lib/data';
 import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
