@@ -1,4 +1,5 @@
-import { CardDetails } from "./definitions";
+import { sql } from "@vercel/postgres";
+import { CardDetails, CardPoint } from "./definitions";
 
 const MODERN_LEGAL = ["core", "expansion"]
 
@@ -48,7 +49,6 @@ export async function fetchSet(set: string): Promise<any> {
             typeLine: type_line
         };
     });
-    console.log(cards)
     return cards;
 }
 
@@ -64,4 +64,32 @@ async function getSetCode(set: string): Promise<string> {
 
     const setCode = await response.json();
     return setCode.code;
+}
+
+export async function fetchCard(cardId: number): Promise<CardDetails> {
+    console.log(cardId)
+    const data = await sql<CardPoint>`
+    SELECT name FROM Cards WHERE card_id = ${cardId};
+    `;
+    const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${data.rows[0].name}`, {
+        next: { revalidate: 600 },
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const card = await response.json();
+    const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
+    return {
+        name,
+        image: image_uris?.png ?? card.card_faces[0].image_uris.png ?? "",
+        price: {
+            tix: prices.tix,
+            usd: prices.usd,
+        },
+        scryfallUri: scryfall_uri,
+        colorIdentity: color_identity,
+        typeLine: type_line
+    };
 }

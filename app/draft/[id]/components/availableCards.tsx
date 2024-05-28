@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CardDetails } from '@/app/lib/definitions';
 import Image from 'next/image';
 
@@ -12,6 +12,10 @@ export default function AvailableCards({
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const cardsPerPage = 15;
+
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm]);
 
   // Sort the undrafted cards by price
   const sortedCards = undraftedCards.sort((a: CardDetails, b: CardDetails) => {
@@ -26,11 +30,13 @@ export default function AvailableCards({
     }
   });
 
-  const paginatedCards = sortedCards
-    .filter((card: CardDetails) =>
-      card.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .slice(page * cardsPerPage, (page + 1) * cardsPerPage);
+  const filteredCards = sortedCards.filter((card: CardDetails) =>
+    card.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const paginatedCards = filteredCards.slice(page * cardsPerPage, (page + 1) * cardsPerPage);
+
+  const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
 
   return (
     <div className="flex w-1/4 items-center justify-center border-4 border-white">
@@ -57,14 +63,16 @@ export default function AvailableCards({
               </h2>
             </div>
             {card.name == expandedCard && (
-              <div className='w-full items-center flex'>
+              <div className="flex w-full items-center">
                 <Image
                   src={card.image}
                   alt={card.name}
                   width="200"
                   height="200"
                 />
-                  <button className='mx-2 bg-blue-500 rounded-md text-white p-2'>Draft</button>
+                <button className="mx-2 rounded-md bg-blue-500 p-2 text-white">
+                  Draft
+                </button>
               </div>
             )}
             <hr className="my-2 border-blue-500" />
@@ -79,7 +87,7 @@ export default function AvailableCards({
         </button>
         <button
           onClick={() => setPage(page + 1)}
-          disabled={(page + 1) * cardsPerPage >= sortedCards.length}
+          disabled={page >= totalPages - 1}
           className="mx-2 rounded-md border border-blue-500 px-2"
         >
           Next
