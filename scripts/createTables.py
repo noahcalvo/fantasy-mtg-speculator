@@ -56,7 +56,7 @@ def createTables(conn):
             cur.execute(create_league_performance_table_query)
             print("Created 'league performance' table")
 
-            # -- Players
+            # -- Users
             # create Users table query
             create_users_table_query = """
             CREATE TABLE IF NOT EXISTS Users (
@@ -81,6 +81,37 @@ def createTables(conn):
             """
             cur.execute(create_ownership_table_query)
             print("Created 'ownership' table")
+
+            create_drafts_table_query = """
+            CREATE TABLE IF NOT EXISTS Drafts (
+            draft_id SERIAL PRIMARY KEY,
+            participants INT[],
+            active boolean NOT NULL,
+            set VARCHAR(255) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            rounds INT NOT NULL
+            );
+            """
+            cur.execute(create_drafts_table_query)
+            print("Created 'drafts' table")
+
+            create_picks_table_query = """
+            CREATE TABLE IF NOT EXISTS Picks (
+            pick_id SERIAL PRIMARY KEY,
+            draft_id INT,
+            player_id INT,
+            pick_number INT,
+            round INT,
+            card_id INT,
+            FOREIGN KEY (draft_id) REFERENCES Drafts(draft_id),
+            FOREIGN KEY (player_id) REFERENCES Users(player_id),
+            FOREIGN KEY (card_id) REFERENCES Cards(card_id),
+            UNIQUE (draft_id, pick_number, round),
+            UNIQUE (draft_id, card_id)
+            );
+            """
+            cur.execute(create_picks_table_query)
+            print("Created 'picks' table")
 
         conn.commit()
     except Exception as error:

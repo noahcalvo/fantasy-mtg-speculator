@@ -1,74 +1,89 @@
-import Image from 'next/image';
+'use client';
 import Search from '@/app/ui/search';
+import { Card, CardPoint } from '@/app/lib/definitions';
 import {
-} from '@/app/lib/definitions';
-import { CardPoint } from '@/app/lib/definitions';
+  fetchCardPerformanceByWeek,
+  fetchPlayerCollection,
+} from '@/app/lib/collection';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { getCurrentWeek } from '@/app/lib/utils';
+import { InvoiceSkeleton, InvoicesTableSkeleton } from '../skeletons';
 
-export default async function CardTable({
-  collection,
-  userName
+export default function CardTable({
+  email,
+  name,
 }: {
-  collection: CardPoint[];
-  userName: string;
+  email: string;
+  name: string;
 }) {
+  const [cardDataLoading, setCardDataLoading] = useState(false);
+  const [collectionDataLoading, setCollectionDataLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const weekParam = searchParams.get('week');
+  const week = weekParam === '0' ? 0 : Number(weekParam) || getCurrentWeek();
+  const [collection, setCollection] = useState<Card[]>([]);
+  const [cardPoints, setCardPoints] = useState<CardPoint[]>([]);
+
+  useEffect(() => {
+    setCollectionDataLoading(true);
+    fetchPlayerCollection(email)
+      .then((result) => {
+        setCollection(result.rows);
+        setCollectionDataLoading(false);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch card data:', error);
+        setCollectionDataLoading(false);
+      });
+  }, [email]);
+
+  useEffect(() => {
+    setCardDataLoading(true);
+    fetchCardPerformanceByWeek(
+      collection.map((card) => Number(card.card_id)),
+      week,
+    )
+      .then((result) => {
+        const resultSet = new Set(result.map((card) => card.name));
+        const missingCards = collection
+          .filter((card) => !resultSet.has(card.name))
+          .map((card) => ({
+            name: card.name,
+            total_points: 0,
+          }));
+        result.push(...missingCards);
+        setCardPoints(result);
+        setCardDataLoading(false);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch card data:', error);
+        setCardDataLoading(false);
+      });
+  }, [collection, week]);
+
   return (
     <div className="">
-      <h1 className="mb-8 text-xl md:text-2xl">
-        {userName}&apos;s Collection
-      </h1>
-      <Search placeholder="Search customers..." />
+      <h1 className="mb-8 text-xl md:text-2xl">{name}&apos;s Collection</h1>
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-                {collection?.map((card) => (
-                  <div
-                    key={card.name}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div>
-                        <div className="mb-2 flex items-center">
-                          <div className="flex items-center gap-3">
-                            <p>{card.name}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex w-full items-center justify-between border-b py-5">
-                      <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Pending</p>
-                        <p className="font-medium">{card.total_points}</p>
-                      </div>
-                      <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Paid</p>
-                        <p className="font-medium">second column</p>
-                      </div>
-                    </div>
-                    <div className="pt-4 text-sm">
-                      <p>number of invoices</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <table className="hidden min-w-full rounded-md text-gray-900 md:table">
+              <table className="min-w-full rounded-md text-gray-900">
                 <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
                   <tr>
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                       Name
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      This Weeks Points
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Total Points
+                      Week {week} Points
                     </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-200 text-gray-900">
-                  {collection.map((card) => (
+                  {cardDataLoading && <InvoiceSkeleton />}
+                  {cardPoints?.map((card) => (
                     <tr key={card.name} className="group">
                       <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black group-first-of-type:rounded-md group-last-of-type:rounded-md sm:pl-6">
                         <div className="flex items-center gap-3">
@@ -77,9 +92,6 @@ export default async function CardTable({
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
                         {card.total_points}
-                      </td>
-                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                        not implemented yet
                       </td>
                     </tr>
                   ))}

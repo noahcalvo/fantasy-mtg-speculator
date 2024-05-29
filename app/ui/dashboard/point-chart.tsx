@@ -2,7 +2,11 @@
 import { CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
-import { EPOCH } from '@/app/page';
+import { useSearchParams } from 'next/navigation';
+import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/data';
+import { RevenueChartSkeleton } from '../skeletons';
+import { getCurrentWeek } from '@/app/lib/utils';
+import { EPOCH } from '@/app/consts';
 
 function getSettings(cardPoints: CardPoint[], containerWidth: number) {
   const maxLabelLength = Math.max(...cardPoints.map(item => item.name.length));
@@ -23,7 +27,35 @@ function getSettings(cardPoints: CardPoint[], containerWidth: number) {
 
 const valueFormatter = (value: number | null) => `${value}pts`;
 
-export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint[], week: number|null }) {
+export default function PointChart() {
+  const searchParams = useSearchParams()
+  const weekParam = searchParams.get('week');
+  const week = weekParam === "0" ? 0 : Number(weekParam) || getCurrentWeek();
+  const set = searchParams.get('set') || "";
+  const [cardData, setCardData] = useState<CardPoint[]>([]);
+  const [cardDataLoading, setCardDataLoading] = useState(true);
+
+  useEffect(() => {
+    setCardDataLoading(true);
+    const fetchData = async () => {
+      let result;
+      if (typeof week === 'undefined' && set === '') {
+        result = await fetchTopCards();
+      } else if (typeof week === 'undefined') {
+        result = await fetchTopCardsFromSet(set);
+      } else if (set === '') {
+        result = await fetchTopWeeklyCards(week);
+      } else {
+        result = await fetchTopWeeklyCardsFromSet(week, set);
+      }
+      setCardData(result);
+      setCardDataLoading(false);
+    };
+    fetchData().catch((error) =>
+      console.error('Failed to fetch card data:', error),
+    );
+  }, [week, set]); // The effect depends on week and set passed in via props
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [hasMounted, setHasMounted] = useState(false); // New state variable
@@ -48,7 +80,7 @@ export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [cardDataLoading]);
   
   let chartLabel = '';
 
@@ -77,19 +109,22 @@ export default function PointChart({ cardPoints, week }: { cardPoints: CardPoint
   
   return (
     <div className='rounded-md block min-w-[450px]'>
-    <h1 className="mb-8 text-xl md:text-2xl">
-      All Top Performing Cards
-    </h1>
-
-    <div ref={containerRef} className=''>
-        {hasMounted && cardPoints.length > 0 ? <BarChart
-          dataset={cardPoints}
-          yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-          series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
-          layout="horizontal"
-          {...getSettings(cardPoints, containerWidth)}
-        /> : <p>No data available</p>}
-      </div>
+      {cardDataLoading && <RevenueChartSkeleton/> ||
+      <>
+          <h1 className="mb-8 text-xl md:text-2xl">
+          All Top Performing Cards
+        </h1>
+    
+        <div ref={containerRef} className=''>
+            {hasMounted && cardData.length > 0 ? <BarChart
+              dataset={cardData}
+              yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
+              series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
+              layout="horizontal"
+              {...getSettings(cardData, containerWidth)}
+            /> : <p>No data available for week {week}</p>}
+          </div>
+    </>}
     </div>
   );
 }

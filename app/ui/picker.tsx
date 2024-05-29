@@ -1,22 +1,26 @@
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { EPOCH } from '@/app/page';
 import { toZonedTime, format } from 'date-fns-tz';
+import { fetchRecentSets } from '../lib/sets';
+import { EPOCH } from '../consts';
 
 export function SetPicker({
-  placeholder,
-  sets,
-}: {
+  placeholder}: {
   placeholder: string;
-  sets: string[];
 }) {
+  const [sets, setSets] = useState<string[]>([]);
+  useEffect(() => {
+    fetchRecentSets().then((result) => {
+      setSets(result);
+    });
+  });
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-
+  
   const handleSearch = useDebouncedCallback((set) => {
     const params = new URLSearchParams(searchParams);
     if (set) {
@@ -64,7 +68,6 @@ export function WeekPicker({
   const { replace } = useRouter();
 
   const handleSearch = (week: string) => {
-    console.log("begin new week search")
     const params = new URLSearchParams(searchParams);
     if (week) {
       params.set('week', week);
@@ -72,7 +75,6 @@ export function WeekPicker({
       params.delete('week');
     }
     replace(`${pathname}?${params.toString()}`);
-    console.log("end new week search")
   };
 
   const weekOptions = getWeekStrings(availableWeeks);
