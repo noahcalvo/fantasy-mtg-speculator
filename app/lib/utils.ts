@@ -1,4 +1,4 @@
-import { EPOCH } from '../page';
+import { EPOCH } from '../consts';
 import { CardPoint } from './definitions';
 
 export const formatCurrency = (amount: number) => {
