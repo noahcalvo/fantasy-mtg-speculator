@@ -1,11 +1,12 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { CardDetails, Draft, DraftPick } from './definitions';
+import { Card, CardDetails, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
+import { getActivePick } from './clientActions';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -156,8 +157,10 @@ const addPicks = async (draftId: string, playerId: number) => {
 }
 
 export const fetchPicks = async (draftId: string) => {
+  noStore();
   try {
     const res = await sql<DraftPick>`SELECT * FROM picks WHERE draft_id = ${draftId};`;
+    revalidatePath(`/draft/${draftId}/live`);  
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -173,5 +176,44 @@ export const fetchAvailableCards = async (cards: CardDetails[], draftId: string)
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch available cards');
+  }
+}
+
+export const makePick = async (draftId: string, playerId: number, cardName: string, set: string) => {
+  try {
+    // test
+    const picks = await fetchPicks(draftId);
+    console.log('Picks:', picks);
+    const cardId = await getOrCreateCard(cardName, set);
+    if (!cardId) {
+      throw new Error('Failed to get or create card');
+    }
+    const activePick = await getActivePick(await fetchPicks(draftId));
+    if (activePick?.player_id !== playerId) {
+      console.log('Not your turn', activePick, playerId)
+      throw new Error('Not your turn');
+    }
+    await sql`UPDATE picks SET card_id = ${cardId} WHERE draft_id = ${draftId} AND player_id = ${playerId} AND round = ${activePick.round} AND pick_number = ${activePick.pick_number};`;
+    revalidatePath(`/draft/${draftId}/live`);  
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to make pick');
+  }
+}
+
+export const getOrCreateCard = async (cardName: string, set: string) => {
+  try {
+    // Check if card exists in the database
+    const existingCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${cardName}) LIMIT 1`;
+    if (existingCard.rows.length > 0) {
+      return existingCard.rows[0].card_id;
+    } else {
+      const newCard = await sql<Card>`INSERT INTO cards (name, origin) VALUES (${cardName}, ${set}) RETURNING card_id;`;
+      console.log('New card created:', newCard)
+      return newCard.rows[0].card_id;
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to get or create card');
   }
 }

@@ -1,10 +1,13 @@
 import { DraftPick, Player } from "@/app/lib/definitions";
 import DraftPickCell from "./draftPickCell";
+import { getActivePick } from "@/app/lib/clientActions";
 
 export default function draftGrid ({ picks, participants }: { picks: DraftPick[], participants: Player[] }) {
     const rounds = Math.max(...picks.map(pick => pick.round)) + 1;
+    const activePick = getActivePick(picks);
+
     return(
-        <table className="table-auto divide-y divide-blue-200 flex-1 rounded-lg">
+        <table className="table-auto divide-y divide-blue-200 flex-1 rounded-lg w-full">
         <thead>
           <tr>
             {participants.map((participant, index) => (
@@ -18,7 +21,7 @@ export default function draftGrid ({ picks, participants }: { picks: DraftPick[]
               {participants.map((participant, participantIndex) => {
                 const pick = picks.find(pick => pick.round + 1 === roundIndex + 1 && pick.player_id === participant.player_id);
                 return (
-                  <DraftPickCell pick={pick as DraftPick} key={participantIndex}/>
+                  <DraftPickCell pick={pick as DraftPick} key={participantIndex} active={pick==activePick}/>
                 );
               })}
             </tr>

@@ -1,5 +1,5 @@
 import { sql } from "@vercel/postgres";
-import { CardDetails, CardPoint } from "./definitions";
+import { Card, CardDetails, CardPoint } from "./definitions";
 
 const MODERN_LEGAL = ["core", "expansion"]
 
@@ -92,4 +92,11 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
         colorIdentity: color_identity,
         typeLine: type_line
     };
+}
+
+export async function fetchCardName(cardId: string): Promise<string> {
+    const data = await sql<Card>`
+    SELECT name FROM Cards WHERE card_id = ${cardId};
+    `;
+    return data.rows[0].name;
 }

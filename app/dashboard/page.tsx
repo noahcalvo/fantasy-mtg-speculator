@@ -8,8 +8,6 @@ import { fetchUniqueWeekNumbers } from '@/app/lib/data';
 import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
 
-
-// const week = 0;
 export default async function Page() {
   const user = await auth().then((res) => res?.user);
   const userName = user?.name || "";

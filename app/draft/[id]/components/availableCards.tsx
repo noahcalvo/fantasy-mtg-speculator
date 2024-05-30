@@ -2,11 +2,20 @@
 import { useEffect, useState } from 'react';
 import { CardDetails } from '@/app/lib/definitions';
 import Image from 'next/image';
+import { makePick } from '@/app/lib/draft';
 
 export default function AvailableCards({
   undraftedCards,
+  playerId,
+  activeDrafter,
+  draftId,
+  set,
 }: {
   undraftedCards: CardDetails[];
+  playerId: number;
+  activeDrafter: boolean;
+  draftId: string;
+  set: string;
 }) {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,12 +43,15 @@ export default function AvailableCards({
     card.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const paginatedCards = filteredCards.slice(page * cardsPerPage, (page + 1) * cardsPerPage);
+  const paginatedCards = filteredCards.slice(
+    page * cardsPerPage,
+    (page + 1) * cardsPerPage,
+  );
 
   const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
 
   return (
-    <div className="flex w-1/4 items-center justify-center border-4 border-white">
+    <div className="flex w-full items-center justify-center border-4 border-white xl:w-1/4">
       <div className="rounded-lg border border-blue-500 p-5 text-blue-500 shadow-md">
         <h1 className="mb-4 text-2xl font-bold md:text-3xl">Available Cards</h1>
         <input
@@ -63,14 +75,20 @@ export default function AvailableCards({
               </h2>
             </div>
             {card.name == expandedCard && (
-              <div className="flex w-full items-center">
+              <div className="mt-2 flex w-full items-center justify-center gap-x-2 gap-y-2 lg:flex-row xl:flex-col">
                 <Image
                   src={card.image}
                   alt={card.name}
                   width="200"
                   height="200"
                 />
-                <button className="mx-2 rounded-md bg-blue-500 p-2 text-white">
+                <button
+                  className={`mx-2 rounded-md p-2 text-white ${
+                    activeDrafter ? 'bg-blue-500' : 'bg-gray-500'
+                  }`}
+                  disabled={!activeDrafter}
+                  onClick={() => makePick(draftId, playerId, card.name, set)}
+                >
                   Draft
                 </button>
               </div>

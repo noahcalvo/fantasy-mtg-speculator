@@ -9,7 +9,10 @@ export async function fetchParticipantData(id: number) {
       const data = await sql<Player>`
       SELECT  player_id, name, email from users WHERE player_id = ${id};
         `;
-        return data.rows;
+      if (data.rows.length === 0) {
+        throw new Error('No player found with the given id');
+      }
+      return data.rows[0];
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch drafts');
