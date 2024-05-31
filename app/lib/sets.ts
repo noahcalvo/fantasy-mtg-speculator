@@ -49,6 +49,35 @@ export async function fetchSet(set: string): Promise<any> {
             typeLine: type_line
         };
     });
+    while (setData.has_more) {
+        const nextResponse = await fetch(setData.next_page, {
+            next: { revalidate: 600 },
+        });
+
+        if (!nextResponse.ok) {
+            throw new Error(`HTTP error! status: ${nextResponse.status}`);
+        }
+
+        const nextSetData = await nextResponse.json();
+        const nextCards = nextSetData.data.map((card: any) => {
+            const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
+            return {
+                name,
+                image: image_uris?.png ?? card.card_faces[0].image_uris.png ?? "",
+                price: {
+                    tix: prices.tix,
+                    usd: prices.usd,
+                },
+                scryfallUri: scryfall_uri,
+                colorIdentity: color_identity,
+                typeLine: type_line
+            };
+        });
+        cards.push(...nextCards);
+        setData.has_more = nextSetData.has_more;
+        setData.next_page = nextSetData.next_page;
+    }
+
     return cards;
 }
 
