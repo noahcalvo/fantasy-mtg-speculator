@@ -16,7 +16,7 @@ export default async function Layout({ children, params }: { children: React.Rea
         <div className="mb-4">
           <Link
             href="/draft"
-            className="mb-8 mt-4 rounded-md bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-400"
+            className="mb-8 mt-4 rounded-md bg-white px-4 py-2 text-sm text-black transition-colors hover:bg-red-800 hover:text-white border-white border"
           >
             All drafts
           </Link>

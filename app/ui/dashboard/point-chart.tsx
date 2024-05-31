@@ -7,6 +7,14 @@ import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeekl
 import { RevenueChartSkeleton } from '../skeletons';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
+import { ThemeProvider, colors, createTheme } from '@mui/material';
+import { ClassNames } from '@emotion/react';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function getSettings(cardPoints: CardPoint[], containerWidth: number) {
   const maxLabelLength = Math.max(...cardPoints.map(item => item.name.length));
@@ -108,23 +116,26 @@ export default function PointChart() {
   }
   
   return (
-    <div className='rounded-md block min-w-[450px]'>
+    <ThemeProvider theme={darkTheme}>
+
+    <div className='rounded-md block text-white'>
       {cardDataLoading && <RevenueChartSkeleton/> ||
-      <>
-          <h1 className="mb-8 text-xl md:text-2xl">
-          All Top Performing Cards
+      <div className="text-xl">
+          <h1 className="mb-2 text-xl text-center">
+          Top Performing Cards{set ? ` from ${set}` : ''} for week {week}
         </h1>
     
         <div ref={containerRef} className=''>
             {hasMounted && cardData.length > 0 ? <BarChart
               dataset={cardData}
               yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-              series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter }]}
+              series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter, color: colors.grey[100] }]}
               layout="horizontal"
               {...getSettings(cardData, containerWidth)}
             /> : <p>No data available for week {week}</p>}
           </div>
-    </>}
+    </div>}
     </div>
+    </ThemeProvider>
   );
 }

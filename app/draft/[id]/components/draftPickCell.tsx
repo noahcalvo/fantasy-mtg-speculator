@@ -14,24 +14,22 @@ export default async function draftPickCell({ pick, active }: { pick: DraftPick,
   return (
     (!pick?.card_id && (
       <td
-        className={`h-40 w-40 rounded-md border-4 p-4 px-4 py-2 text-center  border-white ${
-          (pick.pick_number + pick.round) % 2 === 0 ? 'bg-blue-500' : 'bg-black'
-        }
+        className={`overflow-hidden text-xs w-32 rounded-md border-2 p-4 px-1 py-2 text-center  border-white
         ${
-          active ? 'shadow-inner-shadow bg-clip-padding bg-white text-blue-500 animate-spin' : 'text-white'
+          active ? 'shadow-inner-shadow bg-clip-padding bg-white text-black' : (pick.pick_number + pick.round) % 2 === 0 ? 'bg-red-900 text-white' : 'bg-black text-white'
         }`}
       >
-        <div className={`${active ? 'animate-spin' : ''}`}>
-        <p className="text-2xl">{active ? `${player.name} is on the board` : `${player.name}`}</p>
+        <div className='w-28'>
+        <p>{active ? `${player.name} is up!` : `${player.name}`}</p>
         {pick ? pick.round + 1 + '.' + pick.pick_number : ''}
         </div>
       </td>
     )) || (
       <td
-        className="shadow-inner-shadow text-blue-500 h-40 w-40 rounded-md border-4 border-white bg-white bg-clip-padding p-4 px-4 py-2 text-center"
+        className="overflow-hidden text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
       >
         {pick ? pick.round + 1 + '.' + pick.pick_number : ''}
-        <div className='text-blue-500 font-bold text-xl'>{cardData?.name}</div>
+        <div className='font-bold w-28'>{cardData?.name}</div>
         {cardData?.image && (
           <Image
             src={cardData?.image ?? ''}

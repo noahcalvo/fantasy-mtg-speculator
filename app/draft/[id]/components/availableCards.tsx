@@ -52,16 +52,16 @@ export default function AvailableCards({
 
   return (
     <div className="flex w-full items-center justify-center border-4 border-white xl:w-1/4">
-      <div className="rounded-lg border border-blue-500 p-5 text-blue-500 shadow-md">
+      <div className="rounded-lg p-5 text-white shadow-md">
         <h1 className="mb-4 text-2xl font-bold md:text-3xl">Available Cards</h1>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search cards"
-          className="mb-4 border-blue-500 text-blue-500"
+          className="mb-4 border-white text-black focus:ring-red-800 focus:border-red-800"
         />
-        <hr className="my-2 border-blue-500" />
+        <hr className="my-2 border-white" />
         {paginatedCards.map((card: CardDetails) => (
           <div
             key={card.name}
@@ -83,8 +83,8 @@ export default function AvailableCards({
                   height="200"
                 />
                 <button
-                  className={`mx-2 rounded-md p-2 text-white ${
-                    activeDrafter ? 'bg-blue-500' : 'bg-gray-500'
+                  className={`mx-2 rounded-md p-2 text-black border border-white ${
+                    activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                   }`}
                   disabled={!activeDrafter}
                   onClick={() => makePick(draftId, playerId, card.name, set)}
@@ -93,20 +93,20 @@ export default function AvailableCards({
                 </button>
               </div>
             )}
-            <hr className="my-2 border-blue-500" />
+            <hr className="my-2 border-white" />
           </div>
         ))}
         <button
           onClick={() => setPage(page - 1)}
           disabled={page === 0}
-          className="mx-2 mt-2 rounded-md border border-blue-500 px-2"
+          className="mx-2 mt-2 rounded-md border border-white px-2"
         >
           Previous
         </button>
         <button
           onClick={() => setPage(page + 1)}
           disabled={page >= totalPages - 1}
-          className="mx-2 rounded-md border border-blue-500 px-2"
+          className="mx-2 rounded-md border border-white px-2"
         >
           Next
         </button>

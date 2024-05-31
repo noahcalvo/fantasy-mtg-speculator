@@ -37,8 +37,10 @@ export default async function Page({ params }: { params: { id: string } }) {
   const activeDrafter = await getActivePick(picks)?.player_id;
   console.log(picks)
   return (
-    <main className="flex flex-col content-start items-start justify-center gap-x-2 gap-y-2 py-2 xl:flex-row">
-      <DraftGrid picks={picks} participants={participants} />
+    <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-2 xl:flex-row">
+      <div className='overflow-x-auto max-w-full whitespace-nowrap'>
+        <DraftGrid picks={picks} participants={participants} />
+      </div>
       <AvailableCards undraftedCards={undraftedCards} playerId={player.player_id} activeDrafter={activeDrafter == player.player_id} draftId={draft.draft_id} set={draft.set}/>
     </main>
   );

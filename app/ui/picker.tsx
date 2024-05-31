@@ -79,6 +79,8 @@ export function WeekPicker({
 
   const weekOptions = getWeekStrings(availableWeeks);
 
+  const overwriteablePlaceholder = searchParams.get('week')?.toString() ?? placeholder;
+
   return (
     <div className="relative inline-block flex-shrink-0">
       <label htmlFor="weekPicker" className="sr-only">
@@ -90,7 +92,7 @@ export function WeekPicker({
         onChange={(e) => {
           handleSearch(e.target.value);
         }}
-        defaultValue={searchParams.get('week')?.toString()}
+        defaultValue={overwriteablePlaceholder}
       >
         <option value="">{placeholder}</option>
         {weekOptions.map((option, index) => (

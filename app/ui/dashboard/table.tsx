@@ -64,13 +64,13 @@ export default function CardTable({
 
   return (
     <div className="">
-      <h1 className="mb-8 text-xl md:text-2xl">{name}&apos;s Collection</h1>
+      <h1 className="mb-8 text-xl md:text-2xl text-white capitalize">{name}&apos;s Collection</h1>
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
-              <table className="min-w-full rounded-md text-gray-900">
-                <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
+            <div className="overflow-hidden rounded-md bg-white p-2 md:pt-0">
+              <table className="min-w-full rounded-md text-black">
+                <thead className="rounded-md bg-white text-left text-sm font-normal">
                   <tr>
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                       Name
