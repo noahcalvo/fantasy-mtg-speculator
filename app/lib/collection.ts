@@ -1,9 +1,12 @@
 'use server';
 import { sql } from '@vercel/postgres';
 import { Card, CardPoint } from './definitions';
-import { unstable_noStore as noStore } from 'next/cache';
+import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 
-export async function fetchCardPerformanceByWeek(collectionIDs: number[], week: number) {
+export async function fetchCardPerformanceByWeek(
+  collectionIDs: number[],
+  week: number,
+) {
   noStore();
   const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points
   FROM Cards C
@@ -100,5 +103,21 @@ export async function fetchPlayerCollectionWithPerformance(userEmail: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card point data for week');
+  }
+}
+
+export async function updateCollectionWithCompleteDraft(draftId: string) {
+  noStore();
+  try {
+    const picks = await sql`SELECT * FROM Picks WHERE draft_id = ${draftId}`
+    // for each pick in the draft, update the ownership table with the player_id
+    for (const pick of picks.rows) {
+      await sql`INSERT INTO ownership (player_id, card_id) VALUES (${pick.player_id}, ${pick.card_id});`;
+    }
+    console.log(picks)
+    revalidatePath(`/dashboard`);  
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to update collection with draft');
   }
 }

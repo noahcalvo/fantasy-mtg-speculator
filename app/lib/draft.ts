@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { getActivePick } from './clientActions';
+import { updateCollectionWithCompleteDraft } from './collection';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -194,6 +195,10 @@ export const makePick = async (draftId: string, playerId: number, cardName: stri
       throw new Error('Not your turn');
     }
     await sql`UPDATE picks SET card_id = ${cardId} WHERE draft_id = ${draftId} AND player_id = ${playerId} AND round = ${activePick.round} AND pick_number = ${activePick.pick_number};`;
+    if (await isDraftComplete(draftId)) {
+      await sql`UPDATE drafts SET active = false WHERE draft_id = ${draftId};`;
+      await updateCollectionWithCompleteDraft(draftId);
+    }
     revalidatePath(`/draft/${draftId}/live`);  
   } catch (error) {
     console.error('Database Error:', error);
@@ -215,5 +220,19 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to get or create card');
+  }
+}
+
+const isDraftComplete = async (draftId: string) => {
+  try {
+    const picks = await fetchPicks(draftId);
+    const activePick = getActivePick(picks);
+    if (activePick) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to check if draft is complete');
   }
 }

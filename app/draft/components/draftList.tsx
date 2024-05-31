@@ -31,7 +31,7 @@ export const DraftList = async () => {
       {previousDrafts.map((draft: Draft, key) => (
           <li
             key={key}
-            className="flex cursor-pointer items-center justify-between rounded-full bg-blue-500 px-3 py-2 text-white hover:bg-blue-200 hover:text-blue-800 focus:outline-none"
+            className="flex cursor-pointer items-center justify-between rounded-full bg-gray-400 px-3 py-2 text-black hover:bg-red-800 hover:text-white focus:outline-red-800 border border-white"
           >
             <Link href={`/draft/${draft.draft_id}/view`}>
                 <>

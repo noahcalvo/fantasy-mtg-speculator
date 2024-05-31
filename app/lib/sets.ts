@@ -82,8 +82,9 @@ export async function fetchSet(set: string): Promise<any> {
 }
 
 async function getSetCode(set: string): Promise<string> {
-    const setNoSpaces = set.replace(/\s/g, '').toLowerCase();
-    const response = await fetch(`https://api.scryfall.com/sets/${setNoSpaces}`, {
+    const setNoPunctuation = set.replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~\s]/g, '').toLowerCase();
+    console.log(setNoPunctuation)
+        const response = await fetch(`https://api.scryfall.com/sets/${setNoPunctuation}`, {
         next: { revalidate: 600 },
     });
 

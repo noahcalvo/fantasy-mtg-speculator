@@ -52,6 +52,30 @@ FOREIGN KEY (player_id) REFERENCES Players(player_id),
 FOREIGN KEY (card_id) REFERENCES Cards(card_id),
 PRIMARY KEY(player_id, card_id)
 );
+
+CREATE TABLE IF NOT EXISTS Drafts (
+draft_id SERIAL PRIMARY KEY,
+participants INT[],
+active boolean NOT NULL,
+set VARCHAR(255) NOT NULL,
+name VARCHAR(255) NOT NULL,
+rounds INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Picks (
+pick_id SERIAL PRIMARY KEY,
+draft_id INT,
+player_id INT,
+pick_number INT,
+round INT,
+card_id INT,
+FOREIGN KEY (draft_id) REFERENCES Drafts(draft_id),
+FOREIGN KEY (player_id) REFERENCES Users(player_id),
+FOREIGN KEY (card_id) REFERENCES Cards(card_id),
+UNIQUE (draft_id, pick_number, round),
+UNIQUE (draft_id, card_id)
+);
+
 ```
 
 To scrape and seed weekly data run
