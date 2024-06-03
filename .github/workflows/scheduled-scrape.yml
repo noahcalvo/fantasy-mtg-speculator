@@ -20,4 +20,4 @@ jobs:
 
       - name: Run Script
         run: |
-          python3 scripts/python/main.py 
+          python3 python/main.py 
