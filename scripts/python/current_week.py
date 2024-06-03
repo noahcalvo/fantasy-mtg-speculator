@@ -2,9 +2,8 @@ from datetime import datetime
 
 EPOCH = "04/08/2024"
 
-
 def get_last_week_number():
-    epoch = datetime.strptime(EPOCH, "%Y-%m-%d")
+    epoch = datetime.strptime(EPOCH, "%m/%d/%Y")
     today = datetime.now()
     weeks_passed = (today - epoch).days // 7
 

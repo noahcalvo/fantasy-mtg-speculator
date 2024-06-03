@@ -1,5 +1,5 @@
 
-from scripts.python.current_week import get_last_week_number
+from current_week import get_last_week_number
 from tournement_result_parser import extract_deck_links
 from db import connect_to_database, insert_stats
 from tournements import create_url, generate_tournement_page_links
