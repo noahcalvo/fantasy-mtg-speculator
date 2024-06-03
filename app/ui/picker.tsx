@@ -107,7 +107,8 @@ export function WeekPicker({
 }
 
 function getWeekStrings(weeks: number[]) {
-  return weeks.map((week) => {
+  const sortedWeeks = weeks.sort((a, b) => b - a);
+  return sortedWeeks.map((week) => {
     const date = new Date(EPOCH);
     date.setUTCDate(date.getUTCDate() + week * 7);
     const cstDate = toZonedTime(date, 'America/Chicago');

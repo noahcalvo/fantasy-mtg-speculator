@@ -11,15 +11,11 @@ import { updateCollectionWithCompleteDraft } from './collection';
 
 const FormSchema = z.object({
   id: z.string(),
-  set: z.string({
-    invalid_type_error: 'Please select a set.',
-  }),
-  name: z.string({
-    invalid_type_error: 'Please provide a name.',
-  }),
+  set: z.string().min(1, { message: 'Set cannot be empty.' }),
+  name: z.string().min(1, { message: 'Name cannot be empty.' }),
   rounds: z.coerce
-    .number()
-    .gt(0, { message: 'Please enter an number greater than 0.' }),
+  .number()
+  .gt(0, { message: 'Rounds must be a number greater than 0.' }),
 });
 
 const CreateDraft = FormSchema.omit({ id: true });
@@ -113,8 +109,10 @@ export const joinDraft = async (draftId: string, playerId: number): Promise<void
       console.log('Player is already a participant');
     } else {
       await sql`UPDATE drafts SET participants = array_append(participants, ${playerId}) WHERE draft_id = ${draftId};`;
-      addPicks(draftId, playerId);
+      await addPicks(draftId, playerId);
+      await snakePicks(draftId);
       revalidatePath(`/draft/${draftId}/view`);  
+      revalidatePath(`/draft`);  
     }
 
   } catch (error) {
@@ -147,13 +145,35 @@ const addPicks = async (draftId: string, playerId: number) => {
   try {
     const draft = await fetchDraft(draftId);
     const rounds = draft.rounds;
-    const pick = draft.participants.length;
+    const pick = draft.participants.length - 1;
     for (let i = 0; i < rounds; i++) {
       await sql`INSERT INTO picks (draft_id, player_id, round, pick_number) VALUES (${draftId}, ${playerId}, ${i}, ${pick});`;
     }
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to add picks');
+  }
+}
+
+const snakePicks = async (draftId: string) => {
+  try {
+    const draft = await fetchDraft(draftId);
+    console.log('Pre-snaking Draft:', draft)
+    const participants = draft.participants;
+    const rounds = draft.rounds;
+    const picksPerRound = participants.length;
+    // even numbered rounds are reversed (2nd, 4th, etc.)
+    for (let i = 1; i < rounds; i=i+2) {
+      // move the last entry out of bounds
+      await sql`UPDATE picks SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound-1]};`;
+      for (let j = 0; j < picksPerRound; j++) {
+        // move pick j over 1
+        await sql`UPDATE picks SET pick_number = ${picksPerRound-j-1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to snake picks');
   }
 }
 
@@ -182,9 +202,6 @@ export const fetchAvailableCards = async (cards: CardDetails[], draftId: string)
 
 export const makePick = async (draftId: string, playerId: number, cardName: string, set: string) => {
   try {
-    // test
-    const picks = await fetchPicks(draftId);
-    console.log('Picks:', picks);
     const cardId = await getOrCreateCard(cardName, set);
     if (!cardId) {
       throw new Error('Failed to get or create card');

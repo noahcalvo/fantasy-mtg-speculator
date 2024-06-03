@@ -1,4 +1,5 @@
 
+from scripts.python.current_week import get_last_week_number
 from tournement_result_parser import extract_deck_links
 from db import connect_to_database, insert_stats
 from tournements import create_url, generate_tournement_page_links
@@ -61,7 +62,9 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
         page += 1
 
 # Convert command-line arguments to integers and store in weeks_to_scrape
-weeks_to_scrape = list(map(int, sys.argv[1:]))
+weeks_to_scrape = [get_last_week_number()]
+if(len(sys.argv) > 1):
+    weeks_to_scrape = list(map(int, sys.argv[1:]))
 
 for week_to_scrape in weeks_to_scrape:    
     combined_stats_dict = {} # Initialize an empty dictionary to store combined points for the week

@@ -3,6 +3,7 @@ import {
   ClockIcon,
   UserGroupIcon,
   InboxIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 const iconMap = {
@@ -10,6 +11,7 @@ const iconMap = {
   customers: UserGroupIcon,
   pending: ClockIcon,
   invoices: InboxIcon,
+  info: InformationCircleIcon
 };
 
 export default async function CardWrapper() {

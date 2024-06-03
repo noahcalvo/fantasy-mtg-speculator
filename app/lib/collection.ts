@@ -114,7 +114,6 @@ export async function updateCollectionWithCompleteDraft(draftId: string) {
     for (const pick of picks.rows) {
       await sql`INSERT INTO ownership (player_id, card_id) VALUES (${pick.player_id}, ${pick.card_id});`;
     }
-    console.log(picks)
     revalidatePath(`/dashboard`);  
   } catch (error) {
     console.error('Database Error:', error);

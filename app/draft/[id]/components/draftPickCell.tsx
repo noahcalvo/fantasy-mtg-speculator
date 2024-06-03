@@ -4,7 +4,7 @@ import { fetchCard } from '@/app/lib/sets';
 import { get } from 'http';
 import Image from 'next/image';
 
-export default async function draftPickCell({ pick, active }: { pick: DraftPick, active: boolean }) {
+export default async function draftPickCell({ pick, picksTilActive }: { pick: DraftPick, picksTilActive: number }) {
   let cardData = null;
   if (pick.card_id) {
     cardData = await fetchCard(pick.card_id as unknown as number);
@@ -14,21 +14,25 @@ export default async function draftPickCell({ pick, active }: { pick: DraftPick,
   return (
     (!pick?.card_id && (
       <td
-        className={`overflow-hidden text-xs w-32 rounded-md border-2 p-4 px-1 py-2 text-center  border-white
+        className={`overflow-hidden text-xs w-32 rounded-md border-2 p-4 px-1 py-2 text-center capitalize border-white
         ${
-          active ? 'shadow-inner-shadow bg-clip-padding bg-white text-black' : (pick.pick_number + pick.round) % 2 === 0 ? 'bg-red-900 text-white' : 'bg-black text-white'
+          picksTilActive == 0 ? 'shadow-inner-shadow bg-clip-padding bg-white text-black' : 
+          picksTilActive == 1 ? 'bg-red-900 text-white' : 
+          picksTilActive == 2 ? 'bg-orange-900 text-white':
+          picksTilActive == 3 ? 'bg-yellow-900 text-white':
+          'bg-black text-white'
         }`}
       >
         <div className='w-28'>
-        <p>{active ? `${player.name} is up!` : `${player.name}`}</p>
-        {pick ? pick.round + 1 + '.' + pick.pick_number : ''}
+        <p>{picksTilActive == 0 ? `${player.name} is up!` : `${player.name}`}</p>
+        {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
         </div>
       </td>
     )) || (
       <td
         className="overflow-hidden text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
       >
-        {pick ? pick.round + 1 + '.' + pick.pick_number : ''}
+        {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
         <div className='font-bold w-28'>{cardData?.name}</div>
         {cardData?.image && (
           <Image

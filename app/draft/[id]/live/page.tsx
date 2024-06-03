@@ -35,7 +35,6 @@ export default async function Page({ params }: { params: { id: string } }) {
   );
 
   const activeDrafter = await getActivePick(picks)?.player_id;
-  console.log(picks)
   return (
     <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-2 xl:flex-row">
       <div className='overflow-x-auto max-w-full whitespace-nowrap'>

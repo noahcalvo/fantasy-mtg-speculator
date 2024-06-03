@@ -1,0 +1,22 @@
+name: Scheduled Python Script
+
+on:
+  schedule:
+    - cron: '0 3 * * 1,4' # At 03:00 on Monday and Thursday
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest # This specifies which runner to use
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3 # This action checks out your repository
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11.1' # Specify the Python version.
+
+      - name: Run Script
+        run: |
+          python3 /scripts/python/main.py 
