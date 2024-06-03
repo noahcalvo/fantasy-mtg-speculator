@@ -3,6 +3,7 @@ name: Scheduled Python Script
 on:
   schedule:
     - cron: '0 3 * * 1,4' # At 03:00 on Monday and Thursday
+  workflow_dispatch: # This line allows manual triggering of the workflow
 
 jobs:
   run-python-script:
