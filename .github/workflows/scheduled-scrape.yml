@@ -24,5 +24,7 @@ jobs:
           pip3 install -r scripts/python/requirements.txt
 
       - name: Run Script
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }} # Setting environment variable from a secret
         run: |
           python3 scripts/python/main.py 
