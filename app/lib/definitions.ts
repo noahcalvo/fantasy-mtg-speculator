@@ -19,6 +19,7 @@ export type CardPoint = {
   name: string;
   total_points: number;
   week: number;
+  card_id: number;
 };
 
 export type Card = {

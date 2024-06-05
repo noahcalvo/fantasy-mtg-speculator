@@ -33,7 +33,7 @@ export async function fetchSet(set: string): Promise<any> {
     });
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} set: ${set}`);
     }
 
     const setData = await response.json();
@@ -95,6 +95,16 @@ async function getSetCode(set: string): Promise<string> {
 
     const setCode = await response.json();
     return setCode.code;
+}
+
+export async function fetchOwnedCards(set: string): Promise<Card[]> {
+    const data = await sql<Card>`
+        SELECT c.card_id, c.name, c.origin 
+        FROM Cards AS c
+        JOIN Ownership AS o ON c.card_id = o.card_id
+        WHERE c.origin = ${set};
+    `;
+    return data.rows;
 }
 
 export async function fetchCard(cardId: number): Promise<CardDetails> {

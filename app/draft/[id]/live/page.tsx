@@ -3,7 +3,7 @@ import notFound from '../not-found';
 import { fetchMultipleParticipantData, fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
-import { fetchCardName, fetchSet } from '@/app/lib/sets';
+import { fetchCardName, fetchOwnedCards, fetchSet } from '@/app/lib/sets';
 import { CardDetails, DraftPick } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
@@ -26,15 +26,18 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const cards = await fetchSet(draft.set);
 
+  const alreadyOwnedCards = await fetchOwnedCards(draft.set);
+
   const draftedCardNames = await Promise.all(
     picks.map((pick: DraftPick) => pick.card_id ? fetchCardName(pick.card_id) : null)
   );
   
   const undraftedCards = cards.filter(
-    (card: CardDetails) => !draftedCardNames.includes(card.name),
+    (card: CardDetails) => !draftedCardNames.includes(card.name) &&
+    !alreadyOwnedCards.some((ownedCard) => ownedCard.name === card.name),
   );
 
-  const activeDrafter = await getActivePick(picks)?.player_id;
+  const activeDrafter = getActivePick(picks)?.player_id;
   return (
     <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-2 xl:flex-row">
       <div className='overflow-x-auto max-w-full whitespace-nowrap'>

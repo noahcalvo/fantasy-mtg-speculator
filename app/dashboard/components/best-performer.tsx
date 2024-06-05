@@ -1,11 +1,35 @@
-import { Card } from "@/app/ui/dashboard/cards";
-import { fetchPlayerCollectionWithPerformance } from "@/app/lib/collection";
+import { InformationCircleIcon, StarIcon } from '@heroicons/react/24/outline';
+import { fetchPlayerCollectionWithPerformance } from '@/app/lib/collection';
+import { fetchCard } from '@/app/lib/sets';
+import Image from 'next/image';
 
-export default async function BestPerformerBadge({email}: {email: string}){
-    const collectionPerformance = await fetchPlayerCollectionWithPerformance(email);
-    const week = collectionPerformance[0]?.week ? ` (week ${collectionPerformance[0]?.week})` : "";
-    const cardValue = collectionPerformance[0]?.week ? `${collectionPerformance[0]?.name} - ${collectionPerformance[0]?.total_points}` : "no data";
-    return (
-        <Card title={`Your Weekly${week} Best Performing Card`} value={cardValue} type="collected" paragraphSize="10px"/>
-     );
+export default async function BestPerformerBadge({ email }: { email: string }) {
+  const collectionPerformance =
+    await fetchPlayerCollectionWithPerformance(email);
+  const week = collectionPerformance[0]?.week
+    ? ` (week ${collectionPerformance[0]?.week})`
+    : '';
+  const cardValue = collectionPerformance[0]?.week
+    ? `${collectionPerformance[0]?.total_points}`
+    : 'no data';
+    const cardData = await fetchCard(collectionPerformance[0]?.card_id)
+    console.log(cardData)
+  return (
+    <div className="flex flex-col justify-between rounded-xl bg-gray-50 p-2 shadow-sm">
+      <div className="flex p-4">
+        <div className='w-5'>
+        <StarIcon className="h-5 w-5 text-gray-700" />
+        </div>
+        <p className="ml-2 text-sm font-medium">
+          Your Weekly{week} Best Performing Card
+        </p>
+      </div>
+      <div
+        className="flex flex-row items-center justify-center bg-white rounded-xl shadow-sm"
+      >
+        <Image src={cardData?.image} alt={cardData?.name} width={100} height={100} className='mx-2 mt-1'/>
+        <p className='mx-2'>{cardValue}pts</p>
+      </div>
+    </div>
+  );
 }
