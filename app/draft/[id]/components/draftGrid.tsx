@@ -18,10 +18,12 @@ export default function draftGrid({
           {participants.map((participant, index) => (
             <th
               key={index}
-              className={`w-32 overflow-hidden rounded-lg border-2 border-white px-1 py-2 text-center text-responsive text-white bg-black capitalize
+              className={`overflow-hidden rounded-lg border-2 border-white px-1 py-2 text-center text-responsive text-white bg-black capitalize
               }`}
             >
+              <div className='w-32'>
               {participant.name}
+              </div>
             </th>
           ))}
         </tr>
