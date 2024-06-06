@@ -100,9 +100,13 @@ export const fetchDraft = async (id: string): Promise<Draft> => {
 export const joinDraft = async (draftId: string, playerId: number): Promise<void> => {
   try {
     // Check if the player is already a participant
-    const draftResult = await sql`SELECT participants FROM drafts WHERE draft_id = ${draftId};`;
+    const draftResult = await sql`SELECT participants, active FROM drafts WHERE draft_id = ${draftId};`;
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
+    }
+    console.log("hi", draftResult.rows[0])
+    if (!draftResult.rows[0].active) {
+      throw new Error('Draft not active');
     }
     const participants = draftResult.rows[0].participants;
     if (participants.includes(playerId)) {
