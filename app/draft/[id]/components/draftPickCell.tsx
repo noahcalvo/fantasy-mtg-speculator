@@ -1,4 +1,4 @@
-import { DraftPick } from '@/app/lib/definitions';
+import { DraftPick, getRosterPosition } from '@/app/lib/definitions';
 import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/sets';
 import Image from 'next/image';
@@ -9,6 +9,8 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
     cardData = await fetchCard(pick.card_id as unknown as number);
   }
   const player = await fetchParticipantData(pick.player_id);
+
+  const cardType = getRosterPosition(cardData?.typeLine ?? '');
   
   return (
     (!pick?.card_id && (
@@ -32,7 +34,8 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
         className="overflow-hidden text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
       >
         {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
-        <div className='font-bold w-28'>{cardData?.name}</div>
+        <div className='font-bold'>{cardData?.name}</div>
+        <div >{cardType}</div>
         {cardData?.image && (
           <Image
             src={cardData?.image ?? ''}

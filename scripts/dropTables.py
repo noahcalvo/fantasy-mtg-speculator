@@ -13,7 +13,7 @@ def dropTables(conn):
             # cur.execute("DROP TABLE IF EXISTS ChallengePerformance;")
             # cur.execute("DROP TABLE IF EXISTS LeaguePerformance;")
             # # cur.execute("DROP TABLE IF EXISTS Players CASCADE;")
-            # cur.execute("DROP TABLE IF EXISTS Ownership;")
+            cur.execute("DROP TABLE IF EXISTS Ownership;")
             # cur.execute("DROP TABLE IF EXISTS Users CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Points CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Drafts CASCADE;")

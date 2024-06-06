@@ -5,13 +5,18 @@ import { CardDetails, RosterCardDetailsMap, RosterIdMap } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { fetchCard } from './sets';
 
+export type RosterSlotToId = {
+  [key: string]: number;
+};
+
+
 export async function fetchPlayerRosterWithDetails(
   userEmail: string,
 ): Promise<RosterCardDetailsMap> {
   noStore();
   try {
     await checkRosterExists(userEmail);
-    const data = await sql<RosterIdMap>`
+    const data = await sql<RosterSlotToId>`
           SELECT 
               R.roster
           FROM 

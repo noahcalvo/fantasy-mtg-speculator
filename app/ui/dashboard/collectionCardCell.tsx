@@ -28,15 +28,15 @@ export default function CollectionCardCell({
     <div className="m-2 flex justify-between border border-gray-300 p-2">
       {card ? (
         <div className="flex w-full justify-between">
-          <Image src={card.image} alt={card.name} width={100} height={100} />
+          <Image src={card.image} alt={card.name} className="w-1/4 h-auto" width={100} height={100} />
           <div className="flex flex-col items-end justify-around">
-            <div>{card.name}</div>
-            <div className="font-bold">{cardType}</div>
+            <div className="font-bold">{card.name}</div>
+            <div >{cardType}</div>
             <div className='flex'>
               {cardType && (
                 <button
                   className={`w-15 mx-2 rounded-md border border-black bg-white 
-                  p-2 text-black hover:bg-red-800 hover:text-white`}
+                  p-2 text-black hover:bg-red-800 hover:text-white text-sm`}
                   //   ${
                   //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                   //   }
@@ -48,7 +48,7 @@ export default function CollectionCardCell({
               )}
               <button
                 className={`w-15 mx-2 rounded-md border border-black bg-white 
-                  p-2 text-black hover:bg-red-800 hover:text-white`}
+                  p-2 text-black hover:bg-red-800 hover:text-white text-sm`}
                 //   ${
                 //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                 //   }
