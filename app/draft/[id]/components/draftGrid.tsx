@@ -40,7 +40,6 @@ export default function draftGrid({
               const pickNumber = pick?.pick_number ?? 0;
               const pickRound = pick?.round ?? 0;
               const picksTilActive = (pickRound - activePickRound) * participants.length - (activePickNumber) + (pickNumber);
-              console.log(picksTilActive)
               return (
                 <DraftPickCell
                   pick={pick as DraftPick}

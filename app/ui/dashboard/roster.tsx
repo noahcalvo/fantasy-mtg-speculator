@@ -1,10 +1,10 @@
 import { getRosterPositions } from '@/app/lib/definitions';
-import { fetchPlayerRoster } from '@/app/lib/rosters';
+import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
 import PositionCell from './positionCell';
 import Collection from './collection';
 
 export default async function Roster({ email, name }: { email: string, name: string }) {
-  const roster = await fetchPlayerRoster(email);
+  const roster = await fetchPlayerRosterWithDetails(email);
   const positions = getRosterPositions();
 
   return (
@@ -12,7 +12,7 @@ export default async function Roster({ email, name }: { email: string, name: str
       <p className='text-xl m-2'>{name}&apos;s Roster</p>
       <div>
         {positions.map((position, index) => (
-          <PositionCell position={position} card={roster[position]} key={index}/>
+          <PositionCell position={position} card={roster[position.toLowerCase()]} key={index}/>
         ))}
       </div>
       <Collection email={email} />

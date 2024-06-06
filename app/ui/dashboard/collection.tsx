@@ -7,7 +7,7 @@ export default async function Collection({ email }: { email: string }) {
     <div className="rounded-md bg-white">
       <div>
         {collection.map((card, index) => (
-          <CollectionCardCell card={card} key={index}/>
+          <CollectionCardCell card={card} key={index} email={email}/>
         ))}
       </div>
     </div>

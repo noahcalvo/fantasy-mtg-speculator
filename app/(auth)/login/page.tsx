@@ -17,9 +17,6 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get('success');
 
-  console.log(success);
-  console.log(searchParams);
-
   return (
     <div>
       {success && <p className='text-white mb-2 ml-1'>Account successfully created for {success}!</p>}

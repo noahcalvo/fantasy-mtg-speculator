@@ -9,15 +9,22 @@ export default function PositionCell({
   card: CardDetails | null;
 }) {
   return (
-    <div className='border border-gray-300 m-2 flex p-2 justify-between'>
-      <div>{position}</div>
+    <div>
       {card ? (
-        <div>
+        <div className="m-2 flex justify-between border border-gray-300 p-2">
+          <div>
+          <div>{position}</div>
           <div>{card.name}</div>
-          <Image src={card.image} alt={card.name} width={100} height={100} />
+</div>
+          <div>
+            <Image src={card.image} alt={card.name} width={100} height={100} />
+          </div>
         </div>
       ) : (
-        <div>Empty</div>
+        <div className="m-2 flex justify-between border border-gray-300 p-2">
+          <div>{position}</div>
+          <div>Empty</div>
+        </div>
       )}
     </div>
   );

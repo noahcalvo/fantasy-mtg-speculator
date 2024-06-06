@@ -27,7 +27,6 @@ export async function fetchRecentSets(): Promise<string[]>{
 
 export async function fetchSet(set: string): Promise<any> {
     const setCode = await getSetCode(set);
-    console.log(setCode);
     const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+set%3A${setCode}`, {
         next: { revalidate: 600 },
     });
@@ -118,7 +117,8 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
             },
             scryfallUri: "",
             colorIdentity: [],
-            typeLine: ""
+            typeLine: "",
+            card_id: -1
         };
     }
     const data = await sql<CardPoint>`
@@ -146,7 +146,8 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
         },
         scryfallUri: scryfall_uri,
         colorIdentity: color_identity,
-        typeLine: type_line
+        typeLine: type_line,
+        card_id: cardId
     };
 }
 

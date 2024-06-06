@@ -158,7 +158,6 @@ const addPicks = async (draftId: string, playerId: number) => {
 const snakePicks = async (draftId: string) => {
   try {
     const draft = await fetchDraft(draftId);
-    console.log('Pre-snaking Draft:', draft)
     const participants = draft.participants;
     const rounds = draft.rounds;
     const picksPerRound = participants.length;

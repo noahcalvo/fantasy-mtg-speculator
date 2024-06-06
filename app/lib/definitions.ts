@@ -34,6 +34,7 @@ export type Price = {
 };
 
 export type CardDetails = {
+    card_id: number;
     name: string;
     image: string;
     price: Price;
@@ -66,7 +67,7 @@ export type Roster = {
 };
 
 export type RosterIdMap = {
-  [key: string]: number | null;
+  [key: string]: string;
 };
 
 export type RosterCardDetailsMap = {
@@ -77,8 +78,25 @@ export const getRosterPositions = () => {
   return [
     'Creature',
     'Instant/Sorcery',
-    'Enchantment/Artifact',
+    'Artifact/Enchantment',
     'Land',
     'Flex'
   ];
+}
+
+export const getAbbreviation = (position: string) => {
+  switch (position) {
+    case 'Creature':
+      return 'Creature';
+    case 'Instant/Sorcery':
+      return 'Inst/Sorc';
+    case 'Artifact/Enchantment':
+      return 'Arti/Ench';
+    case 'Land':
+      return 'Land';
+    case 'Flex':
+      return 'Flex';
+    default:
+      return '';
+  }
 }

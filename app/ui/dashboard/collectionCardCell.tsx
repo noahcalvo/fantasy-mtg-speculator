@@ -1,51 +1,63 @@
 'use client';
-import { CardDetails, getRosterPositions } from '@/app/lib/definitions';
+import { CardDetails, getAbbreviation, getRosterPositions } from '@/app/lib/definitions';
+import { playPositionSlot } from '@/app/lib/rosters';
 import Image from 'next/image';
-
-interface CardDetailsWithType extends CardDetails {
-    cardType: string;
-}
 
 export default function CollectionCardCell({
   card,
+  email,
 }: {
   card: CardDetails | null;
+  email: string;
 }) {
-    const positions = getRosterPositions();
-    let cardType = positions.find((position) => {
-        if(position.includes('/')) {
-            const splitPositions = position.split('/');
-            return splitPositions.some((splitPosition) => card?.typeLine.includes(splitPosition));
-        } else {
-            console.log(card?.name, card?.typeLine.includes(position))
-            return card?.typeLine.includes(position);
-        }
-    });
-    cardType = cardType || 'Flex';
-    return (
+  const positions = getRosterPositions();
+  let cardType = positions.find((position) => {
+    if (position.includes('/')) {
+      const splitPositions = position.split('/');
+      return splitPositions.some(
+        (splitPosition) => card?.typeLine.includes(splitPosition),
+      );
+    } else {
+      return card?.typeLine.includes(position);
+    }
+  });
+  cardType = cardType || '';
+  return (
     // add cardType to the card item
 
-    <div className='border border-gray-300 m-2 flex p-2 justify-between'>
+    <div className="m-2 flex justify-between border border-gray-300 p-2">
       {card ? (
-        <div className='flex justify-between w-full'>
-        <Image src={card.image} alt={card.name} width={100} height={100} />
-        <div className='flex flex-col items-end justify-around'>
-          <div>{card.name}</div>
-          <div className='font-bold'>{cardType}</div>
-          <div>
-          <button
-                  className={`mx-2 rounded-md p-2 text-black border border-black 
-                  bg-white hover:bg-red-800 hover:text-white w-15`}
+        <div className="flex w-full justify-between">
+          <Image src={card.image} alt={card.name} width={100} height={100} />
+          <div className="flex flex-col items-end justify-around">
+            <div>{card.name}</div>
+            <div className="font-bold">{cardType}</div>
+            <div className='flex'>
+              {cardType && (
+                <button
+                  className={`w-15 mx-2 rounded-md border border-black bg-white 
+                  p-2 text-black hover:bg-red-800 hover:text-white`}
+                  //   ${
+                  //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
+                  //   }
+                  disabled={false}
+                  onClick={() => playPositionSlot(card.card_id, email, cardType)}
+                >
+                  Play in {getAbbreviation(cardType)}
+                </button>
+              )}
+              <button
+                className={`w-15 mx-2 rounded-md border border-black bg-white 
+                  p-2 text-black hover:bg-red-800 hover:text-white`}
                 //   ${
                 //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                 //   }
-                  disabled={false}
-                  onClick={() => alert("not implemented")}
-                >
-                  Play
-                </button>
-                </div>
-
+                disabled={false}
+                onClick={() => playPositionSlot(card.card_id, email, "flex")}
+              >
+                Play in Flex
+              </button>
+            </div>
           </div>
         </div>
       ) : (

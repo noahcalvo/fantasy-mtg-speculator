@@ -22,7 +22,7 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
           'bg-black text-white'
         }`}
       >
-        <div className='w-28'>
+        <div className='w-28 overflow-hidden'>
         <p>{picksTilActive == 0 ? `${player.name} is up!` : `${player.name}`}</p>
         {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
         </div>
