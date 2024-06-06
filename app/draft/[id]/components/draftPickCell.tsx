@@ -34,7 +34,7 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
         className="overflow-hidden text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
       >
         {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
-        <div className='font-bold'>{cardData?.name}</div>
+        <div className='font-bold w-28'>{cardData?.name}</div>
         <div >{cardType}</div>
         {cardData?.image && (
           <Image
