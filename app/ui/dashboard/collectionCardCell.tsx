@@ -41,7 +41,7 @@ export default function CollectionCardCell({
                   //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                   //   }
                   disabled={false}
-                  onClick={() => playPositionSlot(card.card_id, email, cardType)}
+                  onClick={() => playPositionSlot(card.card_id, email, cardType ?? "")}
                 >
                   Play in {getAbbreviation(cardType)}
                 </button>

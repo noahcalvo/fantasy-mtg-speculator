@@ -33,7 +33,8 @@ export async function fetchPlayerRosterWithDetails(
     if (data.rows[0]?.roster) {
       for (const [key, value] of Object.entries(data.rows[0].roster)) {
         if (value) {
-          newMap[key] = await fetchCard(value);
+          const valueNumber = parseInt(value);
+          newMap[key] = await fetchCard(valueNumber);
         }
       }
     }
@@ -147,7 +148,7 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
         UPDATE 
             Rosters
         SET 
-            roster = roster || jsonb_build_object('instant/sorcery', (${cardId}::text)))
+            roster = roster || jsonb_build_object('instant/sorcery', (${cardId}::text))
         WHERE 
             player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
       `;
