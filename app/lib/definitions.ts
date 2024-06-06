@@ -23,7 +23,7 @@ export type CardPoint = {
 };
 
 export type Card = {
-  card_id: string;
+  card_id: number;
   name: string;
   origin: string;
 };
@@ -59,3 +59,26 @@ export type DraftPick = {
   card_id: string;
   pick_number: number;
 };
+
+export type Roster = {
+  roster: RosterIdMap;
+  name: string;
+};
+
+export type RosterIdMap = {
+  [key: string]: number | null;
+};
+
+export type RosterCardDetailsMap = {
+  [key: string]: CardDetails | null;
+};
+
+export const getRosterPositions = () => {
+  return [
+    'Creature',
+    'Instant/Sorcery',
+    'Enchantment/Artifact',
+    'Land',
+    'Flex'
+  ];
+}

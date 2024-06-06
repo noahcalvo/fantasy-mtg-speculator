@@ -1,6 +1,6 @@
 import PointChart from '@/app/ui/dashboard/point-chart';
 import { WeekPicker, SetPicker } from '../ui/picker';
-import CardTable from "@/app/ui/dashboard/table"
+import Roster from "@/app/ui/dashboard/roster"
 import { auth } from '@/auth';
 import { fetchUniqueWeekNumbers } from '@/app/lib/data';
 import TotalCardsBadge from './components/total-cards';
@@ -26,9 +26,9 @@ export default async function Page() {
         <WeekPicker placeholder="This week" availableWeeks={await fetchUniqueWeekNumbers()}/>
         <SetPicker placeholder="All Sets"/>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2 text-2xl">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <PointChart/>
-        <CardTable email={userEmail} name={userName}/>
+        <Roster email={userEmail} name={userName}/>
       </div>
     </main>
   );

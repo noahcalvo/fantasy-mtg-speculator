@@ -36,9 +36,6 @@ const config: Config = {
         },
       },
     },
-    fontSize: {
-      'responsive': 'calc(20% + 1vw)',
-    },
   },
   plugins: [require('@tailwindcss/forms')],
 };

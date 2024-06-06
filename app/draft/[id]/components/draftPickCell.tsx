@@ -1,7 +1,6 @@
 import { DraftPick } from '@/app/lib/definitions';
 import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/sets';
-import { get } from 'http';
 import Image from 'next/image';
 
 export default async function draftPickCell({ pick, picksTilActive }: { pick: DraftPick, picksTilActive: number }) {

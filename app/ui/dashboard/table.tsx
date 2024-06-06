@@ -18,7 +18,6 @@ export default function CardTable({
   name: string;
 }) {
   const [cardDataLoading, setCardDataLoading] = useState(false);
-  const [collectionDataLoading, setCollectionDataLoading] = useState(false);
   const searchParams = useSearchParams();
   const weekParam = searchParams.get('week');
   const week = weekParam === '0' ? 0 : Number(weekParam) || getCurrentWeek();
@@ -26,15 +25,12 @@ export default function CardTable({
   const [cardPoints, setCardPoints] = useState<CardPoint[]>([]);
 
   useEffect(() => {
-    setCollectionDataLoading(true);
     fetchPlayerCollection(email)
       .then((result) => {
         setCollection(result.rows);
-        setCollectionDataLoading(false);
       })
       .catch((error) => {
         console.error('Failed to fetch card data:', error);
-        setCollectionDataLoading(false);
       });
   }, [email]);
 

@@ -1,7 +1,8 @@
 'use server';
 import { sql } from '@vercel/postgres';
-import { Card, CardPoint } from './definitions';
+import { Card, CardDetails, CardPoint } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { fetchCard } from './sets';
 
 export async function fetchCardPerformanceByWeek(
   collectionIDs: number[],
@@ -59,6 +60,41 @@ export async function fetchPlayerCollection(userEmail: string) {
   }
 }
 
+export async function fetchPlayerCollectionWithDetails(userEmail: string) {
+  noStore();
+  try {
+    const data = await sql<Card>`
+        SELECT 
+        C.card_id, 
+        C.name,
+        C.origin
+        FROM 
+            Users U
+        JOIN 
+            Ownership O ON U.player_id = O.player_id
+        JOIN 
+            Cards C ON O.card_id = C.card_id
+        WHERE 
+            U.email = ${userEmail}
+        GROUP BY 
+            C.card_id,
+            C.name,
+            C.origin
+        ORDER BY
+            C.name DESC;
+      `;
+    // Convert cardId to cardDetails
+    const cardDetailsList: CardDetails[] = [];
+    for (var card of data.rows) {
+      cardDetailsList.push(await fetchCard(card.card_id));
+    }
+    return cardDetailsList;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card point data for week');
+  }
+}
+
 export async function fetchPlayerCollectionWithPerformance(userEmail: string) {
   noStore();
   try {
@@ -109,12 +145,12 @@ export async function fetchPlayerCollectionWithPerformance(userEmail: string) {
 export async function updateCollectionWithCompleteDraft(draftId: string) {
   noStore();
   try {
-    const picks = await sql`SELECT * FROM Picks WHERE draft_id = ${draftId}`
+    const picks = await sql`SELECT * FROM Picks WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id
     for (const pick of picks.rows) {
       await sql`INSERT INTO ownership (player_id, card_id) VALUES (${pick.player_id}, ${pick.card_id});`;
     }
-    revalidatePath(`/dashboard`);  
+    revalidatePath(`/dashboard`);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to update collection with draft');

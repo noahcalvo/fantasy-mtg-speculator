@@ -113,6 +113,16 @@ def createTables(conn):
             cur.execute(create_picks_table_query)
             print("Created 'picks' table")
 
+            create_rosters_table_query = """
+            CREATE TABLE IF NOT EXISTS Rosters (
+            roster_id SERIAL PRIMARY KEY,
+            player_id INT,
+            roster JSONB
+            );
+            """
+            cur.execute(create_rosters_table_query)
+            print("Created 'rosters' table")
+
         conn.commit()
     except Exception as error:
         print('Error creating tables:', error)
