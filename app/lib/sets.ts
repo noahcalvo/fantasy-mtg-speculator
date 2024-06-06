@@ -108,6 +108,19 @@ export async function fetchOwnedCards(set: string): Promise<Card[]> {
 }
 
 export async function fetchCard(cardId: number): Promise<CardDetails> {
+    if (!cardId) {
+        return {
+            name: "",
+            image: "",
+            price: {
+                tix: 0,
+                usd: 0,
+            },
+            scryfallUri: "",
+            colorIdentity: [],
+            typeLine: ""
+        };
+    }
     const data = await sql<CardPoint>`
     SELECT name FROM Cards WHERE card_id = ${cardId};
     `;
@@ -120,6 +133,9 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     }
 
     const card = await response.json();
+    if (card.object === "error") {
+        throw new Error(`Card not found: ${data.rows[0].name}`);
+    }
     const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
     return {
         name,

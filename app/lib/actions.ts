@@ -74,3 +74,7 @@ export async function createAccount(prevState: string | undefined, formData: For
   }
   redirect(`/login?success=${name}`);
 }
+
+export async function isAdmin(email: string) {
+  return email === 'noah.calvo@gmail.com';
+}

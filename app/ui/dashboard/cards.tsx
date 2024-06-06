@@ -57,12 +57,14 @@ export function Card({
           {title}
         </h3>
       </div>
+      <div className='h-full bg-white flex flex-row items-center justify-center'>
       <p
-        className="truncate rounded-xl bg-white px-4 py-8 text-center"
+        className="truncate rounded-xl text-center"
         style={{ fontSize: paragraphSize }}
       >
         {value}
       </p>
+      </div>
     </div>
   );
 }

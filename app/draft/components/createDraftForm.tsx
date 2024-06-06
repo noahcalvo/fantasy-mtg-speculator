@@ -1,7 +1,6 @@
 'use client';
 
 import { createDraft } from '@/app/lib/draft';
-import { fetchRecentSets } from '@/app/lib/sets';
 import { useFormState } from 'react-dom';
 
 export default function CreateDraftForm({ sets }: { sets: string[] }) {

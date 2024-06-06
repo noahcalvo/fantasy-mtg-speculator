@@ -51,7 +51,7 @@ export default function AvailableCards({
   const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
 
   return (
-    <div className="flex w-full items-center justify-center border-4 border-white xl:w-1/4">
+    <div className="flex items-center justify-center border-2 border-white xl:w-1/4">
       <div className="rounded-lg p-5 text-white shadow-md">
         <h1 className="mb-4 text-2xl font-bold md:text-3xl">Available Cards</h1>
         <input
