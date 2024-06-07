@@ -15,7 +15,7 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
   return (
     (!pick?.card_id && (
       <td
-        className={`overflow-hidden text-xs w-32 rounded-md border-2 p-4 px-1 py-2 text-center capitalize border-white
+        className={`overflow-auto text-xs w-32 rounded-md border-2 p-4 px-1 py-2 text-center capitalize border-white
         ${
           picksTilActive == 0 ? 'shadow-inner-shadow bg-clip-padding bg-white text-black' : 
           picksTilActive == 1 ? 'bg-red-900 text-white' : 
@@ -31,11 +31,11 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
       </td>
     )) || (
       <td
-        className="overflow-hidden text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
+        className="overflow-auto text-xs w-32 shadow-inner-shadow text-black h-40 rounded-md border-4 border-white bg-white bg-clip-padding px-1 py-2 text-center"
       >
         {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
         <div className='font-bold w-28'>{cardData?.name}</div>
-        <div >{cardType}</div>
+        <div className='w-28 text-wrap'>{cardType}</div>
         {cardData?.image && (
           <Image
             src={cardData?.image ?? ''}
