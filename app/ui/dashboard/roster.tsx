@@ -9,8 +9,8 @@ export default async function Roster({ email, name }: { email: string, name: str
 
   return (
     <div className="rounded-md bg-white">
-      <p className='text-xl m-2'>{name}&apos;s Roster</p>
-      <div>
+      <p className='text-xl m-2 pl-5'>{name}&apos;s Roster</p>
+      <div className='flex flex-wrap justify-around'>
         {positions.map((position, index) => (
           <PositionCell position={position} card={roster[position.toLowerCase()]} key={index}/>
         ))}

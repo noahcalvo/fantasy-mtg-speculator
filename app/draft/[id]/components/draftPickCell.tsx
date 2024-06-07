@@ -1,4 +1,4 @@
-import { DraftPick, getCardTypes } from '@/app/lib/definitions';
+import { DraftPick, getCardTypesAbbreviation } from '@/app/lib/definitions';
 import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/sets';
 import Image from 'next/image';
@@ -10,7 +10,7 @@ export default async function draftPickCell({ pick, picksTilActive }: { pick: Dr
   }
   const player = await fetchParticipantData(pick.player_id);
 
-  const cardType = getCardTypes(cardData?.typeLine ?? '').join('/');
+  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
   
   return (
     (!pick?.card_id && (

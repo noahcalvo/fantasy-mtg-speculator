@@ -99,14 +99,19 @@ export const getCardTypes = (typeLine: string) => {
   return cardApplicablePositions.concat('Flex');
 }
 
+export const getCardTypesAbbreviation = (typeLine: string) => {
+  const cardTypes = getCardTypes(typeLine);
+  return cardTypes.map((type) => getAbbreviation(type));
+}
+
 export const getAbbreviation = (position: string) => {
   switch (position) {
     case 'Creature':
-      return 'Creature';
+      return 'Cre';
     case 'Instant/Sorcery':
-      return 'Inst/Sorc';
+      return 'Ins/Sor';
     case 'Artifact/Enchantment':
-      return 'Arti/Ench';
+      return 'Art/Enc';
     case 'Land':
       return 'Land';
     case 'Flex':
