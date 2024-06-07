@@ -84,9 +84,9 @@ export const getRosterPositions = () => {
   ];
 }
 
-export const getRosterPosition = (typeLine: string) => {
-  const positions = getRosterPositions();
-  let cardType = positions.find((position) => {
+export const getCardTypes = (typeLine: string) => {
+  const allPositions = getRosterPositions();
+  let cardApplicablePositions = allPositions.filter((position) => {
     if (position.includes('/')) {
       const splitPositions = position.split('/');
       return splitPositions.some(
@@ -96,7 +96,7 @@ export const getRosterPosition = (typeLine: string) => {
       return typeLine.includes(position);
     }
   });
-  return cardType || 'Flex';
+  return cardApplicablePositions.concat('Flex');
 }
 
 export const getAbbreviation = (position: string) => {

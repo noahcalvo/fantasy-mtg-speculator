@@ -1,6 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { CardDetails } from '@/app/lib/definitions';
+import {
+  CardDetails,
+  getAbbreviation,
+  getCardTypes,
+  getRosterPositions,
+} from '@/app/lib/definitions';
 import Image from 'next/image';
 import { makePick } from '@/app/lib/draft';
 
@@ -21,6 +26,7 @@ export default function AvailableCards({
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const cardsPerPage = 15;
+  const [filteredTypes, setFilteredTypes] = useState<string[]>([]);
 
   useEffect(() => {
     setPage(0);
@@ -39,8 +45,13 @@ export default function AvailableCards({
     }
   });
 
-  const filteredCards = sortedCards.filter((card: CardDetails) =>
-    card.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredCards = sortedCards.filter(
+    (card: CardDetails) =>
+      card.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (getCardTypes(card.typeLine).some((type) =>
+        filteredTypes.includes(type),
+      ) ||
+        filteredTypes.length === 0),
   );
 
   const paginatedCards = filteredCards.slice(
@@ -50,17 +61,40 @@ export default function AvailableCards({
 
   const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
 
+  const types = getRosterPositions();
+
   return (
     <div className="flex items-center justify-center border-2 border-white xl:w-1/4">
-      <div className="rounded-lg p-5 text-white shadow-md">
+      <div className="rounded-lg p-5 text-white shadow-md w-full">
         <h1 className="mb-4 text-2xl font-bold md:text-3xl">Available Cards</h1>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search cards"
-          className="mb-4 border-white text-black focus:ring-red-800 focus:border-red-800"
+          className="mb-4 border-white text-black focus:border-red-800 focus:ring-red-800"
         />
+        <div className='flex flex-wrap'>
+          {types.map((type) => (
+            <div key={type} className='inline'>
+              <button
+                id={type}
+                className={`m-2 rounded-md bg-white px-2 py-1 text-sm  border
+                  ${filteredTypes.includes(type) ? 'text-white hover:bg-red-900 hover:text-gray-500 border-white bg-red-800' : 'text-black transition-colors hover:bg-gray-400 border-white bg-white'}
+                `}
+                onClick={() => {
+                  if (filteredTypes.includes(type)) {
+                    setFilteredTypes(filteredTypes.filter((t) => t !== type));
+                  } else {
+                    setFilteredTypes([...filteredTypes, type]);
+                  }
+                }}
+              >
+                {getAbbreviation(type)}
+              </button>
+            </div>
+          ))}
+        </div>
         <hr className="my-2 border-white" />
         {paginatedCards.map((card: CardDetails) => (
           <div
@@ -83,8 +117,10 @@ export default function AvailableCards({
                   height="200"
                 />
                 <button
-                  className={`mx-2 rounded-md p-2 text-black border border-white ${
-                    activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
+                  className={`mx-2 rounded-md border border-white p-2 text-black ${
+                    activeDrafter
+                      ? 'bg-white hover:bg-red-800 hover:text-white'
+                      : 'bg-gray-500 text-white'
                   }`}
                   disabled={!activeDrafter}
                   onClick={() => makePick(draftId, playerId, card.name, set)}
