@@ -79,8 +79,8 @@ export default function AvailableCards({
             <div key={type} className='inline'>
               <button
                 id={type}
-                className={`m-2 rounded-md bg-white px-2 py-1 text-sm  border
-                  ${filteredTypes.includes(type) ? 'text-white hover:bg-red-900 hover:text-gray-500 border-white bg-red-800' : 'text-black transition-colors hover:bg-gray-400 border-white bg-white'}
+                className={`m-2 rounded-md px-2 py-1 text-sm  border
+                  ${filteredTypes.includes(type) ? 'text-white border-white bg-red-800' : 'text-black border-white bg-white'}
                 `}
                 onClick={() => {
                   if (filteredTypes.includes(type)) {
