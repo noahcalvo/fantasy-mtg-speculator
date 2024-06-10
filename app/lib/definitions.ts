@@ -66,6 +66,12 @@ export type Roster = {
   name: string;
 };
 
+export type League = {
+  league_id: string;
+  name: string;
+  participants: number[];
+};
+
 export type RosterIdMap = {
   [key: string]: string;
 };
