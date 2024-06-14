@@ -12,8 +12,7 @@ export default function LeagueSelector({
     const pathname = usePathname()
   return (
     <div>
-      <h1>League Selector</h1>
-      <div className='flex'>
+      <div className='flex mt-8'>
         <DarkNavTab name="Teams" path="/league/teams" active={pathname === "/league/teams"}/>
         <DarkNavTab name="Standings" path="/league/standings" active={pathname === "/league/standings"}/>
         <DarkNavTab name="Trade" path="/league/trade" active={pathname === "/league/trade"}/>
