@@ -22,6 +22,10 @@ export type CardPoint = {
   card_id: number;
 };
 
+export type CardPerformances = {
+  cards: CardPoint[];
+}
+
 export type Card = {
   card_id: number;
   name: string;
@@ -66,6 +70,12 @@ export type Roster = {
   name: string;
 };
 
+export type League = {
+  league_id: number;
+  name: string;
+  participants: number[];
+};
+
 export type RosterIdMap = {
   [key: string]: string;
 };
@@ -73,6 +83,19 @@ export type RosterIdMap = {
 export type RosterCardDetailsMap = {
   [key: string]: CardDetails | null;
 };
+
+export const getCardIdsFromMap = (map: RosterCardDetailsMap) =>
+  {
+    const cardIds: number[] = [];
+
+    Object.keys(map).forEach(key => {
+      const details = map[key];
+      if (details !== null) {
+        cardIds.push(details.card_id)
+      }
+    });
+    return cardIds
+  }
 
 export const getRosterPositions = () => {
   return [

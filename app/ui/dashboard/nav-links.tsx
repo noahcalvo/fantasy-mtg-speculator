@@ -13,11 +13,11 @@ import { usePathname } from 'next/navigation';
 // Depending on the size of the application, this would be stored in a database.
 const links = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  // {
-  //   name: 'League',
-  //   href: '/dashboard/league',
-  //   icon: BeakerIcon,
-  // },
+  {
+    name: 'League',
+    href: '/league',
+    icon: BeakerIcon,
+  },
   { name: 'Draft', href: '/draft', icon: BoltIcon },
 ];
 

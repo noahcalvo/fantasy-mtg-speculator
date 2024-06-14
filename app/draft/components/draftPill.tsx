@@ -1,14 +1,14 @@
 import { Draft } from "@/app/lib/definitions"
 import Link from "next/link"
 
-export const DraftPill = ({ key, draft}: { key: number, draft: Draft }) => {
+export const DraftPill = ({ draft}: { draft: Draft }) => {
     const draftClass = draft.active ? 
     "flex cursor-pointer items-center justify-between rounded-full bg-white px-3 py-2 text-black hover:bg-red-800 hover:text-white focus:outline-red-800 border border-white" : 
     "flex cursor-pointer items-center justify-between rounded-full bg-gray-400 px-3 py-2 text-black hover:bg-red-800 hover:text-white focus:outline-red-800 border border-white";
 
     return (
         <li
-        key={key}
+        key={draft.draft_id}
       >
         <Link href={`/draft/${draft.draft_id}/view`}>
             <div className={draftClass}>

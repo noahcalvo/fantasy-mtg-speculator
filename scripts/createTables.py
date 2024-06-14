@@ -123,6 +123,16 @@ def createTables(conn):
             cur.execute(create_rosters_table_query)
             print("Created 'rosters' table")
 
+            create_league_table_query = """
+            CREATE TABLE IF NOT EXISTS Leagues (
+            league_id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            participants INT[]
+            );
+            """
+            cur.execute(create_league_table_query)
+            print("Created 'leagues' table")
+
         conn.commit()
     except Exception as error:
         print('Error creating tables:', error)

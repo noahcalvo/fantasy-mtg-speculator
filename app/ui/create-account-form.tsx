@@ -1,5 +1,5 @@
 // create-account-form.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AtSymbolIcon,
   KeyIcon,

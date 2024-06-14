@@ -1,7 +1,6 @@
 'use client';
 
 import { joinDraft } from '@/app/lib/draft';
-import React from 'react';
 
 interface JoinDraftProps {
   draftId: string;
