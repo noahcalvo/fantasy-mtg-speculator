@@ -19,7 +19,7 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
       <div className='flex flex-wrap justify-around'>
         {positions.map((position, index) =>
           {
-            const points = mostRecentPoints.cards.find(element => element.card_id === roster[position.toLowerCase()]?.card_id) ?? {week: week}
+            const points = mostRecentPoints.cards.find(element => element.card_id === roster[position.toLowerCase()]?.card_id) ?? {week: week, total_points: 0, card_id: roster[position.toLowerCase()]?.card_id ?? -1, name: roster[position.toLowerCase()]?.name ?? ''}
             console.log(points);
             return (
               <PositionCell position={position} card={roster[position.toLowerCase()]} key={index} score={points}/>

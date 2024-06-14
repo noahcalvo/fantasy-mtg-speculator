@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['cards.scryfall.io'],
+      remotePatterns: [{
+        protocol: 'https',
+        hostname: 'cards.scryfall.io',
+        port: '',
+        pathname: '**',
+    }],
     },
     async redirects() {
         return [
