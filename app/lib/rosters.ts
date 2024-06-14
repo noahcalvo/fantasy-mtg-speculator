@@ -4,11 +4,11 @@ import { sql } from '@vercel/postgres';
 import { CardDetails, RosterCardDetailsMap, RosterIdMap } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { fetchCard } from './sets';
+import { fetchCardPerformanceByWeek } from './collection';
 
 export type RosterSlotToId = {
   [key: string]: number;
 };
-
 
 export async function fetchPlayerRosterWithDetails(
   userId: number,
@@ -56,15 +56,40 @@ async function fetchPlayerRoster(userId: number): Promise<RosterIdMap> {
               player_id = ${userId}
           LIMIT 1
         `;
-        const rosterData = data.rows[0]?.roster;
-        if (!rosterData || typeof rosterData !== 'object') {
-          throw new Error(`Roster data for user:${userId} is in an unexpected format`);
-        }
-        
-        return rosterData;
-      } catch (error) {
+    const rosterData = data.rows[0]?.roster;
+    if (!rosterData || typeof rosterData !== 'object') {
+      throw new Error(
+        `Roster data for user:${userId} is in an unexpected format`,
+      );
+    }
+
+    return rosterData;
+  } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch roster data for user:${userId}`);
+  }
+}
+
+export async function fetchPlayerRosterScore(
+  userId: number,
+  week: number,
+): Promise<any> {
+  try {
+    const roster = await fetchPlayerRoster(userId);
+
+    // Assuming roster is an object with card IDs as keys
+    const cardIds = Object.values(roster).map((card) => {
+      const parsedId = parseInt(card, 10);
+      return isNaN(parsedId) ? -1 : parsedId;
+    });
+    if (cardIds.length === 0) {
+      throw new Error(`No cards found in roster for user:${userId}`);
+    }
+    const performances = await fetchCardPerformanceByWeek(cardIds, week);
+    return performances;
+  } catch (error) {
+    console.error('Error fetching player roster scores:', error);
+    throw new Error(`Failed to fetch roster scores for user:${userId}`);
   }
 }
 
@@ -79,15 +104,19 @@ export async function playPositionSlot(
     await checkRosterExists(userId);
     let roster = await fetchPlayerRoster(userId);
 
-    const foundPositionCollision = Object.keys(roster).filter(key => roster[key] === cardId.toString());
+    const foundPositionCollision = Object.keys(roster).filter(
+      (key) => roster[key] === cardId.toString(),
+    );
     foundPositionCollision.forEach(async (key) => {
-      await removeCardSlotQuery(userId, key)
-    })
+      await removeCardSlotQuery(userId, key);
+    });
     await createSqlLineupQuery(userId, cardId, position);
     revalidatePath(`/dashboard`);
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to update position slot for user:${userId} card:${cardId} position:${position}`);
+    throw new Error(
+      `Failed to update position slot for user:${userId} card:${cardId} position:${position}`,
+    );
   }
 }
 
@@ -119,7 +148,11 @@ export async function checkRosterExists(userId: number): Promise<void> {
   }
 }
 
-const createSqlLineupQuery = (userId: number, cardId: number, position: string) => {
+const createSqlLineupQuery = (
+  userId: number,
+  cardId: number,
+  position: string,
+) => {
   switch (position) {
     case 'creature':
       return sql`
@@ -167,7 +200,7 @@ const createSqlLineupQuery = (userId: number, cardId: number, position: string) 
           player_id = ${userId}
     `;
   }
-}
+};
 
 const removeCardSlotQuery = (userId: number, position: string) => {
   switch (position) {
@@ -217,4 +250,4 @@ const removeCardSlotQuery = (userId: number, position: string) => {
           player_id = ${userId}
     `;
   }
-}
+};

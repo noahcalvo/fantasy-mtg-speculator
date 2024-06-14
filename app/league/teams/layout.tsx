@@ -18,7 +18,6 @@ export default async function Layout({
   if (playerId) {
     joinedLeague = await fetchLeague(playerId);
     teamsInLeague = await fetchPlayersInLeague(joinedLeague?.league_id ?? -1);
-    console.log(teamsInLeague);
   }
 
   return (

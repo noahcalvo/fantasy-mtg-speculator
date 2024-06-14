@@ -104,7 +104,6 @@ export const joinDraft = async (draftId: string, playerId: number): Promise<void
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
     }
-    console.log("hi", draftResult.rows[0])
     if (!draftResult.rows[0].active) {
       throw new Error('Draft not active');
     }
