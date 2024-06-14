@@ -15,6 +15,9 @@ export type Player = {
   email: string;
 };
 
+export type RosterScore = {
+}
+
 export type CardPoint = {
   name: string;
   total_points: number;
@@ -24,6 +27,13 @@ export type CardPoint = {
 
 export type CardPerformances = {
   cards: CardPoint[];
+}
+
+export type TeamPerformance = {
+  cards: CardPerformances;
+  name: string;
+  player_id: number;
+  week: number;
 }
 
 export type Card = {
@@ -75,6 +85,11 @@ export type League = {
   name: string;
   participants: number[];
 };
+
+export type WeeklyLeaguePerformances = {
+  teams: TeamPerformance[];
+  league_id: number;
+}
 
 export type RosterIdMap = {
   [key: string]: string;
@@ -143,3 +158,9 @@ export const getAbbreviation = (position: string) => {
       return '';
   }
 }
+
+export const calculateTotalPoints = (cardPoints: CardPoint[]): number => {
+  return cardPoints.reduce((accumulator, cardPoint) => {
+    return accumulator + cardPoint.total_points;
+  }, 0);
+};

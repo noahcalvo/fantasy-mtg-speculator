@@ -1,11 +1,17 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { League, Player } from './definitions';
+import {
+  League,
+  Player,
+  TeamPerformance,
+  WeeklyLeaguePerformances,
+} from './definitions';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { fetchPlayerRosterScore } from './rosters';
 
-export async function fetchLeague(userId: number):Promise<League | null> {
+export async function fetchLeague(userId: number): Promise<League | null> {
   try {
     const data = await sql<League>`
       SELECT * FROM leagues 
@@ -45,7 +51,11 @@ export async function joinExistingLeague(userId: number, leagueId: number) {
   try {
     await joinLeague(userId, leagueId);
   } catch (err) {
-    console.error("failed to join existing league. leagueId,userId: ", leagueId, userId)
+    console.error(
+      'failed to join existing league. leagueId,userId: ',
+      leagueId,
+      userId,
+    );
   }
 }
 
@@ -68,7 +78,7 @@ export async function joinLeague(userId: number, leagueId: number) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to join league ${leagueId}`);
-  } 
+  }
 }
 
 export async function createLeague(leagueName: string, userId: number) {
@@ -76,7 +86,7 @@ export async function createLeague(leagueName: string, userId: number) {
   try {
     resp =
       await sql`INSERT INTO leagues (name, participants) VALUES (${leagueName}, array[]::int[]) RETURNING league_id;`;
-      joinLeague(userId, resp.rows[0].league_id);
+    joinLeague(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);
@@ -85,7 +95,9 @@ export async function createLeague(leagueName: string, userId: number) {
   }
 }
 
-export async function fetchPlayersInLeague(leagueId: number):Promise<Player[]> {
+export async function fetchPlayersInLeague(
+  leagueId: number,
+): Promise<Player[]> {
   try {
     const data = await sql<Player>`
     SELECT p.name, p.email, p.player_id
@@ -96,13 +108,40 @@ export async function fetchPlayersInLeague(leagueId: number):Promise<Player[]> {
       WHERE l.league_id = ${leagueId}
     );`;
     if (data.rows.length === 0) {
-      console.log(`no league with id ${leagueId}`)
-      return []
+      console.log(`no league with id ${leagueId}`);
+      return [];
     }
-    console.log(data.rows)
-    return data.rows
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to fetch players for leagueId ${leagueId}`)
+    throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
+  }
+}
+
+export async function fetchPlayerWeeklyPointsInLeague(
+  leagueId: number,
+  week: number,
+): Promise<WeeklyLeaguePerformances> {
+  try {
+    const players = await fetchPlayersInLeague(leagueId);
+    const teams: TeamPerformance[] = [];
+
+    for (const player of players) {
+      const rosterScore = await fetchPlayerRosterScore(player.player_id, week);
+      const teamPerformance: TeamPerformance = {
+        cards: rosterScore,
+        player_id: player.player_id,
+        name: player.name,
+        week: week,
+      };
+      console.log(teamPerformance);
+      teams.push(teamPerformance);
+    }
+
+    console.log(teams);
+    return { teams: teams, league_id: leagueId };
+  } catch (error) {
+    console.log('Database Error:', error);
+    throw new Error("Failed to fetch players' weekly points in league");
   }
 }

@@ -1,8 +1,17 @@
+import { WeeklyLeaguePerformances } from "@/app/lib/definitions";
+import { fetchPlayerWeeklyPointsInLeague } from "@/app/lib/leagues";
+import Standings from "@/app/ui/league/standings";
+
+const perfData:WeeklyLeaguePerformances = {teams: [], league_id: 0}
 
 export default async function Page() {
+    const perfData = await fetchPlayerWeeklyPointsInLeague(9, 9)
+    console.log(perfData)
     return (
       <main className="mb-4 p-2">
-          <div>standings</div>
+          <div>
+          <Standings weeklyPerformance={perfData}/>
+          </div>
       </main>
     );
   }

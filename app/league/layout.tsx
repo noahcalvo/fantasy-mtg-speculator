@@ -29,9 +29,7 @@ export default async function Layout({
   let allLeagues: League[] = [];
   if (!joinedLeague) {
     const leagues = await fetchAllLeagues();
-    console.log('league resp: ', leagues);
     allLeagues = allLeagues.concat(leagues ?? []);
-    console.log('all leagues: ', ...allLeagues);
   }
 
   return (
