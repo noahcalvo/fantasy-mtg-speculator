@@ -1,7 +1,7 @@
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { use, useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';

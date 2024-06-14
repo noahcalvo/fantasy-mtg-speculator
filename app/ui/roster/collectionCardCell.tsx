@@ -5,10 +5,10 @@ import Image from 'next/image';
 
 export default function CollectionCardCell({
   card,
-  email,
+  playerId,
 }: {
   card: CardDetails | null;
-  email: string;
+  playerId: number;
 }) {
   const positions = getRosterPositions();
   let cardType = positions.find((position) => {
@@ -41,7 +41,7 @@ export default function CollectionCardCell({
                   //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                   //   }
                   disabled={false}
-                  onClick={() => playPositionSlot(card.card_id, email, cardType ?? "")}
+                  onClick={() => playPositionSlot(card.card_id, playerId, cardType ?? "")}
                 >
                   Play in {getAbbreviation(cardType)}
                 </button>
@@ -53,7 +53,7 @@ export default function CollectionCardCell({
                 //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                 //   }
                 disabled={false}
-                onClick={() => playPositionSlot(card.card_id, email, "flex")}
+                onClick={() => playPositionSlot(card.card_id, playerId, "flex")}
               >
                 Play in Flex
               </button>

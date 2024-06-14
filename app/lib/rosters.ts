@@ -11,20 +11,18 @@ export type RosterSlotToId = {
 
 
 export async function fetchPlayerRosterWithDetails(
-  userEmail: string,
+  userId: number,
 ): Promise<RosterCardDetailsMap> {
   noStore();
   try {
-    await checkRosterExists(userEmail);
+    await checkRosterExists(userId);
     const data = await sql<RosterSlotToId>`
           SELECT 
-              R.roster
+              roster
           FROM 
-              Rosters R
-          JOIN 
-              Users U ON R.player_id = U.player_id
+              Rosters
           WHERE 
-              U.email = ${userEmail}
+              player_id = ${userId}
           LIMIT 1
         `;
     // Convert cardId to cardDetails
@@ -41,61 +39,59 @@ export async function fetchPlayerRosterWithDetails(
     return newMap;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to fetch roster data for ${userEmail}`);
+    throw new Error(`Failed to fetch roster data for user:${userId}`);
   }
 }
 
-async function fetchPlayerRoster(userEmail: string): Promise<RosterIdMap> {
+async function fetchPlayerRoster(userId: number): Promise<RosterIdMap> {
   noStore();
   try {
-    await checkRosterExists(userEmail);
+    await checkRosterExists(userId);
     const data = await sql<RosterIdMap>`
           SELECT 
-              R.roster
+              roster
           FROM 
-              Rosters R
-          JOIN 
-              Users U ON R.player_id = U.player_id
+              Rosters
           WHERE 
-              U.email = ${userEmail}
+              player_id = ${userId}
           LIMIT 1
         `;
         const rosterData = data.rows[0]?.roster;
         if (!rosterData || typeof rosterData !== 'object') {
-          throw new Error(`Roster data for ${userEmail} is in an unexpected format`);
+          throw new Error(`Roster data for user:${userId} is in an unexpected format`);
         }
         
         return rosterData;
       } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to fetch roster data for ${userEmail}`);
+    throw new Error(`Failed to fetch roster data for user:${userId}`);
   }
 }
 
 export async function playPositionSlot(
   cardId: number,
-  userEmail: string,
+  userId: number,
   position: string,
 ): Promise<void> {
   noStore();
   position = position.toLowerCase();
   try {
-    await checkRosterExists(userEmail);
-    let roster = await fetchPlayerRoster(userEmail);
+    await checkRosterExists(userId);
+    let roster = await fetchPlayerRoster(userId);
 
     const foundPositionCollision = Object.keys(roster).filter(key => roster[key] === cardId.toString());
     foundPositionCollision.forEach(async (key) => {
-      await removeCardSlotQuery(userEmail, key)
+      await removeCardSlotQuery(userId, key)
     })
-    await createSqlLineupQuery(userEmail, cardId, position);
+    await createSqlLineupQuery(userId, cardId, position);
     revalidatePath(`/dashboard`);
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to update position slot for ${userEmail} ${cardId} ${position}`);
+    throw new Error(`Failed to update position slot for user:${userId} card:${cardId} position:${position}`);
   }
 }
 
-export async function checkRosterExists(userEmail: string): Promise<void> {
+export async function checkRosterExists(userId: number): Promise<void> {
   noStore();
   try {
     // Check if a roster exists for the user
@@ -105,7 +101,7 @@ export async function checkRosterExists(userEmail: string): Promise<void> {
         FROM 
             Rosters
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId};
     `;
 
     // If the roster doesn't exist, create an empty one
@@ -114,16 +110,16 @@ export async function checkRosterExists(userEmail: string): Promise<void> {
           INSERT INTO 
               Rosters (player_id, roster)
           VALUES 
-              ((SELECT player_id FROM Users WHERE email = ${userEmail}), '{}')
+              (${userId}, '{}')
       `;
     }
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to confirm roster exists for ${userEmail}`);
+    throw new Error(`Failed to confirm roster exists for ${userId}`);
   }
 }
 
-const createSqlLineupQuery = (userEmail: string, cardId: number, position: string) => {
+const createSqlLineupQuery = (userId: number, cardId: number, position: string) => {
   switch (position) {
     case 'creature':
       return sql`
@@ -132,7 +128,7 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
         SET 
             roster = roster || jsonb_build_object('creature', (${cardId}::text))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'artifact/enchantment':
       return sql`
@@ -141,7 +137,7 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
         SET 
             roster = roster || jsonb_build_object('artifact/enchantment', (${cardId}::text))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'instant/sorcery':
       return sql`
@@ -150,7 +146,7 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
         SET 
             roster = roster || jsonb_build_object('instant/sorcery', (${cardId}::text))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'land':
       return sql`
@@ -159,7 +155,7 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
         SET 
             roster = roster || jsonb_build_object('land', (${cardId}::text))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     default:
       return sql`
@@ -168,12 +164,12 @@ const createSqlLineupQuery = (userEmail: string, cardId: number, position: strin
       SET 
           roster = roster || jsonb_build_object('flex', (${cardId}::text))
       WHERE 
-          player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+          player_id = ${userId}
     `;
   }
 }
 
-const removeCardSlotQuery = (userEmail: string, position: string) => {
+const removeCardSlotQuery = (userId: number, position: string) => {
   switch (position) {
     case 'creature':
       return sql`
@@ -182,7 +178,7 @@ const removeCardSlotQuery = (userEmail: string, position: string) => {
         SET 
             roster = roster || jsonb_build_object('creature', (''))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'artifact/enchantment':
       return sql`
@@ -191,7 +187,7 @@ const removeCardSlotQuery = (userEmail: string, position: string) => {
         SET 
             roster = roster || jsonb_build_object('artifact/enchantment', (''))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'instant/sorcery':
       return sql`
@@ -200,7 +196,7 @@ const removeCardSlotQuery = (userEmail: string, position: string) => {
         SET 
             roster = roster || jsonb_build_object('instant/sorcery', (''))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     case 'land':
       return sql`
@@ -209,7 +205,7 @@ const removeCardSlotQuery = (userEmail: string, position: string) => {
         SET 
             roster = roster || jsonb_build_object('land', (''))
         WHERE 
-            player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+            player_id = ${userId}
       `;
     default:
       return sql`
@@ -218,7 +214,7 @@ const removeCardSlotQuery = (userEmail: string, position: string) => {
       SET 
           roster = roster || jsonb_build_object('flex', (''))
       WHERE 
-          player_id = (SELECT player_id FROM Users WHERE email = ${userEmail})
+          player_id = ${userId}
     `;
   }
 }

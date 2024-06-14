@@ -126,7 +126,7 @@ export default function PointChart() {
         </h1>
     
         <div ref={containerRef} className=''>
-            {hasMounted && cardData.length > 0 ? <BarChart
+            {hasMounted && cardData?.length > 0 ? <BarChart
               dataset={cardData}
               yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
               series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter, color: colors.grey[100] }]}

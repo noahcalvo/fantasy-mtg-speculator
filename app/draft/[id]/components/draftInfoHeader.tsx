@@ -1,5 +1,4 @@
 import { Draft } from '@/app/lib/definitions';
-import React from 'react';
 
 export default function DraftInfoHeader({ draft }: { draft: Draft }) {
   return (
