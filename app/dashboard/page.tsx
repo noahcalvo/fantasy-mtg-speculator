@@ -7,6 +7,7 @@ import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '../lib/player';
+import Collection from '../ui/roster/collection';
 
 export default async function Page() {
   const user = await auth().then((res) => res?.user);
@@ -30,7 +31,10 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <PointChart/>
+        <div className="rounded-md bg-white">
         <Roster playerId={player.player_id} name={userName}/>
+        <Collection playerId={player.player_id} />
+      </div>
       </div>
     </main>
   );

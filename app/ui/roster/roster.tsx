@@ -14,7 +14,7 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
   const positions = getRosterPositions();
 
   return (
-    <div className="rounded-md bg-white">
+    <div>
       <p className='text-xl m-2 pl-5'>{name}&apos;s Roster</p>
       <div className='flex flex-wrap justify-around'>
         {positions.map((position, index) =>
@@ -27,7 +27,6 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
           }
         )}
       </div>
-      <Collection playerId={playerId} />
     </div>
   );
 }
