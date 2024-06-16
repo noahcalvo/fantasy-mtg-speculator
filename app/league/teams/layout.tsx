@@ -21,8 +21,8 @@ export default async function Layout({
   }
 
   return (
-    <div className="mb-4 p-4">
-      <div className="p-2">
+    <div className="mb-4 sm:p-4 p-2">
+      <div className="sm:p-2 flex sm:block">
         <TeamSelector teams={teamsInLeague} />
         {children}
       </div>

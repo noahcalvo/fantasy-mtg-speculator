@@ -8,7 +8,7 @@ export default function TeamSelector({ teams }: { teams: Player[] }) {
   return (
     <div>
       <h1>Teams</h1>
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row">
       {teams.map((element: Player, index: number) => (
         <LightNavTab
           key={index}
