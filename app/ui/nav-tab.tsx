@@ -17,7 +17,7 @@ export function LightNavTab({ name, path, active }: { name: string; path: string
   return (
     <Link
       href={path}
-      className={`focus-visible:outline-black border border-black flex h-10 items-center rounded-l-lg px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+      className={`focus-visible:outline-black border border-black flex h-10 items-center rounded-l-lg sm:rounded-t-lg sm:rounded-bl-none px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
       ${active ? 'bg-black text-white ' : 'bg-white text-black'}
         `}
     >

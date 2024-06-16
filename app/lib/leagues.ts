@@ -134,11 +134,9 @@ export async function fetchPlayerWeeklyPointsInLeague(
         name: player.name,
         week: week,
       };
-      console.log(teamPerformance);
       teams.push(teamPerformance);
     }
 
-    console.log(teams);
     return { teams: teams, league_id: leagueId };
   } catch (error) {
     console.log('Database Error:', error);

@@ -10,7 +10,7 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
   const cardIds = getCardIdsFromMap(roster);
   const week = getCurrentWeek();
   const mostRecentPoints = await fetchCardPerformanceByWeek(cardIds, week)
-
+  const secondMostRecentPoints = await fetchCardPerformanceByWeek(cardIds, week-1);
   const positions = getRosterPositions();
 
   return (
@@ -20,8 +20,9 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
         {positions.map((position, index) =>
           {
             const points = mostRecentPoints.cards.find(element => element.card_id === roster[position.toLowerCase()]?.card_id) ?? {week: week, total_points: 0, card_id: roster[position.toLowerCase()]?.card_id ?? -1, name: roster[position.toLowerCase()]?.name ?? ''}
+            const secondPoints = secondMostRecentPoints.cards.find(element => element.card_id === roster[position.toLowerCase()]?.card_id) ?? {week: week-1, total_points: 0, card_id: roster[position.toLowerCase()]?.card_id ?? -1, name: roster[position.toLowerCase()]?.name ?? ''}
             return (
-              <PositionCell position={position} card={roster[position.toLowerCase()]} key={index} score={points}/>
+              <PositionCell position={position} card={roster[position.toLowerCase()]} key={index} scoreOne={points} scoreTwo={secondPoints}/>
             )
           }
         )}

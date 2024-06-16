@@ -18,7 +18,6 @@ export default function TeamSelector({ teams }: { teams: Player[] }) {
         />
       ))}
       </div>
-      <div className="h-full bg-white text-black"></div>
     </div>
   );
 }

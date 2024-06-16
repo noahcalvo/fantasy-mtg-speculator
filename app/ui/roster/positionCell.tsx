@@ -4,11 +4,13 @@ import Image from 'next/image';
 export default function PositionCell({
   position,
   card,
-  score,
+  scoreOne,
+  scoreTwo
 }: {
   position: string;
   card: CardDetails | null;
-  score: CardPoint;
+  scoreOne: CardPoint;
+  scoreTwo: CardPoint;
 }) {
   return (
     <div className=" h-22 mx-2 mb-2 w-full text-sm sm:w-80">
@@ -22,13 +24,25 @@ export default function PositionCell({
               {card ? card.name : 'empty'}
             </p>
             {card ? (
-              <div className="mr-2 border border-gray-300">
-                <div className="flex justify-center">
-                  <div>week {score?.week} points</div>
+              <div>
+                <div className="mr-2 border border-gray-300">
+                  <div className="flex justify-center">
+                    <div>week {scoreOne?.week} points</div>
+                  </div>
+                  <p className="bg-black text-center text-white">
+                    {scoreOne?.total_points || 0}
+                  </p>
                 </div>
-                <p className="bg-black text-center text-white">
-                  {score?.total_points || 0}
-                </p>
+                <div className='h-2'/>
+                <div className="mr-2 border border-gray-300">
+                  <div className="flex justify-center">
+                    <div>week {scoreTwo?.week} points</div>
+                  </div>
+                  <p className="bg-black text-center text-white">
+                    {scoreTwo?.total_points || 0}
+                  </p>
+                </div>
+
               </div>
             ) : (
               <div />

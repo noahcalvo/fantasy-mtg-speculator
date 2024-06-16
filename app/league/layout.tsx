@@ -37,14 +37,13 @@ export default async function Layout({
       <div className="w-full flex-none md:w-64">
         <SideNav />
       </div>
-      <div className="flex-grow p-1 md:overflow-y-auto md:p-12">
+      <div className="flex-grow p-1 md:overflow-y-auto md:p-4">
         {joinedLeague?.name ? (
+                      <div className="p-4">
+                      <p className="text-2xl text-white">Welcome to <span className='text-red-900 font-bold'>{joinedLeague?.name}</span></p>
           <LeagueSelector userId={playerId}>
-            <div className="p-4">
-              <p className="text-2xl mt-4 ml-4">Welcome to <span className='text-red-900 font-bold'>{joinedLeague?.name}</span></p>
               {children}
-            </div>
-          </LeagueSelector>
+          </LeagueSelector></div>
         ) : (
           <div>
             <p className="text-center text-white">You not belong to a league</p>
