@@ -14,7 +14,7 @@ export default function PositionCell({
 }) {
   return (
     <div className=" h-22 mx-2 mb-2 w-full text-sm sm:w-80">
-      <div className="h-full w-full border border-gray-300">
+      <div className="h-full w-full">
         <div className="flex justify-center bg-black text-white">
           <div>{position}</div>
         </div>
@@ -26,8 +26,8 @@ export default function PositionCell({
             {card ? (
               <div>
                 <div className="mr-2 border border-gray-300">
-                  <div className="flex justify-center">
-                    <div>week {scoreOne?.week} points</div>
+                  <div className="flex justify-center text-xs">
+                    <div>week {scoreOne?.week}</div>
                   </div>
                   <p className="bg-black text-center text-white">
                     {scoreOne?.total_points || 0}
@@ -35,8 +35,8 @@ export default function PositionCell({
                 </div>
                 <div className='h-2'/>
                 <div className="mr-2 border border-gray-300">
-                  <div className="flex justify-center">
-                    <div>week {scoreTwo?.week} points</div>
+                  <div className="flex justify-center text-xs">
+                    <div>week {scoreTwo?.week}</div>
                   </div>
                   <p className="bg-black text-center text-white">
                     {scoreTwo?.total_points || 0}

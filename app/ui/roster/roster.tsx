@@ -15,7 +15,7 @@ export default async function Roster({ playerId, name }: { playerId: number, nam
 
   return (
     <div>
-      <p className='text-xl m-2 pl-5'>{name}&apos;s Roster</p>
+      <p className='text-xl m-2 pl-5'><span className='text-red-900 font-bold'>{name}&apos;s</span> Roster</p>
       <div className='flex flex-wrap justify-around'>
         {positions.map((position, index) =>
           {
