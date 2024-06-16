@@ -21,9 +21,11 @@ export default async function Layout({
   }
 
   return (
-    <div className="mb-4 p-4">
-      <div className="p-2">
+    <div className="mb-4">
+      <div className="mt-2 lg:p-2 flex sm:block">
+        <div className="sm:overflow-auto">
         <TeamSelector teams={teamsInLeague} />
+        </div>
         {children}
       </div>
     </div>
