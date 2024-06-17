@@ -127,7 +127,8 @@ def createTables(conn):
             CREATE TABLE IF NOT EXISTS Leagues (
             league_id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
-            participants INT[]
+            participants INT[],
+            open BOOLEAN NOT NULL
             );
             """
             cur.execute(create_league_table_query)

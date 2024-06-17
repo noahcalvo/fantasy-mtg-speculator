@@ -34,7 +34,7 @@ export async function fetchLeague(userId: number): Promise<League | null> {
 export async function fetchAllLeagues() {
   try {
     const data = await sql<League>`
-        SELECT * FROM leagues;
+        SELECT * FROM leagues WHERE open = true;
           `;
     if (data.rows.length === 0) {
       console.log('No leagues found');
@@ -63,9 +63,13 @@ export async function joinLeague(userId: number, leagueId: number) {
   try {
     // Check if the player is already a participant
     const leagueResult =
-      await sql`SELECT participants FROM leagues WHERE league_id = ${leagueId};`;
+      await sql`SELECT participants, open FROM leagues WHERE league_id = ${leagueId};`;
     if (leagueResult.rowCount === 0) {
       throw new Error('League not found');
+    }
+    if (leagueResult.rows[0].open === false) {
+      console.log('League is closed');
+      return;
     }
     const participants = leagueResult.rows[0].participants;
     if (participants.includes(userId)) {
@@ -85,7 +89,7 @@ export async function createLeague(leagueName: string, userId: number) {
   let resp;
   try {
     resp =
-      await sql`INSERT INTO leagues (name, participants) VALUES (${leagueName}, array[]::int[]) RETURNING league_id;`;
+      await sql`INSERT INTO leagues (name, participants, open) VALUES (${leagueName}, array[]::int[], true) RETURNING league_id;`;
     joinLeague(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
