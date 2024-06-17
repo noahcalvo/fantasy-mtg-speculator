@@ -7,7 +7,7 @@ import {
   TeamPerformance,
   WeeklyLeaguePerformances,
 } from './definitions';
-import { revalidatePath } from 'next/cache';
+import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { fetchPlayerRosterScore } from './rosters';
 
@@ -98,6 +98,7 @@ export async function createLeague(leagueName: string, userId: number) {
 export async function fetchPlayersInLeague(
   leagueId: number,
 ): Promise<Player[]> {
+  noStore();
   try {
     const data = await sql<Player>`
     SELECT p.name, p.email, p.player_id
@@ -124,6 +125,7 @@ export async function fetchPlayerWeeklyPointsInLeague(
 ): Promise<WeeklyLeaguePerformances> {
   try {
     const players = await fetchPlayersInLeague(leagueId);
+    console.log(players)
     const teams: TeamPerformance[] = [];
 
     for (const player of players) {
