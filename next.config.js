@@ -10,11 +10,11 @@ const nextConfig = {
     },
     async redirects() {
         return [
-          {
-            source: '/league',
-            destination: '/league/teams',
-            permanent: false, // true for 301 redirect, false for 302 redirect
-          },
+          // {
+          //   source: '/league',
+          //   destination: '/league/teams',
+          //   permanent: false, // true for 301 redirect, false for 302 redirect
+          // },
         ]
       },
     

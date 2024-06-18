@@ -3,7 +3,7 @@ import { Player } from '@/app/lib/definitions';
 import { LightNavTab } from '@/app/ui/nav-tab';
 import { usePathname } from 'next/navigation';
 
-export default function TeamSelector({ teams }: { teams: Player[] }) {
+export default function TeamSelector({ teams, leagueId }: { teams: Player[], leagueId: number }) {
   const pathname = usePathname();
   return (
     <div>
@@ -13,8 +13,8 @@ export default function TeamSelector({ teams }: { teams: Player[] }) {
         <LightNavTab
           key={index}
           name={element.name}
-          path={`/league/teams/${element.player_id}`}
-          active={pathname === `/league/teams/${element.player_id}`}
+          path={`/league/${leagueId}/teams/${element.player_id}`}
+          active={pathname === `/league/${leagueId}/teams/${element.player_id}`}
         />
       ))}
       </div>
