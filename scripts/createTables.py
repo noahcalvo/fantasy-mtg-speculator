@@ -142,7 +142,7 @@ def createTables(conn):
             offered INT[] NOT NULL,
             requested INT[] NOT NULL,
             state VARCHAR(255) NOT NULL,
-            expires DATETIME
+            expires TIMESTAMP
             );
             """
             cur.execute(create_trade_table_query)

@@ -87,12 +87,12 @@ export default function Trade({ teamsInLeague, player, playerCollection, leagueC
           </div>
         </div>
         <div className="flex justify-center">
-          <button
+          <div
             className="rounded bg-white px-4 py-2 text-black hover:text-white hover:bg-red-800 border hover:border-white"
             onClick={() => makeOffer()}
           >
             Make an offer
-          </button>
+          </div>
         </div>
       </form>
     </div>)
