@@ -95,7 +95,7 @@ export async function createLeague(leagueName: string, userId: number) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);
   } finally {
-    redirect(`/league/teams`);
+    redirect(`/league/${resp?.rows[0].league_id}/teams`);
   }
 }
 

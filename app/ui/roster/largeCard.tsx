@@ -1,7 +1,7 @@
 import { CardDetails, CardPoint } from '@/app/lib/definitions';
 import Image from 'next/image';
 
-export default function PositionCell({
+export default function LargeCard({
   position,
   card,
   scoreOne,

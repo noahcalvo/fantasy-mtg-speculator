@@ -15,9 +15,6 @@ export type Player = {
   email: string;
 };
 
-export type RosterScore = {
-}
-
 export type CardPoint = {
   name: string;
   total_points: number;
@@ -55,6 +52,11 @@ export type CardDetails = {
     scryfallUri: string;
     colorIdentity: string[];
     typeLine: string;
+}
+
+export type Collection = {
+  player_id: number;
+  cards: CardDetails[];
 }
 
 export type Draft = {
@@ -134,12 +136,17 @@ export const getCardTypes = (typeLine: string) => {
       return typeLine.includes(position);
     }
   });
-  return cardApplicablePositions.concat('Flex');
+  return cardApplicablePositions;
 }
 
 export const getCardTypesAbbreviation = (typeLine: string) => {
   const cardTypes = getCardTypes(typeLine);
   return cardTypes.map((type) => getAbbreviation(type));
+}
+
+export const getCardTypesAbbreviationString = (typeLine: string) => {
+  const abbreviations = getCardTypesAbbreviation(typeLine)
+  return abbreviations.join("/")
 }
 
 export const getAbbreviation = (position: string) => {

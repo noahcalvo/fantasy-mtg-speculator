@@ -134,6 +134,20 @@ def createTables(conn):
             cur.execute(create_league_table_query)
             print("Created 'leagues' table")
 
+            create_trade_table_query = """
+            CREATE TABLE IF NOT EXISTS Trades (
+            trade_id SERIAL PRIMARY KEY,
+            offerer INT NOT NULL,
+            recipient INT NOT NULL,
+            offered INT[] NOT NULL,
+            requested INT[] NOT NULL,
+            state VARCHAR(255) NOT NULL,
+            expires DATETIME
+            );
+            """
+            cur.execute(create_trade_table_query)
+            print("Created 'trades' table")
+
         conn.commit()
     except Exception as error:
         print('Error creating tables:', error)
