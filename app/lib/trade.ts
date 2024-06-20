@@ -17,7 +17,7 @@ export async function makeTradeOffer(offeredCards: number[], playerId: number, w
       throw new Error('Problem with offer. Either cards offered are not owned by you or cards requested are not owned by partner.');
     }
     console.log("ownership passed")
-    await pool.query('INSERT into trades (offerer, recipient, offered, requested, state) VALUES ($1, $2, $3, $4, "pending")', [playerId, tradePartnerId, offeredCards, wantedCards])
+    await pool.query('INSERT into trades (offerer, recipient, offered, requested, state) VALUES ($1, $2, $3, $4, $5)', [playerId, tradePartnerId, offeredCards, wantedCards, "pending"])
     console.log("query ran")
     console.log("no way it got here")
   } catch (error) {
