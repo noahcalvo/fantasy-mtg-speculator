@@ -171,3 +171,21 @@ export const calculateTotalPoints = (cardPoints: CardPoint[]): number => {
     return accumulator + cardPoint.total_points;
   }, 0);
 };
+
+export type TradeOffer = {
+  tradeId: number;
+  offererId: number;
+  recipientId: number;
+  givesCardIds: number[];
+  recievesCardIds: number[];
+  state: string;
+}
+
+export type TradeOfferWithCardDetails = {
+  tradeId: number
+  offererId: number;
+  recipientId: number;
+  givesCards: CardDetails[];
+  recievesCards: CardDetails[];
+  state: string;
+}

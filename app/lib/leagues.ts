@@ -129,7 +129,6 @@ export async function fetchPlayerWeeklyPointsInLeague(
 ): Promise<WeeklyLeaguePerformances> {
   try {
     const players = await fetchPlayersInLeague(leagueId);
-    console.log(players)
     const teams: TeamPerformance[] = [];
 
     for (const player of players) {
@@ -147,5 +146,18 @@ export async function fetchPlayerWeeklyPointsInLeague(
   } catch (error) {
     console.log('Database Error:', error);
     throw new Error("Failed to fetch players' weekly points in league");
+  }
+}
+
+export async function fetchPlayerIdInLeague(leagueId: number): Promise<number[]> {
+  noStore()
+  try {
+    const data = await sql`
+    SELECT participants FROM leagues WHERE league_id=${leagueId};`;
+    const players: number[] = data.rows.map(row => row.value);
+    return players;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
   }
 }

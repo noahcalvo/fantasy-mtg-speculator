@@ -5,14 +5,13 @@ import { makeTradeOffer } from "@/app/lib/trade";
 import SmallCard from "@/app/ui/roster/smallCard";
 import { useState } from "react";
 
-export default function Trade({ teamsInLeague, player, playerCollection, leagueCollections }: { teamsInLeague: Player[], player: Player, playerCollection: CardDetails[], leagueCollections: Collection[] }) {
+export default function Trade({ teamsInLeague, player, playerCollection, leagueCollections, leagueId }: { teamsInLeague: Player[], player: Player, playerCollection: CardDetails[], leagueCollections: Collection[], leagueId: number }) {
   const [tradePartner, setTradePartner] = useState(teamsInLeague[0].player_id);
   const [ownedSelectedCards, setOwnedSelectedCards] = useState<number[]>([]);
   const [wantSelectedCards, setWantSelectedCards] = useState<number[]>([]);
 
   function makeOffer() {
-    console.log("making an offer")
-    makeTradeOffer(ownedSelectedCards, player.player_id, wantSelectedCards, tradePartner);
+    makeTradeOffer(ownedSelectedCards, player.player_id, wantSelectedCards, tradePartner, leagueId);
   }
 
   const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -71,7 +70,7 @@ export default function Trade({ teamsInLeague, player, playerCollection, leagueC
             )}
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {leagueCollections.filter((collection) => collection.player_id == tradePartner)[0].cards.map((card, index) => {
+            {leagueCollections.filter((collection) => collection.player_id == tradePartner)[0]?.cards.map((card, index) => {
               // const points = yourCollectionPerformance.find(element => element.card_id === card?.card_id)?.total_points ?? 0
               const position = getCardTypesAbbreviationString(card.typeLine)
               return (

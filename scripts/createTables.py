@@ -143,6 +143,8 @@ def createTables(conn):
             requested INT[] NOT NULL,
             state VARCHAR(255) NOT NULL,
             expires TIMESTAMP
+            FOREIGN KEY (offerer) REFERENCES Users(player_id),
+            FOREIGN KEY (recipient) REFERENCES Users(player_id),
             );
             """
             cur.execute(create_trade_table_query)
