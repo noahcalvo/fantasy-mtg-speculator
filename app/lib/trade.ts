@@ -7,6 +7,7 @@ import { fetchCard } from "./sets";
 import { fetchParticipantData } from "./player";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { completedTradeBulletin } from "./bulletin";
 
 const { Pool } = pg;
 
@@ -16,6 +17,9 @@ const pool = new Pool({
 
 
 export async function makeTradeOffer(offeredCards: number[], playerId: number, wantedCards: number[], tradePartnerId: number, leagueId: number) {
+  if (offeredCards.length === 0 || wantedCards.length === 0) {
+    throw new Error('Problem with offer. Either no cards offered or no cards requested.');
+  }
   try {
     const playersInLeague = await fetchPlayerIdInLeague(leagueId);
     if (!playersInLeague.includes(playerId) || !playersInLeague.includes(tradePartnerId)) {
@@ -107,6 +111,43 @@ export async function fetchTradeOffersWithDetails(playerId: number): Promise<Tra
   }
 }
 
+export async function fetchTradeOfferWithDetails(tradeId: number): Promise<TradeOfferWithCardDetails> {
+  try {
+    const query = `
+    SELECT
+        trade_id, offerer, recipient, offered, requested, state
+    FROM
+        Trades
+    WHERE
+        trade_id = $1;
+    `;
+
+    const data = await pool.query(query, [tradeId]);
+    const offer = data.rows[0]
+    const offeredCardDetails: CardDetails[] = [];
+    for (var cardId of (offer.offered ?? [])) {
+      offeredCardDetails.push(await fetchCard(cardId));
+    }
+    const recievingCards: CardDetails[] = [];
+    for (var cardId of (offer.requested ?? [])) {
+      recievingCards.push(await fetchCard(cardId));
+    }
+    const offerer = await fetchParticipantData(offer.offerer)
+    const recipient = await fetchParticipantData(offer.recipient)
+    return {
+      offeredCards: offeredCardDetails,
+      requestedCards: recievingCards,
+      trade_id: offer.trade_id,
+      offerer: offerer,
+      recipient: recipient,
+      state: offer.state
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch trade request`);
+  }
+}
+
 export async function acceptTrade(trade: TradeOffer, playerId: number, leagueId: number) {
   try {
     const tradeQuery = 'UPDATE trades SET state = $1 WHERE trade_id = $2 AND recipient = $3';
@@ -135,6 +176,8 @@ export async function acceptTrade(trade: TradeOffer, playerId: number, leagueId:
 
   // Expire all other pending trades that involve the offered or requested cards
   await pool.query(expireTradesQuery, [trade.trade_id, trade.offered, trade.requested]);
+
+  await completedTradeBulletin(trade, leagueId);
 
   } catch (error) {
     console.error('Database Error:', error);

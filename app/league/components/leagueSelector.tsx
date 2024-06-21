@@ -16,7 +16,8 @@ export default function LeagueSelector({
       <div className='flex mt-4'>
       <DarkNavTab name="Teams" path={`/league/${leagueId}/teams`} active={leagueMatch}/>
       <DarkNavTab name="Standings" path={`/league/${leagueId}/standings`} active={pathname === `/league/${leagueId}/standings`}/>
-        <DarkNavTab name="Trade" path={`/league/${leagueId}/trade`} active={pathname === `/league/${leagueId}/trade`}/>
+      <DarkNavTab name="Trade" path={`/league/${leagueId}/trade`} active={pathname === `/league/${leagueId}/trade`}/>
+      <DarkNavTab name="Bulletin" path={`/league/${leagueId}/bulletin`} active={pathname === `/league/${leagueId}/bulletin`}/>
       </div>
       <div className='bg-white h-full text-black'>
             {children}
