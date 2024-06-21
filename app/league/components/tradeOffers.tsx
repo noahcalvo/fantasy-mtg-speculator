@@ -5,7 +5,7 @@ import { acceptTrade, declineTrade, revokeTrade } from "@/app/lib/trade";
 import SmallCard from "@/app/ui/roster/smallCard";
 import { useState } from "react";
 
-export default function TradeOffers({ offers, playerId, leagueId }: { offers: TradeOfferWithCardDetails[], playerId: number, leagueId: number}) {
+export default function TradeOffers({ offers, playerId, leagueId }: { offers: TradeOfferWithCardDetails[], playerId: number, leagueId: number }) {
   const [showOffers, setShowOffers] = useState(false);
   const offersMadeByPlayer = offers.filter(offer => offer.offerer.player_id === playerId && offer.state === "pending");
   const offersReceivedByPlayer = offers.filter(offer => offer.recipient.player_id === playerId && offer.state === "pending");
@@ -21,7 +21,7 @@ export default function TradeOffers({ offers, playerId, leagueId }: { offers: Tr
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mb-8">
               {offersReceivedByPlayer.map((trade, index) => {
                 return (
-                  <Trade outgoing={false} trade={trade} key={index} playerId={playerId} leagueId={leagueId}/>
+                  <Trade outgoing={false} trade={trade} key={index} playerId={playerId} leagueId={leagueId} />
                 )
               })}
               {offersReceivedByPlayer.length === 0 && <div className="text-center">No incoming trades</div>}
@@ -32,7 +32,7 @@ export default function TradeOffers({ offers, playerId, leagueId }: { offers: Tr
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mb-8">
               {offersMadeByPlayer.map((trade, index) => {
                 return (
-                  <Trade outgoing={true} trade={trade} key={index} playerId={playerId} leagueId={leagueId}/>
+                  <Trade outgoing={true} trade={trade} key={index} playerId={playerId} leagueId={leagueId} />
                 )
               })}
               {offersMadeByPlayer.length === 0 && <div className="text-center">No outgoing trades</div>}
@@ -47,6 +47,8 @@ export default function TradeOffers({ offers, playerId, leagueId }: { offers: Tr
 function Trade({ trade, outgoing, playerId, leagueId }: { trade: TradeOfferWithCardDetails, outgoing: boolean, playerId: number, leagueId: number }) {
   const tradeNoDetails = transformTradeOffer(trade)
   console.log("tradeNoDetails", tradeNoDetails)
+  const giving = outgoing ? trade.offeredCards : trade.requestedCards
+  const getting = outgoing ? trade.requestedCards : trade.offeredCards
   return (
     <div className="border border-black" >
       <div className="bg-black text-white w-full text-center">{outgoing ? trade.recipient.name : trade.offerer.name}</div>
@@ -58,7 +60,7 @@ function Trade({ trade, outgoing, playerId, leagueId }: { trade: TradeOfferWithC
       </div>
       <div className="flex m-1 place-content-around">
         <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
-          {trade.offeredCards.map((card, index) => {
+          {giving.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine)
             return (
               <div key={index} className="m-1">
@@ -80,7 +82,7 @@ function Trade({ trade, outgoing, playerId, leagueId }: { trade: TradeOfferWithC
 
         </div>
         <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
-          {trade.requestedCards.map((card, index) => {
+          {getting.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine)
             return (
               <div key={index} className="m-1">
