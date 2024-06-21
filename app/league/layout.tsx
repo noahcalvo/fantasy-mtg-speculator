@@ -40,7 +40,7 @@ export default async function Layout({
         {joinedLeague?.name ? (
           <div className="p-4">
             <p className="text-2xl text-white">Welcome to <span className='text-red-900 font-bold text-border-white'>{joinedLeague?.name}</span></p>
-            <LeagueSelector leagueId={joinedLeague?.league_id ?? -1}>
+            <LeagueSelector leagueId={joinedLeague?.league_id ?? -1} playerId={playerId}>
               {children}
             </LeagueSelector>
           </div>

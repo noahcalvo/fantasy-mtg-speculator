@@ -9,7 +9,7 @@ export default function MoreAboutStandings() {
         <div className="justify-between rounded-xl bg-black text-white p-2" onClick={() => setShowInfo(!showInfo)}>
             <div className='w-full'>
                 <div className="p-2 font-xl flex">
-                    <InformationCircleIcon className="h-5 w-5 text-white mr-2" />Icon Info
+                    <InformationCircleIcon className="h-5 w-5 text-white mr-2" />Icon Key
                 </div>
             </div>
             <div className={`inline-block ${showInfo ? "block" : "hidden md:inline-block"}`}>
@@ -43,7 +43,7 @@ export default function MoreAboutStandings() {
                         </tr>
                         <tr>
                             <td className="px-4 py-2 rounded-bl-lg"><span className="text-white font-bold">💀</span></td>
-                            <td className="px-4 py-2 text-xs">Player needs to teardown retool</td>
+                            <td className="px-4 py-2 text-xs">Uh oh.</td>
                         </tr>
                     </tbody>
                 </table>

@@ -1,20 +1,20 @@
-import { fetchBulletinItems } from "@/app/lib/bulletin";
+import { fetchBulletinItems, postBulletinItem } from "@/app/lib/bulletin";
+import { fetchPlayerByEmail } from "@/app/lib/player";
+import { auth } from "@/auth";
+import BulletinBoard from "./components/bulletinBoard";
+import PostMessage from "./components/postMessage";
 
 export default async function Page({ params }: { params: { leagueId: string } }) {
   const leagueId = isNaN(parseInt(params.leagueId, 10)) ? -1 : parseInt(params.leagueId, 10);
+  const user = await auth().then((res) => res?.user);
+  const player = await fetchPlayerByEmail(user?.email ?? '')
+  const playerId = player.player_id
   const bulletins = await fetchBulletinItems(leagueId);
+
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Bulletin</h1>
-      <ul>
-        {bulletins.map((bulletin, index) => (
-          <li key={index} className="mb-2">
-            <div className="p-4 rounded bg-red-100 text-red-900">
-            <div dangerouslySetInnerHTML={{ __html: bulletin.message.replace(/\n/g, '<br>').replace(/\t/g, '<span style="margin-left: 40px;"></span>')}} />
-            </div>
-          </li>
-        ))}
-      </ul>
+      <BulletinBoard bulletins={bulletins} />
+      <PostMessage playerId={playerId} leagueId={leagueId} />
     </div>
   );
 }

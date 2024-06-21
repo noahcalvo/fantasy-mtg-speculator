@@ -10,7 +10,7 @@ export default async function Page({ params }: { params: { leagueId: string } })
   const lastWeekData = await fetchPlayerWeeklyPointsInLeague(leagueId, week - 1);
   return (
     <main className="mb-4 p-2">
-      <div className="grid md:grid-cols-2 md:">
+      <div className="grid md:grid-cols-2 gap-2">
         <div className="md:order-last">
           <MoreAboutStandings />
         </div>

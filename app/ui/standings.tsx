@@ -8,6 +8,7 @@ export default async function Standings({ weeklyPerformance, lastWeekData }: { w
   const sortedPointsArray = Array.from(performanceMap.entries()).sort((a, b) => b[1].thisWeek - a[1].thisWeek);
   return (
     <div>
+      <div className="text-xl ml-4 font-bold" >Weekly League Standings</div>
       {sortedPointsArray.map(([playerId, twoWeekStatus], index) => {
         let className = 'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
         let emojiText = "   "

@@ -215,3 +215,9 @@ export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffe
     state: trade.state
   };
 }
+
+export type BulletinItem = {
+  player_id: number;
+  message: string;
+  author: string;
+}
