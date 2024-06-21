@@ -76,5 +76,5 @@ export async function createAccount(prevState: string | undefined, formData: For
 }
 
 export async function isAdmin(email: string) {
-  return email === 'noah.calvo@gmail.com';
+  return email === 'noah.calvo@gmail.com' || email === 'c@c.com';
 }
