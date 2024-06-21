@@ -49,21 +49,21 @@ export function Card({
   headerSize ? 'text-3xl' : ''
   return (
     <div className="rounded-xl bg-gray-50 p-2 shadow-sm flex flex-col justify-between">
-      <div className="flex p-4">
+      <div className="flex p-2">
         {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
         <h3 className="ml-2 font-medium"
-        style={{ fontSize: headerSize}}
+          style={{ fontSize: headerSize }}
         >
           {title}
         </h3>
       </div>
       <div className='h-full bg-white flex flex-row items-center justify-center'>
-      <p
-        className="truncate rounded-xl text-center"
-        style={{ fontSize: paragraphSize }}
-      >
-        {value}
-      </p>
+        <p
+          className="truncate rounded-xl text-center"
+          style={{ fontSize: paragraphSize }}
+        >
+          {value}
+        </p>
       </div>
     </div>
   );

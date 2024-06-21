@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   CardDetails,
   getAbbreviation,
-  getCardTypes,
+  getCardTypesList,
   getRosterPositions,
 } from '@/app/lib/definitions';
 import Image from 'next/image';
@@ -48,7 +48,7 @@ export default function AvailableCards({
   const filteredCards = sortedCards.filter(
     (card: CardDetails) =>
       card.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (getCardTypes(card.typeLine).some((type) =>
+      (getCardTypesList(card.typeLine).some((type) =>
         filteredTypes.includes(type),
       ) ||
         filteredTypes.length === 0),
@@ -117,11 +117,10 @@ export default function AvailableCards({
                   height="200"
                 />
                 <button
-                  className={`mx-2 rounded-md border border-white p-2 text-black ${
-                    activeDrafter
-                      ? 'bg-white hover:bg-red-800 hover:text-white'
-                      : 'bg-gray-500 text-white'
-                  }`}
+                  className={`mx-2 rounded-md border border-white p-2 text-black ${activeDrafter
+                    ? 'bg-white hover:bg-red-800 hover:text-white'
+                    : 'bg-gray-500 text-white'
+                    }`}
                   disabled={!activeDrafter}
                   onClick={() => makePick(draftId, playerId, card.name, set)}
                 >
