@@ -153,9 +153,8 @@ export async function fetchPlayerIdInLeague(leagueId: number): Promise<number[]>
   noStore()
   try {
     const data = await sql`
-    SELECT participants FROM leagues WHERE league_id=${leagueId};`;
-    const players: number[] = data.rows.map(row => row.value);
-    return players;
+    SELECT participants FROM leagues WHERE league_id=${leagueId} LIMIT 1;`;
+    return data.rows[0].participants;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch players for leagueId ${leagueId}`);

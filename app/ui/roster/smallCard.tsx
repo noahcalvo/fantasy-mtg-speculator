@@ -11,12 +11,12 @@ export default function SmallCard({
   score: number;
 }) {
   return (
-    <div className=" h-44 w-30 text-sm sm:w-50 border overflow-auto rounded-md">
+    <div className="w-30 text-sm sm:w-50 border overflow-auto rounded-md">
       <div className="h-full w-full overflow-auto">
         <div className="flex justify-center overflow-auto">
           <div>{availablePosition}</div>
         </div>
-        <div className="flex p-2">
+        <div className="flex md:p-2">
           {/* <div className="w-2/3">
             <p className="line-clamp-2 text-ellipsis text-center">
               {card ? card.name : 'empty'}

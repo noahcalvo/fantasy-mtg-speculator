@@ -4,8 +4,9 @@ import { auth } from '@/auth';
 import Trade from '../../components/trade';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { fetchPlayerCollectionWithDetails, fetchPlayerCollectionWithPerformance, fetchPlayerCollectionsWithDetails } from '@/app/lib/collection';
-import PendingOffers from '../../components/pendingOffers';
-import { fetchTradeOffers } from '@/app/lib/trade';
+import PendingOffers from '../../components/tradeOffers';
+import { fetchTradeOffers, fetchTradeOffersWithDetails } from '@/app/lib/trade';
+import TradeOffers from '../../components/tradeOffers';
 
 export default async function Page({ params }: { params: { leagueId: string } }) {
   const leagueId = isNaN(parseInt(params.leagueId, 10)) ? -1 : parseInt(params.leagueId, 10);
@@ -17,11 +18,10 @@ export default async function Page({ params }: { params: { leagueId: string } })
 
   const playerCollection = await fetchPlayerCollectionWithDetails(playerId);
   const leagueCollections = await fetchPlayerCollectionsWithDetails(teamsInLeagueWithoutYou.map(player => player.player_id))
-  const pendingRecipientOffers = await fetchTradeOffers(playerId)
-  console.log("offers:", pendingRecipientOffers)
+  const tradeOffers = await fetchTradeOffersWithDetails(playerId)
   return (
     <main className="mb-4 p-2">
-      <PendingOffers />
+      <TradeOffers offers={tradeOffers} playerId={playerId} leagueId={leagueId}/>
       <Trade teamsInLeague={teamsInLeagueWithoutYou} player={player} playerCollection={playerCollection} leagueCollections={leagueCollections} leagueId={leagueId} />
     </main>
   );

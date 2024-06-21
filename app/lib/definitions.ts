@@ -173,19 +173,30 @@ export const calculateTotalPoints = (cardPoints: CardPoint[]): number => {
 };
 
 export type TradeOffer = {
-  tradeId: number;
-  offererId: number;
-  recipientId: number;
-  givesCardIds: number[];
-  recievesCardIds: number[];
+  trade_id: number;
+  offerer: number;
+  recipient: number;
+  offered: number[];
+  requested: number[];
   state: string;
 }
 
 export type TradeOfferWithCardDetails = {
-  tradeId: number
-  offererId: number;
-  recipientId: number;
-  givesCards: CardDetails[];
-  recievesCards: CardDetails[];
+  trade_id: number
+  offerer: Player;
+  recipient: Player;
+  offeredCards: CardDetails[];
+  requestedCards: CardDetails[];
   state: string;
+}
+
+export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffer {
+  return {
+    recipient: trade.recipient.player_id,
+    offerer: trade.offerer.player_id, 
+    offered: trade.offeredCards.map(card => card.card_id),
+    requested: trade.requestedCards.map(card => card.card_id),
+    trade_id: trade.trade_id,
+    state: trade.state
+  };
 }
