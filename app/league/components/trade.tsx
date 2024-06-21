@@ -12,7 +12,7 @@ export default function Trade({ teamsInLeague, player, playerCollection, leagueC
   function makeOffer() {
     makeTradeOffer(ownedSelectedCards, player.player_id, wantSelectedCards, tradePartner, leagueId);
     setOwnedSelectedCards([]);
-    setWantSelectedCards([]);  
+    setWantSelectedCards([]);
   }
 
   const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -71,14 +71,15 @@ export default function Trade({ teamsInLeague, player, playerCollection, leagueC
             }
             )}
           </div>
-                  <div className="flex justify-center">
-          <button
-            className="rounded-md px-2 py-1 text-white bg-red-800 border border-white hover:border-red-400 h-10"
-            onClick={() => makeOffer()}
-          >
-            Make offer
-          </button>
-        </div>
+          <div className="flex justify-center">
+            <button
+              className={`rounded-md px-2 py-1 text-white border h-10 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'bg-gray-400 border-gray-400' : 'bg-red-800 border-white hover:border-red-400'}`}
+              onClick={() => makeOffer()}
+              disabled={ownedSelectedCards.length === 0 || wantSelectedCards.length === 0}
+            >
+              Make offer
+            </button>
+          </div>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {leagueCollections.filter((collection) => collection.player_id == tradePartner)[0]?.cards.map((card, index) => {

@@ -142,13 +142,28 @@ def createTables(conn):
             offered INT[] NOT NULL,
             requested INT[] NOT NULL,
             state VARCHAR(255) NOT NULL,
-            expires TIMESTAMP
+            expires TIMESTAMP,
             FOREIGN KEY (offerer) REFERENCES Users(player_id),
-            FOREIGN KEY (recipient) REFERENCES Users(player_id),
+            FOREIGN KEY (recipient) REFERENCES Users(player_id)
             );
             """
             cur.execute(create_trade_table_query)
             print("Created 'trades' table")
+
+            create_bulletin_table_query = """
+            CREATE TABLE IF NOT EXISTS BulletinItems (
+            item_id SERIAL PRIMARY KEY,
+            league_id INT NOT NULL,
+            player_id INT NOT NULL,
+            message TEXT NOT NULL,
+            created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (league_id) REFERENCES Leagues(league_id),
+            FOREIGN KEY (player_id) REFERENCES Users(player_id)
+            );
+            """
+            cur.execute(create_bulletin_table_query)
+            print("Created 'bulletin items' table")
+
 
         conn.commit()
     except Exception as error:
