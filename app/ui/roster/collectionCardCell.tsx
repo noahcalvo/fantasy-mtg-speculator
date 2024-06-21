@@ -1,5 +1,5 @@
 'use client';
-import { CardDetails, getAbbreviation, getRosterPositions } from '@/app/lib/definitions';
+import { CardDetails, getAbbreviation, getCardTypes, getCardTypesList, getRosterPositions } from '@/app/lib/definitions';
 import { playPositionSlot } from '@/app/lib/rosters';
 import Image from 'next/image';
 
@@ -11,17 +11,8 @@ export default function CollectionCardCell({
   playerId: number;
 }) {
   const positions = getRosterPositions();
-  let cardType = positions.find((position) => {
-    if (position.includes('/')) {
-      const splitPositions = position.split('/');
-      return splitPositions.some(
-        (splitPosition) => card?.typeLine.includes(splitPosition),
-      );
-    } else {
-      return card?.typeLine.includes(position);
-    }
-  });
-  cardType = cardType || '';
+  let cardTypes = getCardTypesList(card?.typeLine ?? '');
+  let cardTypeName = getCardTypes(card?.typeLine ?? '');
   return (
     // add cardType to the card item
 
@@ -31,21 +22,21 @@ export default function CollectionCardCell({
           <Image src={card.image} alt={card.name} className="w-1/4 h-auto" width={100} height={100} />
           <div className="flex flex-col items-end justify-around">
             <div className="font-bold">{card.name}</div>
-            <div >{cardType}</div>
+            <div >{cardTypeName}</div>
             <div className='flex'>
-              {cardType && (
-                <button
-                  className={`w-15 mx-2 rounded-md border border-black bg-white 
-                  p-2 text-black hover:bg-red-800 hover:text-white text-sm`}
-                  //   ${
-                  //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
-                  //   }
-                  disabled={false}
-                  onClick={() => playPositionSlot(card.card_id, playerId, cardType ?? "")}
-                >
-                  Play in {getAbbreviation(cardType)}
-                </button>
-              )}
+              {cardTypeName && (
+
+                cardTypes.map((cardType) => (
+                  <button
+                    key={cardType}
+                    className={`w-15 mx-2 rounded-md border border-black bg-white 
+    p-2 text-black hover:bg-red-800 hover:text-white text-sm`}
+                    disabled={false}
+                    onClick={() => playPositionSlot(card.card_id, playerId, cardType)}
+                  >
+                    Play in {getAbbreviation(cardType)}
+                  </button>
+                )))}
               <button
                 className={`w-15 mx-2 rounded-md border border-black bg-white 
                   p-2 text-black hover:bg-red-800 hover:text-white text-sm`}

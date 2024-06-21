@@ -139,6 +139,21 @@ export const getCardTypes = (typeLine: string) => {
   return cardApplicablePositions;
 }
 
+export const getCardTypesList = (typeLine: string):string[] => {
+  const allPositions = getRosterPositions();
+  let cardApplicablePositions = allPositions.filter((position) => {
+    if (position.includes('/')) {
+      const splitPositions = position.split('/');
+      return splitPositions.some(
+        (splitPosition) => typeLine.includes(splitPosition),
+      );
+    } else {
+      return typeLine.includes(position);
+    }
+  });
+  return cardApplicablePositions
+}
+
 export const getCardTypesAbbreviation = (typeLine: string) => {
   const cardTypes = getCardTypes(typeLine);
   return cardTypes.map((type) => getAbbreviation(type));
