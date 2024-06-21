@@ -9,7 +9,7 @@ export default async function Standings({ weeklyPerformance, lastWeekData }: { w
   return (
     <div>
         {sortedPointsArray.map(([playerId, twoWeekStatus], index) => {
-        let className = 'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:underline';
+        let className = 'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
         let emojiText = "   "
         if (index === 0) emojiText = '🥇';
         else if (index === 1) emojiText = '🥈';
@@ -17,7 +17,7 @@ export default async function Standings({ weeklyPerformance, lastWeekData }: { w
         const arrow = getStatusArrow(twoWeekStatus)
         return (
           <Link key={index} className={className} href={`/league/${weeklyPerformance.league_id}/teams/${playerId}`}>
-            <div className="text-right">{emojiText}</div>
+            <div className="text-right text-lg">{emojiText}</div>
             <div className="col-span-7 text-lg text-bold">{twoWeekStatus.name}</div>
             <div className="col-span-4">{arrow} {twoWeekStatus.thisWeek} points</div>
           </Link>

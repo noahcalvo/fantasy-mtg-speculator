@@ -1,6 +1,6 @@
 'use server';
 import { sql } from '@vercel/postgres';
-import { Card, CardDetails, CardPerformances, CardPoint } from './definitions';
+import { Card, CardDetails, CardPerformances, CardPoint, Collection } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { fetchCard } from './sets';
 
@@ -31,26 +31,20 @@ export async function fetchCardPerformanceByWeek(
   }
 }
 
-export async function fetchPlayerCollection(playerId: number) {
+export async function fetchPlayerCollection(playerId: number): Promise<number[]> {
   noStore();
   try {
-    const data = await sql<Card>`
+    const data = await sql`
         SELECT 
-        C.card_id, 
-        C.name
+          card_id
         FROM
-          Cards C
-        JOIN 
-          Ownership O ON C.card_id = O.card_id
+          ownership
         WHERE
-          O.player_id = ${playerId}
-        GROUP BY 
-            C.card_id,
-            C.name
-        ORDER BY
-            C.name DESC;
+          player_id = ${playerId}
       `;
-    return data;
+
+    const cardIds: number[] = data.rows.map(row => row.value);
+    return cardIds;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch collection for player:${playerId}`);
@@ -149,5 +143,35 @@ export async function updateCollectionWithCompleteDraft(draftId: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to update collection with draft');
+  }
+}
+
+export async function fetchPlayerCollectionsWithDetails(playerIds: number[]): Promise<Collection[]>  {
+  const playerCollections: Collection[] = [];
+
+  for (const playerId of playerIds) {
+    try {
+      const collectionDetails = await fetchPlayerCollectionWithDetails(playerId);
+      playerCollections.push({ player_id: playerId, cards: collectionDetails });
+    } catch (error) {
+      console.error(`Failed to fetch details for playerId ${playerId}: ${error}`);
+      throw new Error(`Failed to get collection for ${playerId}`);
+    }
+  }
+  return playerCollections;
+}
+
+export async function playerOwnsCards(playerId: number, cardIds: number[]): Promise<boolean> {
+  try {
+    const collection = await fetchPlayerCollection(playerId);
+    cardIds.forEach( (cardId:number) => {
+      if (!collection.includes(cardId)) {
+        return false
+      }
+    })
+    return true
+  } catch (error) {
+    console.error(`Failed to check if player ${playerId} owns ${cardIds}`, error);
+    throw new Error(`Failed to check if player ${playerId} owns ${cardIds}`);
   }
 }

@@ -21,11 +21,12 @@ const links = [
   { name: 'Draft', href: '/draft', icon: BoltIcon },
 ];
 
-export default function NavLinks() {
+export default function NavLinks({leagueId, playerId}: {leagueId: number | undefined, playerId: number | null}) {
   const pathname = usePathname();
   return (
     <>
       {links.map((link) => {
+        link.href = link.href === '/league' && leagueId ? `/league/${leagueId}/teams/${playerId}` : link.href;
         const LinkIcon = link.icon;
         return (
           <Link

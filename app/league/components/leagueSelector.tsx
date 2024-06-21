@@ -10,11 +10,12 @@ export default function LeagueSelector({
   children?: React.ReactNode;
 }) {  
     const pathname = usePathname()
+    const leagueMatch = new RegExp(`/league/${leagueId}/teams(/.*)?`).test(pathname);
   return (
     <div>
       <div className='flex mt-4'>
-        <DarkNavTab name="Teams" path={`/league/${leagueId}/teams`} active={pathname === `/league/${leagueId}/teams`}/>
-        <DarkNavTab name="Standings" path={`/league/${leagueId}/standings`} active={pathname === `/league/${leagueId}/standings`}/>
+      <DarkNavTab name="Teams" path={`/league/${leagueId}/teams`} active={leagueMatch}/>
+      <DarkNavTab name="Standings" path={`/league/${leagueId}/standings`} active={pathname === `/league/${leagueId}/standings`}/>
         <DarkNavTab name="Trade" path={`/league/${leagueId}/trade`} active={pathname === `/league/${leagueId}/trade`}/>
       </div>
       <div className='bg-white h-full text-black'>

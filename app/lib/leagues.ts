@@ -95,7 +95,7 @@ export async function createLeague(leagueName: string, userId: number) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);
   } finally {
-    redirect(`/league/teams`);
+    redirect(`/league/${resp?.rows[0].league_id}/teams`);
   }
 }
 
@@ -129,7 +129,6 @@ export async function fetchPlayerWeeklyPointsInLeague(
 ): Promise<WeeklyLeaguePerformances> {
   try {
     const players = await fetchPlayersInLeague(leagueId);
-    console.log(players)
     const teams: TeamPerformance[] = [];
 
     for (const player of players) {
@@ -147,5 +146,17 @@ export async function fetchPlayerWeeklyPointsInLeague(
   } catch (error) {
     console.log('Database Error:', error);
     throw new Error("Failed to fetch players' weekly points in league");
+  }
+}
+
+export async function fetchPlayerIdInLeague(leagueId: number): Promise<number[]> {
+  noStore()
+  try {
+    const data = await sql`
+    SELECT participants FROM leagues WHERE league_id=${leagueId} LIMIT 1;`;
+    return data.rows[0].participants;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
   }
 }
