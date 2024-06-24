@@ -219,5 +219,6 @@ export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffe
 export type BulletinItem = {
   player_id: number;
   message: string;
+  created: Date;
   author: string;
 }

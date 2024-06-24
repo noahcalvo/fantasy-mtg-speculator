@@ -25,6 +25,7 @@ export async function fetchBulletinItems(leagueId: number): Promise<BulletinItem
             SELECT 
                 b.player_id,
                 b.message,
+                b.created,
                 u.name as author
             FROM
                 bulletinItems b

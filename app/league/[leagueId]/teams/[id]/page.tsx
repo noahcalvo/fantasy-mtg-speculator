@@ -7,8 +7,8 @@ export default async function Page({ params }: { params: { id: string } }) {
   const playerData = await fetchParticipantData(isNaN(playerId) ? -1 : playerId)
 
   return (
-      <div>
-      <Roster playerId={playerId} name={playerData.name}/>
-      </div>
+    <div>
+      <Roster playerId={playerId} name={playerData.name} />
+    </div>
   );
 }

@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { leagueId: string } })
 
   return (
     <div className="p-4">
-      <BulletinBoard bulletins={bulletins} />
+      <BulletinBoard bulletins={bulletins} playerId={playerId} />
       <PostMessage playerId={playerId} leagueId={leagueId} />
     </div>
   );
