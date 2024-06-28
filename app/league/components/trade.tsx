@@ -48,7 +48,7 @@ export default function Trade({ teamsInLeague, player, playerCollection, leagueC
         <div className="flex place-content-between md:place-content-around mb-2 px-2">
           <div className="text-center text-md font-bold mt-0.5">{player.name}</div>
           <select name="leagueId" onChange={handleTeamChange} className="appearance-none text-center text-md font-bold py-0 px-1 focus:ring-red-800 focus:border-red-800 bg-none">
-            <option value="" disabled>Select a league</option>
+            <option value="" disabled>Select a team</option>
             {teamsInLeague.map((team: Player) => (
               <option key={team.player_id} value={team.player_id} className="text-center text-lg font-bold">
                 {team.name}

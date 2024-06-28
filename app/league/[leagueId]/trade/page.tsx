@@ -19,6 +19,8 @@ export default async function Page({ params }: { params: { leagueId: string } })
   const playerCollection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
   const leagueCollections = await fetchPlayerCollectionsWithDetails(teamsInLeagueWithoutYou.map(player => player.player_id), leagueId)
   const tradeOffers = await fetchTradeOffersWithDetails(playerId, leagueId)
+  if (teamsInLeagueWithoutYou.length === 0)
+    {return <div className="text-center py-8">No other teams in this league</div>}
   return (
     <main className="mb-4 p-2">
       <TradeOffers offers={tradeOffers} playerId={playerId} leagueId={leagueId}/>

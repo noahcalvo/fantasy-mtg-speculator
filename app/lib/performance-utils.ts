@@ -1,10 +1,10 @@
 import { WeeklyLeaguePerformances, calculateTotalPoints } from "./definitions";
 
 export type TwoWeekStatus = {
-  thisWeek: number; 
-  lastWeek: number; 
-  thisWeekPct: number; 
-  lastWeekPct: number; 
+  thisWeek: number;
+  lastWeek: number;
+  thisWeekPct: number;
+  lastWeekPct: number;
   name: string;
 }
 export function CreatePerformanceMap(
@@ -17,7 +17,8 @@ export function CreatePerformanceMap(
 
   // Populate this week points
   thisWeekData.teams.forEach((team) => {
-    const points = calculateTotalPoints(team.cards.cards);
+    console.log(team.cards?.cards)
+    const points = team.cards && team.cards.cards ? calculateTotalPoints(team.cards.cards) : 0;
     thisWeekPointTotal += points;
     pointsMap.set(team.player_id, { thisWeek: points, lastWeek: 0, thisWeekPct: 0, lastWeekPct: 0, name: team.name });
   });

@@ -85,12 +85,22 @@ export async function joinLeague(userId: number, leagueId: number) {
   }
 }
 
+export async function addCommissioner(userId: number, leagueId: number) {
+  try {
+    await sql`UPDATE leaguesV3 SET commissioners = array_append(commissioners, ${userId}) WHERE league_id = ${leagueId};`;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to add commissioner ${userId} to league ${leagueId}`);
+  }
+}
+
 export async function createLeague(leagueName: string, userId: number) {
   let resp;
   try {
     resp =
-      await sql`INSERT INTO leaguesV3 (name, participants, open) VALUES (${leagueName}, array[]::int[], true) RETURNING league_id;`;
+      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], true) RETURNING league_id;`;
     joinLeague(userId, resp.rows[0].league_id);
+    addCommissioner(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);

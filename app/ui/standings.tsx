@@ -1,4 +1,4 @@
-import { TeamPerformance, WeeklyLeaguePerformances, calculateTotalPoints } from "@/app/lib/definitions";
+import { WeeklyLeaguePerformances } from "@/app/lib/definitions";
 import Link from "next/link";
 import { CreatePerformanceMap, TwoWeekStatus } from "../lib/performance-utils";
 
