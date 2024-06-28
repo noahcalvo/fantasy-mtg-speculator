@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # This line allows manual triggering of the workflow
 
 jobs:
-  run-python-script:
+  run-scraper-script:
     runs-on: ubuntu-latest # This specifies which runner to use
 
     steps:
@@ -21,10 +21,33 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip3 install -r scripts/python/requirements.txt
+          pip3 install -r scripts/scrape/requirements.txt
 
       - name: Run Script
         env:
           POSTGRES_URL: ${{ secrets.POSTGRES_URL }} # Setting environment variable from a secret
         run: |
-          python3 scripts/python/main.py 
+          python3 scripts/scrape/main.py
+
+  run-roster-performance-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11.1'
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r scripts/python/requirements.txt
+
+      - name: Run Script
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        run: |
+          python3 scripts/python/roster_performance.py

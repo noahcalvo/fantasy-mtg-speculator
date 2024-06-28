@@ -1,7 +1,7 @@
 
 from current_week import get_last_week_number
 from tournement_result_parser import extract_deck_links
-from db import connect_to_database, insert_stats
+from scripts.db import connect_to_database, insert_stats
 from tournements import create_url, generate_tournement_page_links
 from fetch import fetch_webpage
 from fish_scraper import extract_deck_list

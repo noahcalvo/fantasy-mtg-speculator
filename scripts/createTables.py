@@ -116,7 +116,8 @@ def createTables(conn):
             create_rosters_table_query = """
             CREATE TABLE IF NOT EXISTS Rosters (
             roster_id SERIAL PRIMARY KEY,
-            player_id INT,
+            player_id INT NOT NULL,
+            league_id INT NOT NULL,
             roster JSONB
             );
             """
@@ -164,6 +165,19 @@ def createTables(conn):
             cur.execute(create_bulletin_table_query)
             print("Created 'bulletin items' table")
 
+            create_teamPerformances_table_query = """
+            CREATE TABLE IF NOT EXISTS TeamPerformances (
+            team_performance_id SERIAL PRIMARY KEY,
+            team_id INT NOT NULL,
+            week INT NOT NULL,
+            points INT NOT NULL,
+            place INT NOT NULL,
+            roster INT[] NOT NULL,
+            FOREIGN KEY (team_id) REFERENCES Teams(team_id)
+            );
+            """
+            cur.execute(create_teamPerformances_table_query)
+            print("Created 'team performances' table")
 
         conn.commit()
     except Exception as error:
