@@ -1,6 +1,6 @@
 import { InformationCircleIcon, StarIcon } from '@heroicons/react/24/outline';
 import { fetchPlayerCollectionWithPerformance } from '@/app/lib/collection';
-import { fetchCard } from '@/app/lib/sets';
+import { fetchCard } from '@/app/lib/card';
 import Image from 'next/image';
 
 export default async function BestPerformerBadge({ playerId, leagueId }: { playerId: number, leagueId: number }) {

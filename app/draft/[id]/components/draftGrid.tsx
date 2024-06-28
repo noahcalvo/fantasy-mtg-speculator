@@ -12,16 +12,16 @@ export default function draftGrid({
   const rounds = Math.max(...picks.map((pick) => pick.round)) + 1;
   const activePick = getActivePick(picks);
   return (
-    <table className="min-w-full table-fixed divide-y divide-white rounded-lg">
+    <div className='border-2 border-white rounded-lg overflow-auto'>
+    <table className="table-fixed divide-y divide-white rounded-lg">
       <thead>
         <tr>
           {participants.map((participant, index) => (
             <th
               key={index}
-              className={`overflow-hidden rounded-lg border-2 border-white px-1 py-2 text-center text-responsive text-white bg-black capitalize
-              }`}
+              className={`no-scrollbar rounded-lg border-2 border-white px-1 py-2 text-center text-responsive text-white bg-black capitalize text-xs overflow-auto`}
             >
-              <div className='w-32'>
+              <div className='w-24'>
               {participant.name}
               </div>
             </th>
@@ -54,5 +54,6 @@ export default function draftGrid({
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

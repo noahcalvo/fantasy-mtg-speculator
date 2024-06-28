@@ -3,7 +3,7 @@
 import { sql } from '@vercel/postgres';
 import { CardDetails, RosterCardDetailsMap, RosterIdMap } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { fetchCard } from './sets';
+import { fetchCard } from './card';
 import { fetchCardPerformanceByWeek } from './collection';
 
 export type RosterSlotToId = {

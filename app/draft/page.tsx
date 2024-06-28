@@ -16,7 +16,7 @@ export default async function Page() {
   const leagueId = league?.league_id ?? 0;
   const commissioner = await isCommissioner(playerId, leagueId);
   return (
-    <main className="mb-4">
+    <main>
       {commissioner && <CreateDraftForm sets={sets} leagueId={leagueId} playerId={playerId}/>}
       <DraftList leagueId={leagueId}/>
     </main>

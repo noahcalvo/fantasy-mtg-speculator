@@ -54,6 +54,11 @@ export type CardDetails = {
     typeLine: string;
 }
 
+export type CardDetailsWithPoints =  CardDetails & {
+  points: number;
+  week: number;
+}
+
 export type Collection = {
   player_id: number;
   cards: CardDetails[];

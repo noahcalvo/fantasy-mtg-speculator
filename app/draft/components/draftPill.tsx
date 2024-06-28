@@ -12,8 +12,8 @@ export const DraftPill = ({ draft}: { draft: Draft }) => {
       >
         <Link href={`/draft/${draft.draft_id}/view`}>
             <div className={draftClass}>
-              <span className="uppercase">{draft.name}</span>
-              <span className="ml-2 italic text-xl">{draft.set}</span>
+              <span className="uppercase line-clamp-1 text-clip text-xs md:text-normal">{draft.name}</span>
+              <span className="ml-2 italic xl:text-xl line-clamp-1 text-clip text-xs md:text-normal">{draft.set}</span>
               <span className="ml-2 rounded-full px-2 border-2">
                 {draft.participants.length}
               </span>

@@ -3,11 +3,13 @@ import notFound from '../not-found';
 import { fetchMultipleParticipantData, fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
-import { fetchCardName, fetchOwnedCards, fetchSet } from '@/app/lib/sets';
-import { CardDetails, DraftPick } from '@/app/lib/definitions';
+import { fetchOwnedCards, fetchSet } from '@/app/lib/sets';
+import { fetchCardName } from '@/app/lib/card';
+import { Card, CardDetails, CardDetailsWithPoints, CardPoint, DraftPick } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchLeague } from '@/app/lib/leagues';
+import { fetchCardPerformances } from '@/app/lib/performance';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const user = await auth().then((res) => res?.user);
@@ -31,6 +33,8 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const cards = await fetchSet(draft.set);
 
+  console.log("cards:", cards)
+
   const alreadyOwnedCards = await fetchOwnedCards(draft.set, leagueId);
 
   const draftedCardNames = await Promise.all(
@@ -42,13 +46,38 @@ export default async function Page({ params }: { params: { id: string } }) {
     !alreadyOwnedCards.some((ownedCard) => ownedCard.name === card.name),
   );
 
+  const undraftedCardIds = undraftedCards.filter((card: CardDetails) => card.card_id !== undefined && card.card_id !== -1).map((card: CardDetails) => card.card_id);
+
+  const undraftedCardPoints = await fetchCardPerformances(undraftedCardIds);
+
+  const undraftedCardsWithPoints: CardDetailsWithPoints[] = undraftedCards.map((card:CardDetails) => {
+    const pointsEntry = undraftedCardPoints.find((cp: CardPoint) => cp.card_id === card.card_id);
+    const points = pointsEntry?.total_points || 0;
+    const week = pointsEntry?.week || -1;
+    return {
+      card_id: card.card_id,
+      name: card.name,
+      typeLine: card.typeLine,
+      image: card.image,
+      price: card.price,
+      scryfallUri: card.scryfallUri,
+      colorIdentity: card.colorIdentity,
+      points,
+      week,
+    };
+  });
+
+  // console.log(undraftedCardsWithPoints)
+
   const activeDrafter = getActivePick(picks)?.player_id;
   return (
-    <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-2 xl:flex-row">
-      <div className='overflow-x-auto max-w-full whitespace-nowrap'>
+    <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-0 xl:flex-row">
+      <div className='overflow-x-auto whitespace-nowrap max-h-[40vh] xl:max-h-[80vh] flex justify-center max-w-full'>
         <DraftGrid picks={picks} participants={participants} />
       </div>
-      <AvailableCards undraftedCards={undraftedCards} playerId={player.player_id} activeDrafter={activeDrafter == player.player_id} draftId={draft.draft_id} set={draft.set}/>
+      <div>
+      <AvailableCards undraftedCards={undraftedCardsWithPoints} playerId={player.player_id} activeDrafter={activeDrafter == player.player_id} draftId={draft.draft_id} set={draft.set}/>
+      </div>
     </main>
   );
 }

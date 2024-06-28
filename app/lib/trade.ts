@@ -7,10 +7,9 @@ import {
   TradeOffer,
   TradeOfferWithCardDetails,
 } from './definitions';
-import { fetchCard } from './sets';
+import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
 import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
 import { completedTradeBulletin } from './bulletin';
 
 const { Pool } = pg;

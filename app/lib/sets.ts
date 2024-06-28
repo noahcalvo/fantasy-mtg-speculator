@@ -1,5 +1,6 @@
 import { sql } from "@vercel/postgres";
 import { Card, CardDetails, CardPoint } from "./definitions";
+import { fetchCardId } from "./card";
 
 const MODERN_LEGAL = ["core", "expansion"]
 
@@ -25,7 +26,7 @@ export async function fetchRecentSets(): Promise<string[]>{
     return setNames;
 }
 
-export async function fetchSet(set: string): Promise<any> {
+export async function fetchSet(set: string): Promise<CardDetails[]> {
     const setCode = await getSetCode(set);
     const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+set%3A${setCode}`, {
         next: { revalidate: 600 },
@@ -36,9 +37,11 @@ export async function fetchSet(set: string): Promise<any> {
     }
 
     const setData = await response.json();
-    const cards: CardDetails[] = setData.data.map((card: any) => {
+    const cardsPromises = setData.data.map(async (card: any) => {
         const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
+        const cardId = await fetchCardId(name);
         return {
+            "card_id": cardId,
             name,
             image: image_uris?.png ?? card.card_faces[0].image_uris.png ?? "",
             price: {
@@ -74,10 +77,12 @@ export async function fetchSet(set: string): Promise<any> {
                 typeLine: type_line
             };
         });
-        cards.push(...nextCards);
+        cardsPromises.push(...nextCards);
         setData.has_more = nextSetData.has_more;
         setData.next_page = nextSetData.next_page;
     }
+
+    const cards: CardDetails[] = await Promise.all(cardsPromises);
 
     return cards;
 }
@@ -105,56 +110,4 @@ export async function fetchOwnedCards(set: string, league_id: number): Promise<C
         AND o.league_id = ${league_id};
     `;
     return data.rows;
-}
-
-export async function fetchCard(cardId: number): Promise<CardDetails> {
-    if (!cardId) {
-        return {
-            name: "",
-            image: "",
-            price: {
-                tix: 0,
-                usd: 0,
-            },
-            scryfallUri: "",
-            colorIdentity: [],
-            typeLine: "",
-            card_id: -1
-        };
-    }
-    const data = await sql<CardPoint>`
-    SELECT name FROM Cards WHERE card_id = ${cardId};
-    `;
-    const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${data.rows[0].name}`, {
-        next: { revalidate: 600 },
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const card = await response.json();
-    if (card.object === "error") {
-        throw new Error(`Card not found: ${data.rows[0].name}`);
-    }
-    const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
-    return {
-        name,
-        image: image_uris?.png ?? card.card_faces[0].image_uris.png ?? "",
-        price: {
-            tix: prices.tix,
-            usd: prices.usd,
-        },
-        scryfallUri: scryfall_uri,
-        colorIdentity: color_identity,
-        typeLine: type_line,
-        card_id: cardId
-    };
-}
-
-export async function fetchCardName(cardId: string): Promise<string> {
-    const data = await sql<Card>`
-    SELECT name FROM Cards WHERE card_id = ${cardId};
-    `;
-    return data.rows[0].name;
 }

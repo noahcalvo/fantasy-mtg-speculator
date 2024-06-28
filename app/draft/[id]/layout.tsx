@@ -12,16 +12,18 @@ export default async function Layout({ children, params }: { children: React.Rea
     }    
     return (
         <div>
-        <main className="mb-4">
-        <div className="mb-4 ml-4">
+        <main>
+        <div className="flex p-2 items-center">
+          <div className="w-28">
           <Link
             href="/draft"
-            className="mb-8 mt-4 rounded-md bg-white px-4 py-2 text-sm text-black transition-colors hover:bg-red-800 hover:text-white border-white border"
+            className="rounded-md bg-white px-1 py-1 text-sm text-black transition-colors hover:bg-red-800 hover:text-white border-white border"
           >
             All drafts
           </Link>
         </div>
         <DraftInfoHeader draft={draft}/>
+        </div>
         {children}
         </main>
         </div>

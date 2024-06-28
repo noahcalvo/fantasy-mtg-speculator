@@ -46,7 +46,6 @@ export default function TradeOffers({ offers, playerId, leagueId }: { offers: Tr
 
 function Trade({ trade, outgoing, playerId, leagueId }: { trade: TradeOfferWithCardDetails, outgoing: boolean, playerId: number, leagueId: number }) {
   const tradeNoDetails = transformTradeOffer(trade)
-  console.log("tradeNoDetails", tradeNoDetails)
   const giving = outgoing ? trade.offeredCards : trade.requestedCards
   const getting = outgoing ? trade.requestedCards : trade.offeredCards
   return (
