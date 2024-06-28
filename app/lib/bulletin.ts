@@ -39,7 +39,6 @@ export async function fetchBulletinItems(leagueId: number): Promise<BulletinItem
                 created DESC
             LIMIT 10;
         `
-        console.log(data.rows)
         return data.rows;
     } catch (error) {
         console.error('Database Error:', error);

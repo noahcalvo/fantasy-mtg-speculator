@@ -8,20 +8,24 @@ import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '../lib/player';
 import Collection from '../ui/roster/collection';
+import { fetchLeague } from '../lib/leagues';
 
 export default async function Page() {
   const user = await auth().then((res) => res?.user);
   const userName = user?.name || "";
   const userEmail = user?.email || "";
   const player = await fetchPlayerByEmail(userEmail);
+  const playerId = player.player_id;
+  const league = await fetchLeague(playerId)
+  const leagueId = league?.league_id ?? 0;
 
   return (
     <main>
       <div className="mb-4 text-2xl md:text-3xl text-white">Dashboard</div>
       <div className="grid gap-6 xl:grid-cols-2">
         <div className='grid gap-6 sm:grid-cols-2 xl:grid-cols-1'>
-          <TotalCardsBadge playerId={player.player_id} />
-          <BestPerformingBadge playerId={player.player_id} />
+          <TotalCardsBadge playerId={player.player_id} leagueId={leagueId}/>
+          <BestPerformingBadge playerId={player.player_id} leagueId={leagueId}/>
         </div>
         <MoreAboutScoring />
       </div>

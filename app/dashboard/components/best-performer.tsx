@@ -3,9 +3,9 @@ import { fetchPlayerCollectionWithPerformance } from '@/app/lib/collection';
 import { fetchCard } from '@/app/lib/sets';
 import Image from 'next/image';
 
-export default async function BestPerformerBadge({ playerId }: { playerId: number }) {
+export default async function BestPerformerBadge({ playerId, leagueId }: { playerId: number, leagueId: number }) {
   const collectionPerformance =
-    await fetchPlayerCollectionWithPerformance(playerId);
+    await fetchPlayerCollectionWithPerformance(playerId, leagueId);
   const week = collectionPerformance[0]?.week
     ? ` (week ${collectionPerformance[0]?.week})`
     : '';

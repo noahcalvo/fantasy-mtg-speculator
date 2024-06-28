@@ -115,9 +115,9 @@ export async function playPositionSlot(
       (key) => roster[key] === cardId.toString(),
     );
     foundPositionCollision.forEach(async (key) => {
-      await removeCardSlotQuery(userId, key);
+      await removeCardSlotQuery(userId, key, leagueId);
     });
-    await createSqlLineupQuery(userId, cardId, position);
+    await createSqlLineupQuery(userId, cardId, position, leagueId);
     revalidatePath(`/dashboard`);
   } catch (error) {
     console.error('Database Error:', error);

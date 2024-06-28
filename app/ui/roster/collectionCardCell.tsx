@@ -6,9 +6,11 @@ import Image from 'next/image';
 export default function CollectionCardCell({
   card,
   playerId,
+  leagueId,
 }: {
   card: CardDetails | null;
   playerId: number;
+  leagueId: number;
 }) {
   const positions = getRosterPositions();
   let cardTypes = getCardTypesList(card?.typeLine ?? '');
@@ -32,7 +34,7 @@ export default function CollectionCardCell({
                     className={`w-15 mx-2 rounded-md border border-black bg-white 
     p-2 text-black hover:bg-red-800 hover:text-white text-sm`}
                     disabled={false}
-                    onClick={() => playPositionSlot(card.card_id, playerId, cardType)}
+                    onClick={() => playPositionSlot(card.card_id, playerId, cardType, leagueId)}
                   >
                     Play in {getAbbreviation(cardType)}
                   </button>
@@ -44,7 +46,7 @@ export default function CollectionCardCell({
                 //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                 //   }
                 disabled={false}
-                onClick={() => playPositionSlot(card.card_id, playerId, "flex")}
+                onClick={() => playPositionSlot(card.card_id, playerId, "flex", leagueId)}
               >
                 Play in Flex
               </button>

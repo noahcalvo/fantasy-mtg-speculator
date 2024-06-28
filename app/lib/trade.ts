@@ -113,7 +113,6 @@ export async function fetchTradeOffersWithDetails(
 ): Promise<TradeOfferWithCardDetails[]> {
   try {
     const offers = await fetchTradeOffers(playerId, leagueId);
-    console.log(offers)
     const offerWithCardDetails = await Promise.all(
       offers.map(async (offer) => {
         const offeredCardDetails: CardDetails[] = [];

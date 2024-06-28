@@ -32,7 +32,6 @@ export async function fetchCardPerformanceByWeek(
 }
 
 export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {
-  console.log("hi there")
   noStore();
   try {
     const data = await sql`
@@ -55,7 +54,6 @@ export async function fetchPlayerCollection(playerId: number, leagueId: number):
 }
 
 export async function fetchPlayerCollectionWithDetails(playerId: number, league_id: number): Promise<CardDetails[]> {
-  console.log("oh hi")
   noStore();
   try {
     const data = await sql<Card>`
@@ -92,7 +90,6 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
 
 export async function fetchPlayerCollectionWithPerformance(playerId: number, league_id: number): Promise<CardPoint[]> {
   noStore();
-  console.log("hello")
   try {
     const data = await sql<CardPoint>`
     SELECT 
