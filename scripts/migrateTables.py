@@ -23,13 +23,13 @@ def migrateTables(conn):
             # cur.execute(migrate_drafts_table_query)
             # print("Migrated 'drafts' table")
 
-            # Migrate Picks table
-            migrate_picks_table_query = """
-            INSERT INTO PicksV3 (draft_id, player_id, pick_number, round, card_id)
-            SELECT draft_id, player_id, pick_number, round, card_id FROM Picks;
-            """
-            cur.execute(migrate_picks_table_query)
-            print("Migrated 'picks' table")
+            # # Migrate Picks table
+            # migrate_picks_table_query = """
+            # INSERT INTO PicksV3 (draft_id, player_id, pick_number, round, card_id)
+            # SELECT draft_id, player_id, pick_number, round, card_id FROM Picks;
+            # """
+            # cur.execute(migrate_picks_table_query)
+            # print("Migrated 'picks' table")
 
             # # Migrate Rosters table
             # migrate_rosters_table_query = """
@@ -46,6 +46,15 @@ def migrateTables(conn):
             # """
             # cur.execute(migrate_trades_table_query)
             # print("Migrated 'trades' table")
+
+            # Migrate Picks table
+            migrate_leagues_table_query = """
+            INSERT INTO LeaguesV3 (league_id, name, participants, commissioners, open)
+            SELECT league_id, name, participants, comissioners, open FROM LeaguesV2;
+            """
+            cur.execute(migrate_leagues_table_query)
+            print("Migrated 'leagues' table")
+
 
         conn.commit()
     except Exception as error:
