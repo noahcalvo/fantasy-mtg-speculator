@@ -5,6 +5,7 @@ import { DraftList } from './components/draftList';
 import { isAdmin } from '../lib/actions';
 import { fetchLeague, isCommissioner } from '../lib/leagues';
 import { fetchPlayerByEmail } from '../lib/player';
+import {BeakerIcon} from '@heroicons/react/20/solid';
 
 export default async function Page() {
   const sets = await fetchRecentSets();
@@ -14,6 +15,9 @@ export default async function Page() {
   const playerId = player.player_id;
   const league = await fetchLeague(playerId)
   const leagueId = league?.league_id ?? 0;
+  if (!leagueId) {
+    return <div className="text-center py-8 text-white">You are not in a league 😶‍🌫️ Please join a league <BeakerIcon className="w-6 inline-block"/> before visiting this page.</div>;
+  }
   const commissioner = await isCommissioner(playerId, leagueId);
   return (
     <main>

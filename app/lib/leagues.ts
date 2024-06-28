@@ -185,9 +185,11 @@ export async function isPlayerInLeague(playerId: number, leagueId: number) {
 }
 
 export async function isCommissioner(playerId: number, leagueId: number) {
+  console.log('isCommissioner', playerId, leagueId)
   try {
     const data = await sql`
     SELECT commissioners FROM leaguesV3 WHERE league_id=${leagueId};`;
+    console.log('commissioners', data.rows[0])
     return data.rows[0].commissioners.includes(playerId);
   } catch (error) {
     console.error('Database Error:', error);

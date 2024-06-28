@@ -31,7 +31,7 @@ export type State = {
 };
 
 export async function createDraft(prevState: State, formData: FormData, league_id: number, playerId: number) {
-  const commissioner = await isCommissioner(league_id, playerId);
+  const commissioner = await isCommissioner(playerId, league_id);
   if (!commissioner) {
     return {
       errors: {
