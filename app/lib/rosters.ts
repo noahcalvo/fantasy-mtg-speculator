@@ -1,7 +1,7 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { CardDetails, RosterCardDetailsMap, RosterIdMap } from './definitions';
+import { CardDetails, CardPerformances, RosterCardDetailsMap, RosterIdMap } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchCardPerformanceByWeek } from './collection';
@@ -62,7 +62,11 @@ async function fetchPlayerRoster(userId: number, league_id: number): Promise<Ros
           LIMIT 1
         `;
     const rosterData = data.rows[0]?.roster;
+    if (rosterData === undefined) {
+      return {} as RosterIdMap;
+    }
     if (!rosterData || typeof rosterData !== 'object') {
+      console.log('rosterData:', rosterData);
       throw new Error(
         `Roster data for user:${userId} is in an unexpected format`,
       );
@@ -79,7 +83,7 @@ export async function fetchPlayerRosterScore(
   userId: number,
   week: number,
   league_id: number,
-): Promise<any> {
+): Promise<CardPerformances> {
   try {
     const roster = await fetchPlayerRoster(userId, league_id);
 
@@ -89,7 +93,7 @@ export async function fetchPlayerRosterScore(
       return isNaN(parsedId) ? -1 : parsedId;
     });
     if (cardIds.length === 0) {
-      throw new Error(`No cards found in roster for user:${userId}`);
+      return {cards: []} as CardPerformances
     }
     const performances = await fetchCardPerformanceByWeek(cardIds, week);
     return performances;
