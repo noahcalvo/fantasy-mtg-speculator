@@ -2,7 +2,7 @@ import PointChart from '@/app/ui/dashboard/point-chart';
 import { WeekPicker, SetPicker } from '../ui/picker';
 import Roster from "@/app/ui/roster/roster"
 import { auth } from '@/auth';
-import { fetchUniqueWeekNumbers } from '@/app/lib/data';
+import { fetchUniqueWeekNumbers } from '@/app/lib/performance';
 import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';

@@ -2,7 +2,7 @@
 import { sql } from '@vercel/postgres';
 import { Card, CardDetails, CardPerformances, CardPoint, Collection } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { fetchCard } from './sets';
+import { fetchCard } from './card';
 
 export async function fetchCardPerformanceByWeek(
   collectionIDs: number[],

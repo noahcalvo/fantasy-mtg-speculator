@@ -3,7 +3,7 @@ import { CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/data';
+import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/performance';
 import { RevenueChartSkeleton } from '../skeletons';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
