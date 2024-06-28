@@ -127,10 +127,11 @@ def createTables(conn):
             print("Created 'rosters' table")
 
             create_league_table_query = """
-            CREATE TABLE IF NOT EXISTS Leagues (
+            CREATE TABLE IF NOT EXISTS LeaguesV3 (
             league_id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             participants INT[],
+            commissioners INT[],
             open BOOLEAN NOT NULL
             );
             """

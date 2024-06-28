@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { getActivePick } from './clientActions';
 import { updateCollectionWithCompleteDraft } from './collection';
+import { isCommissioner } from './leagues';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -29,7 +30,17 @@ export type State = {
   message?: string | null;
 };
 
-export async function createDraft(prevState: State, formData: FormData, league_id: number) {
+export async function createDraft(prevState: State, formData: FormData, league_id: number, playerId: number) {
+  const commissioner = await isCommissioner(league_id, playerId);
+  if (!commissioner) {
+    return {
+      errors: {
+        set: ['You are not the commissioner of this league.'],
+      },
+      message: 'Failed to Create Draft.',
+    };
+  }
+
   // validate data from form
   const validatedFields = CreateDraft.safeParse({
     set: formData.get('set'),

@@ -14,7 +14,7 @@ import { fetchPlayerRosterScore } from './rosters';
 export async function fetchLeague(userId: number): Promise<League | null> {
   try {
     const data = await sql<League>`
-      SELECT * FROM leagues 
+      SELECT * FROM leaguesV3
       WHERE ${userId} = ANY (participants);
       `;
     if (data.rows.length === 0) {
@@ -34,7 +34,7 @@ export async function fetchLeague(userId: number): Promise<League | null> {
 export async function fetchAllLeagues() {
   try {
     const data = await sql<League>`
-        SELECT * FROM leagues WHERE open = true;
+        SELECT * FROM leaguesV3 WHERE open = true;
           `;
     if (data.rows.length === 0) {
       console.log('No leagues found');
@@ -63,7 +63,7 @@ export async function joinLeague(userId: number, leagueId: number) {
   try {
     // Check if the player is already a participant
     const leagueResult =
-      await sql`SELECT participants, open FROM leagues WHERE league_id = ${leagueId};`;
+      await sql`SELECT participants, open FROM leaguesV3 WHERE league_id = ${leagueId};`;
     if (leagueResult.rowCount === 0) {
       throw new Error('League not found');
     }
@@ -76,7 +76,7 @@ export async function joinLeague(userId: number, leagueId: number) {
       console.log('Player is already a participant');
       return;
     } else {
-      await sql`UPDATE leagues SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
+      await sql`UPDATE leaguesV3 SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
       revalidatePath(`/league/teams`);
     }
   } catch (error) {
@@ -89,7 +89,7 @@ export async function createLeague(leagueName: string, userId: number) {
   let resp;
   try {
     resp =
-      await sql`INSERT INTO leagues (name, participants, open) VALUES (${leagueName}, array[]::int[], true) RETURNING league_id;`;
+      await sql`INSERT INTO leaguesV3 (name, participants, open) VALUES (${leagueName}, array[]::int[], true) RETURNING league_id;`;
     joinLeague(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
@@ -109,7 +109,7 @@ export async function fetchPlayersInLeague(
     FROM users p
     WHERE p.player_id = ANY (
       SELECT UNNEST(l.participants)
-      FROM leagues l
+      FROM leaguesV3 l
       WHERE l.league_id = ${leagueId}
     );`;
     if (data.rows.length === 0) {
@@ -155,7 +155,7 @@ export async function fetchPlayerIdInLeague(
   noStore();
   try {
     const data = await sql`
-    SELECT participants FROM leagues WHERE league_id=${leagueId} LIMIT 1;`;
+    SELECT participants FROM leaguesV3 WHERE league_id=${leagueId} LIMIT 1;`;
     return data.rows[0].participants;
   } catch (error) {
     console.error('Database Error:', error);
@@ -166,8 +166,19 @@ export async function fetchPlayerIdInLeague(
 export async function isPlayerInLeague(playerId: number, leagueId: number) {
   try {
     const data = await sql`
-    SELECT participants FROM leagues WHERE league_id=${leagueId};`;
+    SELECT participants FROM leaguesV3 WHERE league_id=${leagueId};`;
     return data.rows[0].participants.includes(playerId);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
+  }
+}
+
+export async function isCommissioner(playerId: number, leagueId: number) {
+  try {
+    const data = await sql`
+    SELECT commissioners FROM leaguesV3 WHERE league_id=${leagueId};`;
+    return data.rows[0].commissioners.includes(playerId);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
