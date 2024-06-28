@@ -3,8 +3,8 @@ import { fetchDrafts } from '@/app/lib/draft';
 import Link from 'next/link';
 import { DraftPill } from './draftPill';
 
-export const DraftList = async () => {
-  const drafts = await fetchDrafts();
+export const DraftList = async ({leagueId}:{leagueId: number}) => {
+  const drafts = await fetchDrafts(leagueId);
   const activeDrafts = drafts.filter((draft: Draft) => draft.active);
   const previousDrafts = drafts.filter((draft: Draft) => !draft.active);
   return (

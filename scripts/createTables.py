@@ -19,9 +19,9 @@ def createTables(conn):
             print("Created 'cards' table")
 
             create_performance_table_query = """
-            CREATE TABLE IF NOT EXISTS Performance (
+            CREATE TABLE IF NOT EXISTS PerformanceV2 (
             performance_id SERIAL PRIMARY KEY,
-            card_id INT,
+            card_id INT NOT NULL,
             week INT,
             price DECIMAL(10, 2),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
@@ -71,9 +71,10 @@ def createTables(conn):
 
             # -- Ownership
             create_ownership_table_query = """
-            CREATE TABLE IF NOT EXISTS Ownership (
-            player_id INT,
-            card_id INT,
+            CREATE TABLE IF NOT EXISTS OwnershipV2 (
+            player_id INT NOT NULL,
+            card_id INT NOT NULL,
+            league_id INT NOT NULL,
             FOREIGN KEY (player_id) REFERENCES Users(player_id),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
             PRIMARY KEY(card_id)
@@ -83,8 +84,9 @@ def createTables(conn):
             print("Created 'ownership' table")
 
             create_drafts_table_query = """
-            CREATE TABLE IF NOT EXISTS Drafts (
+            CREATE TABLE IF NOT EXISTS DraftsV2 (
             draft_id SERIAL PRIMARY KEY,
+            league_id INT NOT NULL,
             participants INT[],
             active boolean NOT NULL,
             set VARCHAR(255) NOT NULL,
@@ -96,14 +98,14 @@ def createTables(conn):
             print("Created 'drafts' table")
 
             create_picks_table_query = """
-            CREATE TABLE IF NOT EXISTS Picks (
+            CREATE TABLE IF NOT EXISTS PicksV3 (
             pick_id SERIAL PRIMARY KEY,
-            draft_id INT,
+            draft_id INT NOT NULL,
             player_id INT,
-            pick_number INT,
-            round INT,
+            pick_number INT NOT NULL,
+            round INT NOT NULL,
             card_id INT,
-            FOREIGN KEY (draft_id) REFERENCES Drafts(draft_id),
+            FOREIGN KEY (draft_id) REFERENCES DraftsV2(draft_id),
             FOREIGN KEY (player_id) REFERENCES Users(player_id),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
             UNIQUE (draft_id, pick_number, round),
@@ -114,9 +116,10 @@ def createTables(conn):
             print("Created 'picks' table")
 
             create_rosters_table_query = """
-            CREATE TABLE IF NOT EXISTS Rosters (
+            CREATE TABLE IF NOT EXISTS RostersV2 (
             roster_id SERIAL PRIMARY KEY,
-            player_id INT,
+            player_id INT NOT NULL,
+            league_id INT NOT NULL,
             roster JSONB
             );
             """
@@ -135,8 +138,9 @@ def createTables(conn):
             print("Created 'leagues' table")
 
             create_trade_table_query = """
-            CREATE TABLE IF NOT EXISTS Trades (
+            CREATE TABLE IF NOT EXISTS TradesV2 (
             trade_id SERIAL PRIMARY KEY,
+            league_id INT NOT NULL,
             offerer INT NOT NULL,
             recipient INT NOT NULL,
             offered INT[] NOT NULL,

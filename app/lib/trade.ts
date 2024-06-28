@@ -42,16 +42,16 @@ export async function makeTradeOffer(
       );
     }
     const ownership =
-      (await playerOwnsCards(playerId, offeredCards)) &&
-      (await playerOwnsCards(tradePartnerId, wantedCards));
+      (await playerOwnsCards(playerId, offeredCards, leagueId)) &&
+      (await playerOwnsCards(tradePartnerId, wantedCards, leagueId));
     if (!ownership) {
       throw new Error(
         'Problem with offer. Either cards offered are not owned by you or cards requested are not owned by partner.',
       );
     }
     await pool.query(
-      'INSERT into trades (offerer, recipient, offered, requested, state) VALUES ($1, $2, $3, $4, $5)',
-      [playerId, tradePartnerId, offeredCards, wantedCards, 'pending'],
+      'INSERT into tradesV2 (offerer, recipient, offered, requested, state, league_id) VALUES ($1, $2, $3, $4, $5, $6)',
+      [playerId, tradePartnerId, offeredCards, wantedCards, 'pending', leagueId],
     );
   } catch (error) {
     console.error('Database Error:', error);
@@ -63,6 +63,7 @@ export async function makeTradeOffer(
 
 export async function fetchTradeOffers(
   playerId: number,
+  leagueId: number
 ): Promise<TradeOffer[]> {
   try {
     // complicated query that chat gpt made
@@ -84,9 +85,11 @@ export async function fetchTradeOffers(
                         END
                 ) AS rank
             FROM
-                Trades
+                TradesV2
             WHERE
                 offerer = $1 OR recipient = $1
+            AND
+                league_id = $2
         )
         SELECT
             trade_id, offerer, recipient, offered, requested, state, expires
@@ -96,7 +99,7 @@ export async function fetchTradeOffers(
             rank = 1;
     `;
 
-    const data = await pool.query(query, [playerId]);
+    const data = await pool.query(query, [playerId, leagueId]);
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -106,9 +109,11 @@ export async function fetchTradeOffers(
 
 export async function fetchTradeOffersWithDetails(
   playerId: number,
+  leagueId: number,
 ): Promise<TradeOfferWithCardDetails[]> {
   try {
-    const offers = await fetchTradeOffers(playerId);
+    const offers = await fetchTradeOffers(playerId, leagueId);
+    console.log(offers)
     const offerWithCardDetails = await Promise.all(
       offers.map(async (offer) => {
         const offeredCardDetails: CardDetails[] = [];
@@ -128,6 +133,7 @@ export async function fetchTradeOffersWithDetails(
           offerer: offerer,
           recipient: recipient,
           state: offer.state,
+          league_id: leagueId,
         };
       }),
     );
@@ -146,7 +152,7 @@ export async function fetchTradeOfferWithDetails(
     SELECT
         trade_id, offerer, recipient, offered, requested, state
     FROM
-        Trades
+        TradesV2
     WHERE
         trade_id = $1;
     `;
@@ -170,6 +176,7 @@ export async function fetchTradeOfferWithDetails(
       offerer: offerer,
       recipient: recipient,
       state: offer.state,
+      league_id: offer.league_id,
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -184,7 +191,7 @@ export async function acceptTrade(
 ) {
   try {
     const tradeQuery =
-      'UPDATE trades SET state = $1 WHERE trade_id = $2 AND recipient = $3';
+      'UPDATE tradesV2 SET state = $1 WHERE trade_id = $2 AND recipient = $3';
     const res = await pool.query(tradeQuery, [
       'completed',
       trade.trade_id,
@@ -197,20 +204,21 @@ export async function acceptTrade(
     }
 
     const updateOwnershipQuery =
-      'UPDATE Ownership SET player_id = $1 WHERE card_id = ANY($2::int[])';
+      'UPDATE OwnershipV2 SET player_id = $1 WHERE card_id = ANY($2::int[]) AND league_id = $3';
 
     // Update ownership for the offered cards to the recipient
-    await pool.query(updateOwnershipQuery, [trade.recipient, trade.offered]);
+    await pool.query(updateOwnershipQuery, [trade.recipient, trade.offered, trade.league_id]);
 
     // Update ownership for the requested cards to the offerer
-    await pool.query(updateOwnershipQuery, [trade.offerer, trade.requested]);
+    await pool.query(updateOwnershipQuery, [trade.offerer, trade.requested, trade.league_id]);
 
     const expireTradesQuery = `
-    UPDATE trades 
+    UPDATE tradesV2
     SET state = 'expired' 
     WHERE state = 'pending' 
     AND trade_id != $1
     AND (offered && $2::int[] OR requested && $3::int[])
+    AND league_id = $4
   `;
 
     // Expire all other pending trades that involve the offered or requested cards
@@ -218,6 +226,7 @@ export async function acceptTrade(
       trade.trade_id,
       trade.offered,
       trade.requested,
+      trade.league_id,
     ]);
 
     await completedTradeBulletin(trade, leagueId);
@@ -236,7 +245,7 @@ export async function declineTrade(
 ) {
   try {
     const tradeQuery =
-      'UPDATE trades SET state = $1 WHERE trade_id = $2 AND recipient = $3';
+      'UPDATE tradesV2 SET state = $1 WHERE trade_id = $2 AND recipient = $3';
     const res = await pool.query(tradeQuery, [
       'declined',
       trade.trade_id,
@@ -262,7 +271,7 @@ export async function revokeTrade(
 ) {
   try {
     const tradeQuery =
-      'UPDATE trades SET state = $1 WHERE trade_id = $2 AND offerer = $3';
+      'UPDATE tradesV2 SET state = $1 WHERE trade_id = $2 AND offerer = $3';
     const res = await pool.query(tradeQuery, [
       'expired',
       trade.trade_id,

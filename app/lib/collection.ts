@@ -31,16 +31,19 @@ export async function fetchCardPerformanceByWeek(
   }
 }
 
-export async function fetchPlayerCollection(playerId: number): Promise<number[]> {
+export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {
+  console.log("hi there")
   noStore();
   try {
     const data = await sql`
         SELECT 
           card_id
         FROM
-          ownership
+          ownershipV2
         WHERE
           player_id = ${playerId}
+        AND
+          league_id = ${leagueId}
       `;
 
     const cardIds: number[] = data.rows.map(row => row.value);
@@ -51,7 +54,8 @@ export async function fetchPlayerCollection(playerId: number): Promise<number[]>
   }
 }
 
-export async function fetchPlayerCollectionWithDetails(playerId: number) {
+export async function fetchPlayerCollectionWithDetails(playerId: number, league_id: number): Promise<CardDetails[]> {
+  console.log("oh hi")
   noStore();
   try {
     const data = await sql<Card>`
@@ -60,9 +64,11 @@ export async function fetchPlayerCollectionWithDetails(playerId: number) {
         FROM
           Cards C
         JOIN 
-          Ownership O ON C.card_id = O.card_id
+          OwnershipV2 O ON C.card_id = O.card_id
         WHERE
           O.player_id = ${playerId}
+        AND
+          O.league_id = ${league_id}
         GROUP BY 
             C.card_id,
             C.name,
@@ -84,8 +90,9 @@ export async function fetchPlayerCollectionWithDetails(playerId: number) {
   }
 }
 
-export async function fetchPlayerCollectionWithPerformance(playerId: number) {
+export async function fetchPlayerCollectionWithPerformance(playerId: number, league_id: number): Promise<CardPoint[]> {
   noStore();
+  console.log("hello")
   try {
     const data = await sql<CardPoint>`
     SELECT 
@@ -100,7 +107,7 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number) {
     FROM
     Cards C
     JOIN 
-        Ownership O ON C.card_id = O.card_id
+        OwnershipV2 O ON C.card_id = O.card_id
     JOIN 
         Performance PF ON C.card_id = PF.card_id
     LEFT JOIN 
@@ -110,6 +117,8 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number) {
 
     WHERE
         O.player_id = ${playerId}
+    AND
+        O.league_id = ${league_id}
     AND PF.week = (
         SELECT MAX(week) FROM Performance WHERE card_id = C.card_id
     )
@@ -134,10 +143,10 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number) {
 export async function updateCollectionWithCompleteDraft(draftId: string) {
   noStore();
   try {
-    const picks = await sql`SELECT * FROM Picks WHERE draft_id = ${draftId}`;
+    const picks = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id
     for (const pick of picks.rows) {
-      await sql`INSERT INTO ownership (player_id, card_id) VALUES (${pick.player_id}, ${pick.card_id});`;
+      await sql`INSERT INTO ownershipV2 (player_id, card_id, league_id) VALUES (${pick.player_id}, ${pick.card_id}, ${pick.league_id});`;
     }
     revalidatePath(`/dashboard`);
   } catch (error) {
@@ -146,12 +155,12 @@ export async function updateCollectionWithCompleteDraft(draftId: string) {
   }
 }
 
-export async function fetchPlayerCollectionsWithDetails(playerIds: number[]): Promise<Collection[]>  {
+export async function fetchPlayerCollectionsWithDetails(playerIds: number[], league_id: number): Promise<Collection[]>  {
   const playerCollections: Collection[] = [];
 
   for (const playerId of playerIds) {
     try {
-      const collectionDetails = await fetchPlayerCollectionWithDetails(playerId);
+      const collectionDetails = await fetchPlayerCollectionWithDetails(playerId, league_id);
       playerCollections.push({ player_id: playerId, cards: collectionDetails });
     } catch (error) {
       console.error(`Failed to fetch details for playerId ${playerId}: ${error}`);
@@ -161,9 +170,9 @@ export async function fetchPlayerCollectionsWithDetails(playerIds: number[]): Pr
   return playerCollections;
 }
 
-export async function playerOwnsCards(playerId: number, cardIds: number[]): Promise<boolean> {
+export async function playerOwnsCards(playerId: number, cardIds: number[], league_id: number): Promise<boolean> {
   try {
-    const collection = await fetchPlayerCollection(playerId);
+    const collection = await fetchPlayerCollection(playerId, league_id);
     cardIds.forEach( (cardId:number) => {
       if (!collection.includes(cardId)) {
         return false

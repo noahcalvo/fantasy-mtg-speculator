@@ -132,7 +132,7 @@ export async function fetchPlayerWeeklyPointsInLeague(
     const teams: TeamPerformance[] = [];
 
     for (const player of players) {
-      const rosterScore = await fetchPlayerRosterScore(player.player_id, week);
+      const rosterScore = await fetchPlayerRosterScore(player.player_id, week, leagueId);
       const teamPerformance: TeamPerformance = {
         cards: rosterScore,
         player_id: player.player_id,

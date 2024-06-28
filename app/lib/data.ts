@@ -174,11 +174,11 @@ export async function fetchUniqueWeekNumbers() {
     try {
       const data = await sql`
           SELECT DISTINCT
-              Performance.week
+              week
           FROM 
               Performance
           ORDER BY 
-              Performance.week;
+              week;
       `;
   
       // Convert week numbers to numbers

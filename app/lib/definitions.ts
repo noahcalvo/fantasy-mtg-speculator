@@ -194,6 +194,7 @@ export type TradeOffer = {
   offered: number[];
   requested: number[];
   state: string;
+  league_id: number;
 }
 
 export type TradeOfferWithCardDetails = {
@@ -203,6 +204,7 @@ export type TradeOfferWithCardDetails = {
   offeredCards: CardDetails[];
   requestedCards: CardDetails[];
   state: string;
+  league_id: number;
 }
 
 export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffer {
@@ -212,7 +214,8 @@ export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffe
     offered: trade.offeredCards.map(card => card.card_id),
     requested: trade.requestedCards.map(card => card.card_id),
     trade_id: trade.trade_id,
-    state: trade.state
+    state: trade.state,
+    league_id: trade.league_id
   };
 }
 

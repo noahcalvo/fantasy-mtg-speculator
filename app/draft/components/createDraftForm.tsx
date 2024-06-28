@@ -1,11 +1,16 @@
 'use client';
 
-import { createDraft } from '@/app/lib/draft';
+import { State, createDraft } from '@/app/lib/draft';
 import { useFormState } from 'react-dom';
 
-export default function CreateDraftForm({ sets }: { sets: string[] }) {
+export default function CreateDraftForm({ sets, leagueId }: { sets: string[], leagueId: number}) {
   const initialState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(createDraft, initialState);
+  // Wrapper function that includes leagueId
+  const createDraftWithLeagueId = async (prevState: State, formData: FormData) => {
+    return createDraft(prevState, formData, leagueId);
+  };
+
+  const [state, dispatch] = useFormState(createDraftWithLeagueId, initialState);
 
   return (
     <form action={dispatch} className="flex flex-col gap-y-2 p-4 border border-white m-1">

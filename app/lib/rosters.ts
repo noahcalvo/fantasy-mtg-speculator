@@ -12,6 +12,7 @@ export type RosterSlotToId = {
 
 export async function fetchPlayerRosterWithDetails(
   userId: number,
+  league_id: number,
 ): Promise<RosterCardDetailsMap> {
   noStore();
   try {
@@ -20,9 +21,11 @@ export async function fetchPlayerRosterWithDetails(
           SELECT 
               roster
           FROM 
-              Rosters
+              RostersV2
           WHERE 
               player_id = ${userId}
+          AND
+              league_id = ${league_id}
           LIMIT 1
         `;
     // Convert cardId to cardDetails
@@ -43,7 +46,7 @@ export async function fetchPlayerRosterWithDetails(
   }
 }
 
-async function fetchPlayerRoster(userId: number): Promise<RosterIdMap> {
+async function fetchPlayerRoster(userId: number, league_id: number): Promise<RosterIdMap> {
   noStore();
   try {
     await checkRosterExists(userId);
@@ -51,9 +54,11 @@ async function fetchPlayerRoster(userId: number): Promise<RosterIdMap> {
           SELECT 
               roster
           FROM 
-              Rosters
+              RostersV2
           WHERE 
               player_id = ${userId}
+          AND
+              league_id = ${league_id}
           LIMIT 1
         `;
     const rosterData = data.rows[0]?.roster;
@@ -73,9 +78,10 @@ async function fetchPlayerRoster(userId: number): Promise<RosterIdMap> {
 export async function fetchPlayerRosterScore(
   userId: number,
   week: number,
+  league_id: number,
 ): Promise<any> {
   try {
-    const roster = await fetchPlayerRoster(userId);
+    const roster = await fetchPlayerRoster(userId, league_id);
 
     // Assuming roster is an object with card IDs as keys
     const cardIds = Object.values(roster).map((card) => {
@@ -97,12 +103,13 @@ export async function playPositionSlot(
   cardId: number,
   userId: number,
   position: string,
+  leagueId: number
 ): Promise<void> {
   noStore();
   position = position.toLowerCase();
   try {
     await checkRosterExists(userId);
-    let roster = await fetchPlayerRoster(userId);
+    let roster = await fetchPlayerRoster(userId, leagueId);
 
     const foundPositionCollision = Object.keys(roster).filter(
       (key) => roster[key] === cardId.toString(),
@@ -128,7 +135,7 @@ export async function checkRosterExists(userId: number): Promise<void> {
         SELECT 
             1
         FROM 
-            Rosters
+            RostersV2
         WHERE 
             player_id = ${userId};
     `;
@@ -152,102 +159,123 @@ const createSqlLineupQuery = (
   userId: number,
   cardId: number,
   position: string,
+  leagueId: number
 ) => {
   switch (position) {
     case 'creature':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('creature', (${cardId}::text))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'artifact/enchantment':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('artifact/enchantment', (${cardId}::text))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'instant/sorcery':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('instant/sorcery', (${cardId}::text))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'land':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('land', (${cardId}::text))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     default:
       return sql`
       UPDATE 
-          Rosters
+          RostersV2
       SET 
           roster = roster || jsonb_build_object('flex', (${cardId}::text))
       WHERE 
           player_id = ${userId}
+      AND
+          league_id = ${leagueId}
     `;
   }
 };
 
-const removeCardSlotQuery = (userId: number, position: string) => {
+const removeCardSlotQuery = (userId: number, position: string, leagueId: number) => {
   switch (position) {
     case 'creature':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('creature', (''))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'artifact/enchantment':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('artifact/enchantment', (''))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'instant/sorcery':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('instant/sorcery', (''))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     case 'land':
       return sql`
         UPDATE 
-            Rosters
+            RostersV2
         SET 
             roster = roster || jsonb_build_object('land', (''))
         WHERE 
             player_id = ${userId}
+        AND
+            league_id = ${leagueId}
       `;
     default:
       return sql`
       UPDATE 
-          Rosters
+          RostersV2
       SET 
           roster = roster || jsonb_build_object('flex', (''))
       WHERE 
           player_id = ${userId}
+      AND
+          league_id = ${leagueId}
     `;
   }
 };

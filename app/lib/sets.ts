@@ -96,12 +96,13 @@ async function getSetCode(set: string): Promise<string> {
     return setCode.code;
 }
 
-export async function fetchOwnedCards(set: string): Promise<Card[]> {
+export async function fetchOwnedCards(set: string, league_id: number): Promise<Card[]> {
     const data = await sql<Card>`
         SELECT c.card_id, c.name, c.origin 
         FROM Cards AS c
-        JOIN Ownership AS o ON c.card_id = o.card_id
-        WHERE c.origin = ${set};
+        JOIN OwnershipV2 AS o ON c.card_id = o.card_id
+        WHERE c.origin = ${set}
+        AND o.league_id = ${league_id};
     `;
     return data.rows;
 }

@@ -16,9 +16,9 @@ export default async function Page({ params }: { params: { leagueId: string } })
   const playerId = player.player_id
   const teamsInLeagueWithoutYou = teamsInLeague.filter((teamPlayer) => teamPlayer.player_id !== playerId);
 
-  const playerCollection = await fetchPlayerCollectionWithDetails(playerId);
-  const leagueCollections = await fetchPlayerCollectionsWithDetails(teamsInLeagueWithoutYou.map(player => player.player_id))
-  const tradeOffers = await fetchTradeOffersWithDetails(playerId)
+  const playerCollection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
+  const leagueCollections = await fetchPlayerCollectionsWithDetails(teamsInLeagueWithoutYou.map(player => player.player_id), leagueId)
+  const tradeOffers = await fetchTradeOffersWithDetails(playerId, leagueId)
   return (
     <main className="mb-4 p-2">
       <TradeOffers offers={tradeOffers} playerId={playerId} leagueId={leagueId}/>

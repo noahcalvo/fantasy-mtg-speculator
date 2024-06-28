@@ -7,10 +7,15 @@ import { fetchCardName, fetchOwnedCards, fetchSet } from '@/app/lib/sets';
 import { CardDetails, DraftPick } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
+import { fetchLeague } from '@/app/lib/leagues';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const user = await auth().then((res) => res?.user);
   const player = await fetchPlayerByEmail(user?.email || "")
+  const playerId = player.player_id;
+  const league = await fetchLeague(playerId)
+  const leagueId = league?.league_id ?? 0;
+
 
   const draftId = params.id;
 
@@ -26,7 +31,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const cards = await fetchSet(draft.set);
 
-  const alreadyOwnedCards = await fetchOwnedCards(draft.set);
+  const alreadyOwnedCards = await fetchOwnedCards(draft.set, leagueId);
 
   const draftedCardNames = await Promise.all(
     picks.map((pick: DraftPick) => pick.card_id ? fetchCardName(pick.card_id) : null)

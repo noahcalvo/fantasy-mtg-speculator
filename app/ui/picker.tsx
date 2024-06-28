@@ -16,7 +16,7 @@ export function SetPicker({
     fetchRecentSets().then((result) => {
       setSets(result);
     });
-  });
+  }, []);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();

@@ -3,9 +3,11 @@ import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
 import LargeCard from './largeCard';
 import { fetchCardPerformanceByWeek } from '@/app/lib/collection';
 import { getCurrentWeek } from '@/app/lib/utils';
+import { fetchLeague } from '@/app/lib/leagues';
 
 export default async function Roster({ playerId, name }: { playerId: number, name: string }) {
-  const roster = await fetchPlayerRosterWithDetails(playerId);
+  const league = await fetchLeague(playerId)
+  const roster = await fetchPlayerRosterWithDetails(playerId, league?.league_id ?? 0);
   const cardIds = getCardIdsFromMap(roster);
   const week = getCurrentWeek();
   const mostRecentPoints = await fetchCardPerformanceByWeek(cardIds, week)

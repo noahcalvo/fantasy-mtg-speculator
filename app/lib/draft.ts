@@ -29,7 +29,7 @@ export type State = {
   message?: string | null;
 };
 
-export async function createDraft(prevState: State, formData: FormData) {
+export async function createDraft(prevState: State, formData: FormData, league_id: number) {
   // validate data from form
   const validatedFields = CreateDraft.safeParse({
     set: formData.get('set'),
@@ -49,7 +49,7 @@ export async function createDraft(prevState: State, formData: FormData) {
 
   let resp;
   try {
-      resp = await sql`INSERT INTO drafts (set, active, rounds, name, participants) VALUES (${set}, true, ${rounds}, ${name}, array[]::int[]) RETURNING draft_id;`;
+      resp = await sql`INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES (${set}, true, ${rounds}, ${name}, array[]::int[], ${league_id}) RETURNING draft_id;`;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to create draft for {set}');
@@ -58,9 +58,9 @@ export async function createDraft(prevState: State, formData: FormData) {
   redirect(`/draft/${resp.rows[0].draft_id}/view`);
 };
 
-const fetchAllDrafts = async (): Promise<Draft[]> => {
+const fetchAllDrafts = async (leagueId: number): Promise<Draft[]> => {
   try {
-    const res = await sql<Draft>`SELECT * FROM drafts;`;
+    const res = await sql<Draft>`SELECT * FROM draftsV2 WHERE league_id = ${leagueId};`;
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -68,9 +68,9 @@ const fetchAllDrafts = async (): Promise<Draft[]> => {
   }
 };
 
-const fetchDraftsBySet = async (set: string): Promise<Draft[]> => {
+const fetchDraftsBySet = async (leagueId: number, set: string): Promise<Draft[]> => {
   try {
-    const res = await sql<Draft>`SELECT * FROM drafts WHERE set = ${set};`;
+    const res = await sql<Draft>`SELECT * FROM draftsV2 WHERE set = ${set} AND league_id = ${leagueId};`;
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -78,18 +78,18 @@ const fetchDraftsBySet = async (set: string): Promise<Draft[]> => {
   }
 };
 
-export const fetchDrafts = async (set?: string): Promise<Draft[]> => {
+export const fetchDrafts = async (leagueId: number, set?: string): Promise<Draft[]> => {
   if (set) {
-    return fetchDraftsBySet(set);
+    return fetchDraftsBySet(leagueId, set);
   }
-  return fetchAllDrafts();
+  return fetchAllDrafts(leagueId);
 };
 
 export const fetchDraft = async (id: string): Promise<Draft> => {
   noStore();
 
   try {
-    const res = await sql<Draft>`SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds FROM drafts WHERE draft_id = ${id};`;
+    const res = await sql<Draft>`SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds FROM draftsV2 WHERE draft_id = ${id};`;
     return res.rows[0];
   } catch (error) {
     console.error('Database Error:', error);
@@ -100,7 +100,7 @@ export const fetchDraft = async (id: string): Promise<Draft> => {
 export const joinDraft = async (draftId: string, playerId: number): Promise<void> => {
   try {
     // Check if the player is already a participant
-    const draftResult = await sql`SELECT participants, active FROM drafts WHERE draft_id = ${draftId};`;
+    const draftResult = await sql`SELECT participants, active FROM draftsV2 WHERE draft_id = ${draftId};`;
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
     }
@@ -111,7 +111,7 @@ export const joinDraft = async (draftId: string, playerId: number): Promise<void
     if (participants.includes(playerId)) {
       console.log('Player is already a participant');
     } else {
-      await sql`UPDATE drafts SET participants = array_append(participants, ${playerId}) WHERE draft_id = ${draftId};`;
+      await sql`UPDATE draftsV2 SET participants = array_append(participants, ${playerId}) WHERE draft_id = ${draftId};`;
       await addPicks(draftId, playerId);
       await snakePicks(draftId);
       revalidatePath(`/draft/${draftId}/view`);  
@@ -150,7 +150,7 @@ const addPicks = async (draftId: string, playerId: number) => {
     const rounds = draft.rounds;
     const pick = draft.participants.length - 1;
     for (let i = 0; i < rounds; i++) {
-      await sql`INSERT INTO picks (draft_id, player_id, round, pick_number) VALUES (${draftId}, ${playerId}, ${i}, ${pick});`;
+      await sql`INSERT INTO picksV3 (draft_id, player_id, round, pick_number) VALUES (${draftId}, ${playerId}, ${i}, ${pick});`;
     }
   } catch (error) {
     console.error('Database Error:', error);
@@ -167,10 +167,10 @@ const snakePicks = async (draftId: string) => {
     // even numbered rounds are reversed (2nd, 4th, etc.)
     for (let i = 1; i < rounds; i=i+2) {
       // move the last entry out of bounds
-      await sql`UPDATE picks SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound-1]};`;
+      await sql`UPDATE picksV3 SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound-1]};`;
       for (let j = 0; j < picksPerRound; j++) {
         // move pick j over 1
-        await sql`UPDATE picks SET pick_number = ${picksPerRound-j-1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
+        await sql`UPDATE picksV3 SET pick_number = ${picksPerRound-j-1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
       }
     }
   } catch (error) {
@@ -182,7 +182,7 @@ const snakePicks = async (draftId: string) => {
 export const fetchPicks = async (draftId: string) => {
   noStore();
   try {
-    const res = await sql<DraftPick>`SELECT * FROM picks WHERE draft_id = ${draftId};`;
+    const res = await sql<DraftPick>`SELECT * FROM picksV3 WHERE draft_id = ${draftId};`;
     revalidatePath(`/draft/${draftId}/live`);  
     return res.rows;
   } catch (error) {
@@ -193,7 +193,7 @@ export const fetchPicks = async (draftId: string) => {
 
 export const fetchAvailableCards = async (cards: CardDetails[], draftId: string) => {
   try {
-    const res = await sql`SELECT * FROM picks WHERE draft_id = ${draftId});`;
+    const res = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId});`;
     const undraftedCards = cards.filter(card => !res.rows.some(pick => pick.card_id === card.name));
     return undraftedCards;
   } catch (error) {
@@ -213,9 +213,9 @@ export const makePick = async (draftId: string, playerId: number, cardName: stri
       console.log('Not your turn', activePick, playerId)
       throw new Error('Not your turn');
     }
-    await sql`UPDATE picks SET card_id = ${cardId} WHERE draft_id = ${draftId} AND player_id = ${playerId} AND round = ${activePick.round} AND pick_number = ${activePick.pick_number};`;
+    await sql`UPDATE picksV3 SET card_id = ${cardId} WHERE draft_id = ${draftId} AND player_id = ${playerId} AND round = ${activePick.round} AND pick_number = ${activePick.pick_number};`;
     if (await isDraftComplete(draftId)) {
-      await sql`UPDATE drafts SET active = false WHERE draft_id = ${draftId};`;
+      await sql`UPDATE draftsV2 SET active = false WHERE draft_id = ${draftId};`;
       await updateCollectionWithCompleteDraft(draftId);
     }
     revalidatePath(`/draft/${draftId}/live`);  
