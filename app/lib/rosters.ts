@@ -16,7 +16,7 @@ export async function fetchPlayerRosterWithDetails(
 ): Promise<RosterCardDetailsMap> {
   noStore();
   try {
-    await checkRosterExists(userId);
+    await checkRosterExists(userId, league_id);
     const data = await sql<RosterSlotToId>`
           SELECT 
               roster
@@ -46,10 +46,10 @@ export async function fetchPlayerRosterWithDetails(
   }
 }
 
-async function fetchPlayerRoster(userId: number, league_id: number): Promise<RosterIdMap> {
+async function fetchPlayerRoster(userId: number, leagueId: number): Promise<RosterIdMap> {
   noStore();
   try {
-    await checkRosterExists(userId);
+    await checkRosterExists(userId, leagueId);
     const data = await sql<RosterIdMap>`
           SELECT 
               roster
@@ -58,7 +58,7 @@ async function fetchPlayerRoster(userId: number, league_id: number): Promise<Ros
           WHERE 
               player_id = ${userId}
           AND
-              league_id = ${league_id}
+              league_id = ${leagueId}
           LIMIT 1
         `;
     const rosterData = data.rows[0]?.roster;
@@ -66,7 +66,6 @@ async function fetchPlayerRoster(userId: number, league_id: number): Promise<Ros
       return {} as RosterIdMap;
     }
     if (!rosterData || typeof rosterData !== 'object') {
-      console.log('rosterData:', rosterData);
       throw new Error(
         `Roster data for user:${userId} is in an unexpected format`,
       );
@@ -82,10 +81,10 @@ async function fetchPlayerRoster(userId: number, league_id: number): Promise<Ros
 export async function fetchPlayerRosterScore(
   userId: number,
   week: number,
-  league_id: number,
+  leagueId: number,
 ): Promise<CardPerformances> {
   try {
-    const roster = await fetchPlayerRoster(userId, league_id);
+    const roster = await fetchPlayerRoster(userId, leagueId);
 
     // Assuming roster is an object with card IDs as keys
     const cardIds = Object.values(roster).map((card) => {
@@ -112,7 +111,7 @@ export async function playPositionSlot(
   noStore();
   position = position.toLowerCase();
   try {
-    await checkRosterExists(userId);
+    await checkRosterExists(userId, leagueId);
     let roster = await fetchPlayerRoster(userId, leagueId);
 
     const foundPositionCollision = Object.keys(roster).filter(
@@ -131,7 +130,7 @@ export async function playPositionSlot(
   }
 }
 
-export async function checkRosterExists(userId: number): Promise<void> {
+export async function checkRosterExists(userId: number, leagueId: number): Promise<void> {
   noStore();
   try {
     // Check if a roster exists for the user
@@ -141,16 +140,18 @@ export async function checkRosterExists(userId: number): Promise<void> {
         FROM 
             RostersV2
         WHERE 
-            player_id = ${userId};
+            player_id = ${userId}
+        AND
+            league_id = ${leagueId};
     `;
 
     // If the roster doesn't exist, create an empty one
     if (!rosterExists.rows.length) {
       await sql`
           INSERT INTO 
-              Rosters (player_id, roster)
+              RostersV2 (player_id, roster, league_id)
           VALUES 
-              (${userId}, '{}')
+              (${userId}, '{}', ${leagueId})
       `;
     }
   } catch (error) {

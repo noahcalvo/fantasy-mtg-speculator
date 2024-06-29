@@ -17,7 +17,6 @@ export function CreatePerformanceMap(
 
   // Populate this week points
   thisWeekData.teams.forEach((team) => {
-    console.log(team.cards?.cards)
     const points = team.cards && team.cards.cards ? calculateTotalPoints(team.cards.cards) : 0;
     thisWeekPointTotal += points;
     pointsMap.set(team.player_id, { thisWeek: points, lastWeek: 0, thisWeekPct: 0, lastWeekPct: 0, name: team.name });

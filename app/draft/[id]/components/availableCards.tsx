@@ -34,7 +34,7 @@ export default function AvailableCards({
 
   useEffect(() => {
     setPage(0);
-  }, [searchTerm]);
+  }, [searchTerm, sortedBy, filteredTypes]);
 
   const sortedCards = sortCards(sortedBy, undraftedCards);
 
@@ -68,7 +68,7 @@ export default function AvailableCards({
             className="mt-2 flex flex-col items-center justify-center"
             key={card.name}
           >
-            <Image src={card.image} alt={card.name} width="150" height="150" />
+            <Image src={card.image} alt={card.name} width="125" height="125" />
             <button
               className={`mx-2 mt-2 rounded-md border border-white p-2 text-black ${
                 activeDrafter

@@ -187,7 +187,6 @@ export const getAbbreviation = (position: string) => {
 }
 
 export const calculateTotalPoints = (cardPoints: CardPoint[]): number => {
-  console.log("calculating: ", cardPoints)
   return cardPoints.reduce((accumulator, cardPoint) => {
     return accumulator + cardPoint.total_points;
   }, 0);

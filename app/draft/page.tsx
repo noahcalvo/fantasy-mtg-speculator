@@ -2,7 +2,6 @@ import { auth } from '@/auth';
 import { fetchRecentSets } from '../lib/sets';
 import { CreateDraftForm } from './components/createDraftForm';
 import { DraftList } from './components/draftList';
-import { isAdmin } from '../lib/actions';
 import { fetchLeague, isCommissioner } from '../lib/leagues';
 import { fetchPlayerByEmail } from '../lib/player';
 import {BeakerIcon} from '@heroicons/react/20/solid';

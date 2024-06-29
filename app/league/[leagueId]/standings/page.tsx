@@ -1,10 +1,21 @@
-import { fetchPlayerWeeklyPointsInLeague } from "@/app/lib/leagues";
+import { fetchPlayerWeeklyPointsInLeague, fetchPlayersInLeague } from "@/app/lib/leagues";
 import { getCurrentWeek } from "@/app/lib/utils";
 import Standings from "@/app/ui/standings";
 import MoreAboutStandings from "./components/moreAboutStandings";
+import { auth } from "@/auth";
+import { fetchPlayerByEmail } from "@/app/lib/player";
+import { redirect } from "next/navigation";
 
 export default async function Page({ params }: { params: { leagueId: string } }) {
+  const user = await auth().then((res) => res?.user);
+  const userEmail = user?.email || '';
+  const player = await fetchPlayerByEmail(userEmail);
+  const playerId = player.player_id;
   const leagueId = isNaN(parseInt(params.leagueId, 10)) ? -1 : parseInt(params.leagueId, 10);
+  const teamsInLeague = await fetchPlayersInLeague(leagueId);
+  if (!teamsInLeague.find((teamPlayer) => teamPlayer.player_id === playerId))
+    {redirect(`/league`)}
+
   const week = getCurrentWeek();
   const perfData = await fetchPlayerWeeklyPointsInLeague(leagueId, week);
   const lastWeekData = await fetchPlayerWeeklyPointsInLeague(leagueId, week - 1);

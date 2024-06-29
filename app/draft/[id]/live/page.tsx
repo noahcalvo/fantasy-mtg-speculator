@@ -5,7 +5,7 @@ import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
 import { fetchOwnedCards, fetchSet } from '@/app/lib/sets';
 import { fetchCardName } from '@/app/lib/card';
-import { Card, CardDetails, CardDetailsWithPoints, CardPoint, DraftPick } from '@/app/lib/definitions';
+import { CardDetails, CardDetailsWithPoints, CardPoint, DraftPick } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchLeague } from '@/app/lib/leagues';
@@ -32,8 +32,6 @@ export default async function Page({ params }: { params: { id: string } }) {
   const participants = await fetchMultipleParticipantData(participantIDs);
 
   const cards = await fetchSet(draft.set);
-
-  console.log("cards:", cards)
 
   const alreadyOwnedCards = await fetchOwnedCards(draft.set, leagueId);
 
@@ -66,8 +64,6 @@ export default async function Page({ params }: { params: { id: string } }) {
       week,
     };
   });
-
-  // console.log(undraftedCardsWithPoints)
 
   const activeDrafter = getActivePick(picks)?.player_id;
   return (
