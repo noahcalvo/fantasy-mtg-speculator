@@ -1,6 +1,6 @@
 'use server';
 
-import { CardPoint, RosterIdMap } from './definitions';
+import { CardPoint, RosterIdMap, WeeklyLeaguePerformances } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 import pg from 'pg';
 import { fetchAllLeagues, fetchPlayersInLeague } from './leagues';
@@ -296,6 +296,28 @@ export async function fetchUniqueWeekNumbers() {
   }
 }
 
+export async function fetchLeagueWeeks(leagueId: number) {
+  noStore();
+  try {
+    const data = await pool.query(`
+          SELECT DISTINCT
+              week
+          FROM 
+              TeamPerformancesv3
+          WHERE
+              league_id = $1
+          ORDER BY 
+              week DESC;
+      `, [leagueId]);
+    // Convert week numbers to numbers
+    const convertedData = data.rows.map((row) => Number(row.week));
+    return convertedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch unique week numbers');
+  }
+}
+
 export async function fetchRosterFromTeamPerformance(playerId: number, leagueId: number, week: number): Promise<RosterIdMap> {
   noStore();
   try {
@@ -408,5 +430,89 @@ async function upsertWeeklyTeamPerformance(leagueId: number, roster: RosterIdMap
   } catch (error) {
     console.error('Database Error:', error);
     throw error;
+  }
+}
+
+export async function fetchWeeklyLeaguePerformance(leagueId: number, week: number): Promise<WeeklyLeaguePerformances> {
+  noStore();
+  try {
+    const data = await pool.query(`
+          SELECT 
+              player_id,
+              points,
+              roster,
+              week
+          FROM 
+              TeamPerformancesV3
+          WHERE 
+              league_id = $1
+          AND 
+              week = $2;
+      `, [leagueId, week]);
+
+    return {
+      league_id: leagueId,
+      teams: data.rows
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch unique week numbers');
+  }
+}
+
+export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<WeeklyLeaguePerformances> {
+  noStore();
+  try {
+    const data = await pool.query(`
+          SELECT 
+              player_id,
+              SUM(points) as points
+          FROM 
+              TeamPerformancesV3
+          WHERE 
+              league_id = $1
+          GROUP BY
+              player_id;
+      `, [leagueId]);
+
+    return {
+      league_id: leagueId,
+      teams: data.rows
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch unique week numbers');
+  }
+}
+
+export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId:number): Promise<WeeklyLeaguePerformances> {
+  noStore();
+  try {
+    const data = await pool.query(`
+          WITH LatestWeek AS (
+              SELECT MAX(week) as max_week
+              FROM TeamPerformancesV3
+              WHERE league_id = $1
+              AND points > 0
+          )
+          SELECT 
+              tp.player_id,
+              SUM(tp.points) as points
+          FROM 
+              TeamPerformancesV3 tp
+          JOIN LatestWeek lw ON tp.week < lw.max_week
+          WHERE 
+              tp.league_id = $1
+          GROUP BY
+              tp.player_id;
+      `, [leagueId]);
+
+    return {
+      league_id: leagueId,
+      teams: data.rows
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch unique week numbers');
   }
 }

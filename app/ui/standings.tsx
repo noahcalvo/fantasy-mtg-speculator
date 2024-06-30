@@ -1,32 +1,59 @@
-import { WeeklyLeaguePerformances } from "@/app/lib/definitions";
-import Link from "next/link";
-import { CreatePerformanceMap, TwoWeekStatus } from "../lib/performance-utils";
+import Link from 'next/link';
+import { CreatePerformanceMap, TwoWeekStatus } from '../lib/performance-utils';
+import { fetchAlltimeLeaguePerformance, fetchAlltimeLeaguePerformanceLastWeek, fetchWeeklyLeaguePerformance } from '../lib/performance';
+import { fetchParticipantData } from '../lib/player';
+import { WeeklyLeaguePerformances } from '../lib/definitions';
 
+export default async function Standings({
+  leagueId,
+  week,
+}: {
+  leagueId: number;
+  week: number;
+}) {
+  const thisWeek = week < 0 ? await fetchAlltimeLeaguePerformance(leagueId) : await fetchWeeklyLeaguePerformance(leagueId, week);
+  const lastWeek = week < 0 ? await fetchAlltimeLeaguePerformanceLastWeek(leagueId) as WeeklyLeaguePerformances : await fetchWeeklyLeaguePerformance(leagueId, week - 1);
+  console.log(thisWeek, lastWeek)
 
-export default async function Standings({ weeklyPerformance, lastWeekData }: { weeklyPerformance: WeeklyLeaguePerformances, lastWeekData: WeeklyLeaguePerformances }) {
-  let performanceMap = CreatePerformanceMap(weeklyPerformance, lastWeekData);
-  const sortedPointsArray = Array.from(performanceMap.entries()).sort((a, b) => b[1].thisWeek - a[1].thisWeek);
+  let performanceMap = CreatePerformanceMap(thisWeek, lastWeek);
+  const sortedPointsArray = Array.from(performanceMap.entries()).sort(
+    (a, b) => b[1].thisWeek - a[1].thisWeek,
+  );
+
+  const lastPosition = sortedPointsArray.length - 1;
 
   return (
     <div>
-      <div className="text-xl ml-4 font-bold" >Weekly League Standings</div>
-      {sortedPointsArray.map(([playerId, twoWeekStatus], index) => {
-        let className = 'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
-        let emojiText = "   "
-        if (index === 0) emojiText = '🥇';
-        else if (index === 1) emojiText = '🥈';
-        else if (index === 2) emojiText = '🥉';
-        else if (index === sortedPointsArray.length - 1) emojiText = '💀';
-        const arrow = getStatusArrow(twoWeekStatus)
+      <div className="ml-4 text-xl font-bold">{ week > 0 ? `Week ${week} League Standings` : "Total Points League Standings" }</div>
+      {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
+        let className =
+          'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
+        let emojiText = '   ';
+        if (sortedPointsArray[0][1].thisWeek == 0) emojiText = ' '
+        else if ((index === 0) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[0][1].thisWeek) emojiText = '🥇';
+        else if ((index === 1) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[1][1].thisWeek) emojiText = '🥈';
+        else if ((index === 2) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[2][1].thisWeek) emojiText = '🥉';
+        else if ((index === lastPosition) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[lastPosition][1].thisWeek) emojiText = '💀';
+        const arrow = getStatusArrow(twoWeekStatus);
+        const player = await fetchParticipantData(twoWeekStatus.id)
+        const playerName = player?.name ?? "Unknown Player";
         return (
-          <Link key={index} className={className} href={`/league/${weeklyPerformance.league_id}/teams/${playerId}`}>
-            <div className="text-right text-lg pr-0.5">{emojiText}</div>
-            <div className="col-span-7 text-lg text-bold">{twoWeekStatus.name}</div>
-            <div className="col-span-4">{arrow} {twoWeekStatus.thisWeek.toFixed(2)}</div>
+          <Link
+            key={index}
+            className={className}
+            href={`/league/${leagueId}/teams/${playerId}`}
+          >
+            <div className="pr-0.5 text-right text-lg">{emojiText}</div>
+            <div className="text-bold col-span-7 text-lg">
+              {playerName}
+            </div>
+            <div className="col-span-4">
+              {arrow} {twoWeekStatus.thisWeek.toFixed(2)}
+            </div>
           </Link>
         );
-      })}      
-            </div>
+      })}
+    </div>
   );
 }
 
@@ -36,22 +63,22 @@ function getStatusArrow(twoWeekStatus: TwoWeekStatus): React.ReactElement {
   let arrow: React.ReactNode;
   switch (true) {
     case pctDifference > 3:
-      arrow = <span className="text-lime-600 font-bold">↑</span>
+      arrow = <span className="font-bold text-lime-600">↑</span>;
       break;
     case pctDifference > 1:
-      arrow = <span className="text-lime-300 font-bold">↑</span>
+      arrow = <span className="font-bold text-lime-300">↑</span>;
       break;
 
     case pctDifference < -3:
-      arrow = <span className="text-red-600 font-bold">↓</span>
+      arrow = <span className="font-bold text-red-600">↓</span>;
       break;
     case pctDifference < -1:
-      arrow = <span className="text-red-300 font-bold">↓</span>
+      arrow = <span className="font-bold text-red-300">↓</span>;
       break;
     default:
-      arrow = <span className="text-gray-500 font-bold">--</span>
+      arrow = <span className="font-bold text-gray-500">--</span>;
       break;
   }
 
-  return arrow
+  return arrow;
 }

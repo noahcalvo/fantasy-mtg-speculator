@@ -1,7 +1,7 @@
 'use client';
 import { League } from '@/app/lib/definitions';
 import { createLeague, joinLeague } from '@/app/lib/leagues';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function JoinLeague({ leagues, userId }: { leagues: League[], userId: number }) {
   const [showJoin, setShowJoin] = useState(false);

@@ -5,7 +5,7 @@ export type TwoWeekStatus = {
   lastWeek: number;
   thisWeekPct: number;
   lastWeekPct: number;
-  name: string;
+  id: number;
 }
 export function CreatePerformanceMap(
   thisWeekData: WeeklyLeaguePerformances,
@@ -17,21 +17,21 @@ export function CreatePerformanceMap(
 
   // Populate this week points
   thisWeekData.teams.forEach((team) => {
-    const points = team.cards && team.cards.cards ? calculateTotalPoints(team.cards.cards) : 0;
+    const points = team.points/100;
     thisWeekPointTotal += points;
-    pointsMap.set(team.player_id, { thisWeek: points, lastWeek: 0, thisWeekPct: 0, lastWeekPct: 0, name: team.name });
+    pointsMap.set(team.player_id, { thisWeek: points, lastWeek: 0, thisWeekPct: 0, lastWeekPct: 0, id: team.player_id });
   });
 
   let lastWeekPointTotal = 0;
 
   // Populate last week points
   lastWeekData.teams.forEach((team) => {
-    const points = calculateTotalPoints(team.cards.cards);
+    const points = team.points/100;
     lastWeekPointTotal += points;
     if (pointsMap.has(team.player_id)) {
       pointsMap.get(team.player_id)!.lastWeek = points;
     } else {
-      pointsMap.set(team.player_id, { thisWeek: 0, lastWeek: points, thisWeekPct: 0, lastWeekPct: 0, name: team.name });
+      pointsMap.set(team.player_id, { thisWeek: 0, lastWeek: points, thisWeekPct: 0, lastWeekPct: 0, id: team.player_id });
     }
   });
 

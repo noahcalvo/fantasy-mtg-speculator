@@ -27,8 +27,8 @@ export type CardPerformances = {
 }
 
 export type TeamPerformance = {
-  cards: CardPerformances;
-  name: string;
+  points: number;
+  roster: RosterIdMap;
   player_id: number;
   week: number;
 }

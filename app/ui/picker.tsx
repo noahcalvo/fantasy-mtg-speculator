@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
 import { EPOCH } from '../consts';
+import { DarkNavTab } from './nav-tab';
 
 export function SetPicker({
   placeholder}: {
@@ -105,6 +106,34 @@ export function WeekPicker({
     </div>
   );
 }
+
+export function WeekPickerRouter({
+  availableWeeks,
+  leagueId,
+}: {
+  availableWeeks: number[];
+  leagueId: number;
+}) {
+  const pathname = usePathname()
+  return (
+    <div>
+      <div className='flex mt-4'>
+      <DarkNavTab name="all weeks" path={`/league/${leagueId}/standings`} active={pathname === `/league/${leagueId}/standings`} />
+
+        {
+          // for each week, create a new WeekPickerRouter
+          availableWeeks.map((week) => {
+            return (
+              <DarkNavTab key={week} name={`${week}`} path={`/league/${leagueId}/standings/${week}`} active={pathname === `/league/${leagueId}/standings/${week}`} />
+            );
+          })
+        }
+      </div>
+    </div>
+  );
+}
+
+
 
 function getWeekStrings(weeks: number[]) {
   const sortedWeeks = weeks.sort((a, b) => b - a);
