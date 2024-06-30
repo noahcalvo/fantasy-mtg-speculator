@@ -11,7 +11,7 @@ import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { fetchPlayerRosterScore } from './rosters';
 
-export async function fetchLeague(userId: number): Promise<League | null> {
+export async function fetchLeague(userId: number): Promise<League[] | null> {
   try {
     const data = await sql<League>`
       SELECT * FROM leaguesV3
@@ -21,10 +21,7 @@ export async function fetchLeague(userId: number): Promise<League | null> {
       console.log(`No leagues found for ${userId}`);
       return null;
     }
-    if (data.rows.length > 1) {
-      throw new Error(`Uh oh. Multiple leagues found for ${userId}`);
-    }
-    return data.rows[0];
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch leagues for ${userId}`);
