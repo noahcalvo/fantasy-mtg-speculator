@@ -133,32 +133,6 @@ export async function fetchPlayersInLeague(
   }
 }
 
-export async function fetchPlayerWeeklyPointsInLeague(
-  leagueId: number,
-  week: number,
-): Promise<WeeklyLeaguePerformances> {
-  try {
-    const players = await fetchPlayersInLeague(leagueId);
-    const teams: TeamPerformance[] = [];
-
-    for (const player of players) {
-      const rosterScore = await fetchPlayerRosterScore(player.player_id, week, leagueId);
-      const teamPerformance: TeamPerformance = {
-        cards: rosterScore,
-        player_id: player.player_id,
-        name: player.name,
-        week: week,
-      };
-      teams.push(teamPerformance);
-    }
-
-    return { teams: teams, league_id: leagueId };
-  } catch (error) {
-    console.log('Database Error:', error);
-    throw new Error("Failed to fetch players' weekly points in league");
-  }
-}
-
 export async function fetchPlayerIdInLeague(
   leagueId: number,
 ): Promise<number[]> {

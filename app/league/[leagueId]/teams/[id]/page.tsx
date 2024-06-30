@@ -1,6 +1,5 @@
 import { fetchParticipantData } from "@/app/lib/player";
 import Roster from "@/app/ui/roster/roster";
-import { selectClasses } from "@mui/material";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const playerId = parseInt(params.id, 10);

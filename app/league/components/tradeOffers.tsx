@@ -1,6 +1,5 @@
 'use client'
 import { TradeOfferWithCardDetails, getCardTypesAbbreviationString, transformTradeOffer } from "@/app/lib/definitions";
-import { fetchParticipantData } from "@/app/lib/player";
 import { acceptTrade, declineTrade, revokeTrade } from "@/app/lib/trade";
 import SmallCard from "@/app/ui/roster/smallCard";
 import { useState } from "react";

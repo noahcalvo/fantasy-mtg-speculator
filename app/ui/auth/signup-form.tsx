@@ -9,7 +9,7 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '../button';
 import { useFormState, useFormStatus } from 'react-dom';
-import { createAccount } from '@/app/lib/actions';
+import { createAccount } from '@/app/lib/accountAuth';
 
 export default function SignupForm() {  
   const [errorMessage, dispatch] = useFormState(createAccount, undefined);
