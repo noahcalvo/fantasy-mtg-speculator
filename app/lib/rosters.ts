@@ -46,7 +46,7 @@ export async function fetchPlayerRosterWithDetails(
   }
 }
 
-async function fetchPlayerRoster(userId: number, leagueId: number): Promise<RosterIdMap> {
+export async function fetchPlayerRoster(userId: number, leagueId: number): Promise<RosterIdMap> {
   noStore();
   try {
     await checkRosterExists(userId, leagueId);
@@ -70,7 +70,6 @@ async function fetchPlayerRoster(userId: number, leagueId: number): Promise<Rost
         `Roster data for user:${userId} is in an unexpected format`,
       );
     }
-
     return rosterData;
   } catch (error) {
     console.error('Database Error:', error);
