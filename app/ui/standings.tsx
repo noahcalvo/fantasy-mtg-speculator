@@ -6,6 +6,7 @@ import { CreatePerformanceMap, TwoWeekStatus } from "../lib/performance-utils";
 export default async function Standings({ weeklyPerformance, lastWeekData }: { weeklyPerformance: WeeklyLeaguePerformances, lastWeekData: WeeklyLeaguePerformances }) {
   let performanceMap = CreatePerformanceMap(weeklyPerformance, lastWeekData);
   const sortedPointsArray = Array.from(performanceMap.entries()).sort((a, b) => b[1].thisWeek - a[1].thisWeek);
+
   return (
     <div>
       <div className="text-xl ml-4 font-bold" >Weekly League Standings</div>
@@ -24,7 +25,8 @@ export default async function Standings({ weeklyPerformance, lastWeekData }: { w
             <div className="col-span-4">{arrow} {twoWeekStatus.thisWeek.toFixed(2)}</div>
           </Link>
         );
-      })}      </div>
+      })}      
+            </div>
   );
 }
 

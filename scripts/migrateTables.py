@@ -47,13 +47,21 @@ def migrateTables(conn):
             # cur.execute(migrate_trades_table_query)
             # print("Migrated 'trades' table")
 
-            # Migrate Picks table
-            migrate_leagues_table_query = """
-            INSERT INTO LeaguesV3 (league_id, name, participants, commissioners, open)
-            SELECT league_id, name, participants, comissioners, open FROM LeaguesV2;
+            # # Migrate Picks table
+            # migrate_leagues_table_query = """
+            # INSERT INTO LeaguesV3 (league_id, name, participants, commissioners, open)
+            # SELECT league_id, name, participants, comissioners, open FROM LeaguesV2;
+            # """
+            # cur.execute(migrate_leagues_table_query)
+            # print("Migrated 'leagues' table")
+
+            # Migrate TeamPerformances table
+            migrate_team_performances_table_query = """ 
+            INSERT INTO TeamPerformancesV3 (league_id, player_id, week, points, roster)
+            SELECT league_id, player_id, week, points, roster FROM TeamPerformancesV2;
             """
-            cur.execute(migrate_leagues_table_query)
-            print("Migrated 'leagues' table")
+            cur.execute(migrate_team_performances_table_query)
+            print("Migrated 'team_performances' table")
 
 
         conn.commit()

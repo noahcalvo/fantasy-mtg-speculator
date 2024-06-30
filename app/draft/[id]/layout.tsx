@@ -2,7 +2,6 @@ import Link from "next/link";
 import DraftInfoHeader from "./components/draftInfoHeader";
 import { fetchDraft } from "@/app/lib/draft";
 import notFound from "./not-found";
-import { auth } from "@/auth";
 
 export default async function Layout({ children, params }: { children: React.ReactNode, params: { id: string } }) {
     const draftId = params.id;
