@@ -334,7 +334,6 @@ export async function updateWeeklyTeamPerformance(leagueId: number, week: number
     }
 
     const performances = await fetchCardPerformancesFromWeek(cardIds, week);
-    console.log(performances)
     let points = 0;
 
     performances.forEach((performance: CardPoint) => {
