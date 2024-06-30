@@ -1,4 +1,4 @@
-import { fetchDraft, joinDraft, redirectIfJoined } from '@/app/lib/draft';
+import { fetchDraft, redirectIfJoined } from '@/app/lib/draft';
 import { auth } from '@/auth';
 import JoinDraft from '../components/joinDraft';
 import notFound from '../not-found';

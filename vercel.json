@@ -1,0 +1,11 @@
+{
+  "crons": [
+    {
+      "path": "/api/hello",
+      "schedule": "0 6 * * 1",
+      "headers": {
+        "x-cron-secret-key": "@CRON_SECRET_KEY"
+      }
+    }
+  ]
+}

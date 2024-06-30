@@ -169,6 +169,22 @@ def createTables(conn):
             cur.execute(create_bulletin_table_query)
             print("Created 'bulletin items' table")
 
+            create_team_performance_table_query = """
+            CREATE TABLE IF NOT EXISTS TeamPerformancesV3 (
+            performance_id SERIAL PRIMARY KEY,
+            roster jsonb NOT NULL,
+            league_id INT NOT NULL,
+            player_id INT NOT NULL,
+            week INT NOT NULL,
+            points INT NOT NULL,
+            FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id),
+            FOREIGN KEY (player_id) REFERENCES Users(player_id),
+            UNIQUE (league_id, player_id, week)
+            );
+            """
+            cur.execute(create_team_performance_table_query)
+            print("Created 'team performance' table")
+
 
         conn.commit()
     except Exception as error:
