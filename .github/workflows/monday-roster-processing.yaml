@@ -24,6 +24,6 @@ jobs:
         run: npm run build # Assumes you have a build script in package.json
 
       - name: Run Monday Task
-        run: node -e "require('./dist/app/lib/performance').runMondayTask()"
+        run: node -e "require('./app/lib/performance').runMondayTask()"
         env:
           POSTGRES_URL: ${{ secrets.POSTGRES_URL }} # Set your environment variables as needed
