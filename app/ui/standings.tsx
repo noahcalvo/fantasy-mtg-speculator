@@ -13,7 +13,6 @@ export default async function Standings({
 }) {
   const thisWeek = week < 0 ? await fetchAlltimeLeaguePerformance(leagueId) : await fetchWeeklyLeaguePerformance(leagueId, week);
   const lastWeek = week < 0 ? await fetchAlltimeLeaguePerformanceLastWeek(leagueId) as WeeklyLeaguePerformances : await fetchWeeklyLeaguePerformance(leagueId, week - 1);
-  console.log(thisWeek, lastWeek)
 
   let performanceMap = CreatePerformanceMap(thisWeek, lastWeek);
   const sortedPointsArray = Array.from(performanceMap.entries()).sort(

@@ -5,7 +5,6 @@ import { unstable_noStore as noStore } from 'next/cache';
 import pg from 'pg';
 import { fetchAllLeagues, fetchPlayersInLeague } from './leagues';
 import { getCurrentWeek } from './utils';
-import { init } from 'next/dist/compiled/webpack/webpack';
 
 const { Pool } = pg;
 
@@ -282,7 +281,7 @@ export async function fetchUniqueWeekNumbers() {
           SELECT DISTINCT
               week
           FROM 
-              Performance
+              PerformanceV2
           ORDER BY 
               week;
       `);
