@@ -141,7 +141,7 @@ export default function AvailableCards({
                 <div
                   key={card.name}
                   onClick={() => setExpandedCard(card.name)}
-                  className="cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
+                  className="cursor-pointer"
                 >
                   <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">
                     <div className="w-full">
