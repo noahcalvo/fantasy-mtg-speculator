@@ -124,7 +124,7 @@ export default function AvailableCards({
           )}
           <div className="inline">
             <button
-              className="m-1 rounded-md border px-1 py-1  text-sm border-white bg-red-800 text-white"
+              className="m-1 rounded-md border border-white bg-red-800  px-1 py-1 text-sm text-white"
               onClick={() =>
                 setSortedBy(sortedBy === 'price' ? 'points' : 'price')
               }
@@ -136,41 +136,49 @@ export default function AvailableCards({
         <hr className="my-2 border-white" />
         <div className="grid grid-cols-2">
           <div>
-          <div className="max-h-[25vh] overflow-auto xl:max-h-[60vh]">
-            {paginatedCards.map((card: CardDetailsWithPoints) => (
-              <div
-                key={card.name}
-                onMouseEnter={() => setExpandedCard(card.name)}
-                onMouseLeave={() => setExpandedCard(null)}
-              >
-                <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">
-                  <div className="w-full">
-                    <div className="line-clamp-1">{card.name}</div>
-                    {sortedBy === 'points' ? (
-                      card.points ? (
-                        <div className="w-full flex place-content-between">
-                          <div>pts:<span className="rounded-md bg-red-900 px-1">{card.points}</span></div>
-                          <div>week:<span className="rounded-md bg-red-900 px-1">
-                            {card.week == -1 ? 0 : card.week}
-                          </span></div>
-                        </div>
+            <div className="max-h-[25vh] overflow-auto xl:max-h-[60vh]">
+              {paginatedCards.map((card: CardDetailsWithPoints) => (
+                <div
+                  key={card.name}
+                  onClick={() => setExpandedCard(card.name)}
+                  className="cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
+                >
+                  <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">
+                    <div className="w-full">
+                      <div className="line-clamp-1">{card.name}</div>
+                      {sortedBy === 'points' ? (
+                        card.points ? (
+                          <div className="flex w-full place-content-between">
+                            <div>
+                              pts:
+                              <span className="rounded-md bg-red-900 px-1">
+                                {card.points}
+                              </span>
+                            </div>
+                            <div>
+                              week:
+                              <span className="rounded-md bg-red-900 px-1">
+                                {card.week == -1 ? 0 : card.week}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          'no point data found'
+                        )
                       ) : (
-                        'no point data found'
-                      )
-                    ) : (
-                      <div>
-                        {card.price.usd
-                          ? '$' + card.price.usd
-                          : 'no price data found'}
-                      </div>
-                    )}
+                        <div>
+                          {card.price.usd
+                            ? '$' + card.price.usd
+                            : 'no price data found'}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <hr className="my-2 border-white" />
                 </div>
-                <hr className="my-2 border-white" />
-              </div>
-            ))}
-          </div>
-          <button
+              ))}
+            </div>
+            <button
               onClick={() => setPage(page - 1)}
               disabled={page === 0}
               className="mx-2 mt-2 rounded-md border border-white px-2"
@@ -184,7 +192,7 @@ export default function AvailableCards({
             >
               Next
             </button>
-</div>
+          </div>
           {expandedCardDisplay}
         </div>
       </div>

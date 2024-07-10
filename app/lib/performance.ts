@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import pg from 'pg';
 import { fetchAllLeagues, fetchPlayersInLeague } from './leagues';
 import { getCurrentWeek } from './utils';
-import { init } from 'next/dist/compiled/webpack/webpack';
+import { fetchPlayerRoster } from './rosters';
 
 const { Pool } = pg;
 
@@ -394,7 +394,7 @@ async function initWeeklyPerformnceRoster(week: number) {
     for (let leagueId of leagueIds) {
       const players = await fetchPlayersInLeague(leagueId);
       for (let player of players) {
-        const roster = await fetchRosterFromTeamPerformance(player.player_id, leagueId, week);
+        const roster = await fetchPlayerRoster(player.player_id, leagueId);
         await upsertWeeklyTeamPerformance(leagueId, roster, week, player.player_id, 0);
       }
     }
@@ -405,6 +405,7 @@ export async function runMondayTask() {
   try {
     const week = getCurrentWeek();
     const lastWeek = week - 1
+
     await updateWeeklyPerformance(lastWeek);
     await initWeeklyPerformnceRoster(week);
   } catch (error) {
@@ -435,7 +436,6 @@ async function upsertWeeklyTeamPerformance(leagueId: number, roster: RosterIdMap
 
 export async function fetchWeeklyLeaguePerformance(leagueId: number, week: number): Promise<WeeklyLeaguePerformances> {
   noStore();
-  console.log(week, getCurrentWeek())
   if (week == getCurrentWeek()) {
     try {
       const data = await fetchOngoingWeekPerformance(leagueId);
@@ -488,9 +488,20 @@ export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<W
               player_id;
       `, [leagueId]);
 
+    const ongoingData = await fetchOngoingWeekPerformance(leagueId);
+    const allTimeData: TeamPerformance[] = data.rows.map((row) => {
+      const player = ongoingData.find((team) => team.player_id === row.player_id);
+      return {
+        player_id: row.player_id,
+        points: +row.points + (player?.points ?? 0),
+        week: -1,
+        roster: player?.roster ?? {}
+      }
+    })
+
     return {
       league_id: leagueId,
-      teams: data.rows
+      teams: allTimeData
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -532,7 +543,6 @@ export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): P
 
 export async function fetchOngoingWeekPerformance(leagueId: number): Promise<TeamPerformance[]> {
   noStore();
-  console.log("here we are")
   const week = getCurrentWeek();
   let performances: TeamPerformance[] = [];
   try {
@@ -549,18 +559,15 @@ export async function fetchOngoingWeekPerformance(leagueId: number): Promise<Tea
         }
       }
 
-      console.log("cardIds:", cardIds)
-
       const rosterPerformances = await fetchCardPerformancesFromWeek(cardIds, week);
       let points = 0;
 
       rosterPerformances.forEach((cardPerformance: CardPoint) => {
         points += cardPerformance.total_points;
       })
-      console.log("pts:", points)
       performances.push({
         player_id: player.player_id,
-        points: points,
+        points: points * 100,
         week: week,
         roster: roster
       });

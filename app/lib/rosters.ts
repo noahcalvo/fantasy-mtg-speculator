@@ -91,7 +91,7 @@ export async function fetchPlayerRosterScore(
       return isNaN(parsedId) ? -1 : parsedId;
     });
     if (cardIds.length === 0) {
-      return {cards: []} as CardPerformances
+      return { cards: [] } as CardPerformances
     }
     const performances = await fetchCardPerformanceByWeek(cardIds, week);
     return performances;
