@@ -7,7 +7,7 @@ import { fetchCard } from './card';
 export async function fetchCardPerformanceByWeek(
   collectionIDs: number[],
   week: number,
-):Promise<CardPerformances> {
+): Promise<CardPerformances> {
   noStore();
   const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points, PF.week
   FROM Cards C
@@ -24,7 +24,7 @@ export async function fetchCardPerformanceByWeek(
       ...row,
       total_points: Number(row.total_points),
     }));
-    return {cards: convertedData};
+    return { cards: convertedData };
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card point data for week');
@@ -152,7 +152,7 @@ export async function updateCollectionWithCompleteDraft(draftId: string) {
   }
 }
 
-export async function fetchPlayerCollectionsWithDetails(playerIds: number[], league_id: number): Promise<Collection[]>  {
+export async function fetchPlayerCollectionsWithDetails(playerIds: number[], league_id: number): Promise<Collection[]> {
   const playerCollections: Collection[] = [];
 
   for (const playerId of playerIds) {
@@ -170,7 +170,7 @@ export async function fetchPlayerCollectionsWithDetails(playerIds: number[], lea
 export async function playerOwnsCards(playerId: number, cardIds: number[], league_id: number): Promise<boolean> {
   try {
     const collection = await fetchPlayerCollection(playerId, league_id);
-    cardIds.forEach( (cardId:number) => {
+    cardIds.forEach((cardId: number) => {
       if (!collection.includes(cardId)) {
         return false
       }

@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # Specify the Node.js version
+          node-version: '18.17.0' # Update this line to specify the Node.js version
 
       - name: Install Dependencies
         run: npm install
@@ -24,6 +24,6 @@ jobs:
         run: npm run build # Assumes you have a build script in package.json
 
       - name: Run Monday Task
-        run: node -e "require('./dist/app/lib/performance').runMondayTask()"
+        run: node -e "require('./app/lib/performance').runMondayTask()"
         env:
           POSTGRES_URL: ${{ secrets.POSTGRES_URL }} # Set your environment variables as needed

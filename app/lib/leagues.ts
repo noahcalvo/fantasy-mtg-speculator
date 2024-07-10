@@ -34,6 +34,22 @@ export async function fetchLeague(userId: number): Promise<League | null> {
 export async function fetchAllLeagues() {
   try {
     const data = await sql<League>`
+        SELECT * FROM leaguesV3;
+          `;
+    if (data.rows.length === 0) {
+      console.log('No leagues found');
+      return null;
+    }
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch leagues');
+  }
+}
+
+export async function fetchAllOpenLeagues() {
+  try {
+    const data = await sql<League>`
         SELECT * FROM leaguesV3 WHERE open = true;
           `;
     if (data.rows.length === 0) {
@@ -159,11 +175,9 @@ export async function isPlayerInLeague(playerId: number, leagueId: number) {
 }
 
 export async function isCommissioner(playerId: number, leagueId: number) {
-  console.log('isCommissioner', playerId, leagueId)
   try {
     const data = await sql`
     SELECT commissioners FROM leaguesV3 WHERE league_id=${leagueId};`;
-    console.log('commissioners', data.rows[0])
     return data.rows[0].commissioners.includes(playerId);
   } catch (error) {
     console.error('Database Error:', error);

@@ -5,6 +5,7 @@ import { fetchPlayerByEmail } from '../lib/player';
 import { League, Player } from '../lib/definitions';
 import {
   fetchAllLeagues,
+  fetchAllOpenLeagues,
   fetchLeague,
   fetchPlayersInLeague,
 } from '../lib/leagues';
@@ -27,7 +28,7 @@ export default async function Layout({
   }
   let allLeagues: League[] = [];
   if (!joinedLeague) {
-    const leagues = await fetchAllLeagues();
+    const leagues = await fetchAllOpenLeagues();
     allLeagues = allLeagues.concat(leagues ?? []);
   }
 
@@ -39,8 +40,16 @@ export default async function Layout({
       <div className="flex-grow p-1 md:overflow-y-auto md:p-4">
         {joinedLeague?.name ? (
           <div className="p-4">
-            <p className="text-2xl text-white">Welcome to <span className='text-red-900 font-bold text-border-white'>{joinedLeague?.name}</span></p>
-            <LeagueSelector leagueId={joinedLeague?.league_id ?? -1} playerId={playerId}>
+            <p className="text-2xl text-white">
+              Welcome to{' '}
+              <span className="text-border-white font-bold text-red-900">
+                {joinedLeague?.name}
+              </span>
+            </p>
+            <LeagueSelector
+              leagueId={joinedLeague?.league_id ?? -1}
+              playerId={playerId}
+            >
               {children}
             </LeagueSelector>
           </div>
