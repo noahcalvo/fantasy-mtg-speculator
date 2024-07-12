@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import {
   CardDetails,
   CardDetailsWithPoints,
@@ -9,6 +9,7 @@ import {
 } from '@/app/lib/definitions';
 import Image from 'next/image';
 import { makePick } from '@/app/lib/draft';
+import { routeToCardPage } from '@/app/lib/routing';
 
 type SortBy = 'price' | 'points';
 
@@ -84,6 +85,20 @@ export default function AvailableCards({
         ),
       );
 
+  function handleCardClicked(
+    e: MouseEvent<HTMLDivElement, MouseEvent>,
+    card: CardDetails,
+  ) {
+    switch (e.detail) {
+      case 1:
+        setExpandedCard(card.name);
+        break;
+      case 2:
+        routeToCardPage(card.card_id);
+        break;
+    }
+  }
+
   return (
     <div className="h-full items-center justify-center overflow-auto border-2 border-white">
       <div className="h-full w-full overflow-auto rounded-lg p-5 text-white shadow-md">
@@ -140,7 +155,7 @@ export default function AvailableCards({
               {paginatedCards.map((card: CardDetailsWithPoints) => (
                 <div
                   key={card.name}
-                  onClick={() => setExpandedCard(card.name)}
+                  onClick={(e) => handleCardClicked(e, card)}
                   className="cursor-pointer"
                 >
                   <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">

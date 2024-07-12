@@ -1,15 +1,19 @@
-'use client'
+'use client';
 import { CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { fetchTopCards, fetchTopCardsFromSet, fetchTopWeeklyCards, fetchTopWeeklyCardsFromSet } from '@/app/lib/performance';
+import {
+  fetchTopCards,
+  fetchTopCardsFromSet,
+  fetchTopWeeklyCards,
+  fetchTopWeeklyCardsFromSet,
+} from '@/app/lib/performance';
 import { RevenueChartSkeleton } from '../skeletons';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
 import { Paper, ThemeProvider, colors, createTheme } from '@mui/material';
-import { ClassNames } from '@emotion/react';
-import { chartsTooltipClasses } from '@mui/x-charts/ChartsTooltip';
+import { routeToCardPage } from '@/app/lib/routing';
 
 const darkTheme = createTheme({
   palette: {
@@ -18,7 +22,9 @@ const darkTheme = createTheme({
 });
 
 function getSettings(cardPoints: CardPoint[], containerWidth: number) {
-  const maxLabelLength = Math.max(...cardPoints.map(item => item.name.length));
+  const maxLabelLength = Math.max(
+    ...cardPoints.map((item) => item.name.length),
+  );
   const marginPerChar = 7; // Adjust this value based on your font size
   return {
     xAxis: [
@@ -37,10 +43,10 @@ function getSettings(cardPoints: CardPoint[], containerWidth: number) {
 const valueFormatter = (value: number | null) => `${value}pts`;
 
 export default function PointChart() {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
   const weekParam = searchParams.get('week');
-  const week = weekParam === "0" ? 0 : Number(weekParam) || getCurrentWeek();
-  const set = searchParams.get('set') || "";
+  const week = weekParam === '0' ? 0 : Number(weekParam) || getCurrentWeek();
+  const set = searchParams.get('set') || '';
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
 
@@ -95,8 +101,7 @@ export default function PointChart() {
 
   if (week === null) {
     chartLabel = 'Points for all time';
-  }
-  else {
+  } else {
     // calculate the start and end date of the week we are showing data for
     // add number of weeks to the "Epoch", or when we started collecting data
     const epochDate = new Date(EPOCH);
@@ -113,41 +118,74 @@ export default function PointChart() {
 
     const formattedEndDate = `${epochDate.getMonth() + 1}/${epochDate.getDate()}/${epochDate.getFullYear()}`;
 
-    chartLabel = `Points for ${formattedStartDate} - ${formattedEndDate}`
+    chartLabel = `Points for ${formattedStartDate} - ${formattedEndDate}`;
   }
 
   const CustomAxisTooltipContent = (props: { series: any; axisData: any }) => {
     const { series, axisData } = props;
     return (
-      <Paper sx={{ padding: 1, marginLeft: 3, color: series.color, borderColor: series.color, border: 1, textAlign: 'center' }}>
+      <Paper
+        sx={{
+          padding: 1,
+          marginLeft: 3,
+          color: series.color,
+          borderColor: series.color,
+          border: 1,
+          textAlign: 'center',
+        }}
+      >
         <p>{axisData.y.value}</p>
         <p>{series[0].data[axisData.y.index]}pts</p>
       </Paper>
     );
   };
 
-
   return (
     <ThemeProvider theme={darkTheme}>
-
-      <div className='rounded-md block text-white'>
-        {cardDataLoading && <RevenueChartSkeleton /> ||
+      <div className="block rounded-md text-white">
+        {(cardDataLoading && <RevenueChartSkeleton />) || (
           <div className="text-xl">
-            <h1 className="mb-2 text-xl text-center">
+            <h1 className="mb-2 text-center text-xl">
               Top Performing Cards{set ? ` from ${set}` : ''} for week {week}
             </h1>
 
-            <div ref={containerRef} className=''>
-              {hasMounted && cardData?.length > 0 ? <BarChart
-                dataset={cardData}
-                yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
-                series={[{ dataKey: 'total_points', label: chartLabel, valueFormatter, color: colors.grey[100] }]}
-                layout="horizontal"
-                tooltip={{ trigger: "axis", axisContent: CustomAxisTooltipContent }}
-                {...getSettings(cardData, containerWidth)}
-              /> : <p>No data available for week {week}</p>}
+            <div ref={containerRef} className="">
+              {hasMounted && cardData?.length > 0 ? (
+                <BarChart
+                  dataset={cardData}
+                  yAxis={[{ scaleType: 'band', dataKey: 'name' }]}
+                  series={[
+                    {
+                      dataKey: 'total_points',
+                      label: chartLabel,
+                      valueFormatter,
+                      color: colors.grey[100],
+                    },
+                  ]}
+                  layout="horizontal"
+                  tooltip={{
+                    trigger: 'axis',
+                    axisContent: CustomAxisTooltipContent,
+                  }}
+                  onItemClick={(event, data) => {
+                    routeToCardPage(cardData[data.dataIndex].card_id);
+                    console.log(
+                      'event',
+                      event,
+                      'data',
+                      data,
+                      'cardData',
+                      cardData[data.dataIndex],
+                    );
+                  }}
+                  {...getSettings(cardData, containerWidth)}
+                />
+              ) : (
+                <p>No data available for week {week}</p>
+              )}
             </div>
-          </div>}
+          </div>
+        )}
       </div>
     </ThemeProvider>
   );
