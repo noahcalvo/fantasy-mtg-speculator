@@ -262,7 +262,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     console.log('New card created:', newCard)
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to get or create card:', error);
+    throw new Error(`Failed to get or create card: ${error}`);
   }
 }
 
