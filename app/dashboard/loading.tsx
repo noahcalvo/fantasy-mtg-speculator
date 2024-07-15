@@ -1,5 +1,3 @@
-import DashboardSkeleton from '@/app/ui/skeletons';
- 
 export default function Loading() {
-  return <DashboardSkeleton />;
+  return <div className="p-8 text-white">loading</div>;
 }

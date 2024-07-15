@@ -19,7 +19,7 @@ def dropTables(conn):
             # cur.execute("DROP TABLE IF EXISTS Drafts CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Picks CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Rosters CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS Leagues CASCADE;")
+            # cur.execute("DROP TABLE IF EXISTS Leagues CASCADE;")
             print("Dropped all tables")
         conn.commit()
     except Exception as error:

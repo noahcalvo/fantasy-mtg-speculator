@@ -202,7 +202,7 @@ export async function acceptTrade(
     }
 
     const updateOwnershipQuery =
-      'UPDATE OwnershipV2 SET player_id = $1 WHERE card_id = ANY($2::int[]) AND league_id = $3';
+      'UPDATE OwnershipV3 SET player_id = $1 WHERE card_id = ANY($2::int[]) AND league_id = $3';
 
     // Update ownership for the offered cards to the recipient
     await pool.query(updateOwnershipQuery, [trade.recipient, trade.offered, trade.league_id]);

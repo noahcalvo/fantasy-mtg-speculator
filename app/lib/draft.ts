@@ -15,8 +15,8 @@ const FormSchema = z.object({
   set: z.string().min(1, { message: 'Set cannot be empty.' }),
   name: z.string().min(1, { message: 'Name cannot be empty.' }),
   rounds: z.coerce
-  .number()
-  .gt(0, { message: 'Rounds must be a number greater than 0.' }),
+    .number()
+    .gt(0, { message: 'Rounds must be a number greater than 0.' }),
 });
 
 const CreateDraft = FormSchema.omit({ id: true });
@@ -60,7 +60,7 @@ export async function createDraft(prevState: State, formData: FormData, league_i
 
   let resp;
   try {
-      resp = await sql`INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES (${set}, true, ${rounds}, ${name}, array[]::int[], ${league_id}) RETURNING draft_id;`;
+    resp = await sql`INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES (${set}, true, ${rounds}, ${name}, array[]::int[], ${league_id}) RETURNING draft_id;`;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to create draft for {set}');
@@ -125,21 +125,21 @@ export const joinDraft = async (draftId: string, playerId: number): Promise<void
       await sql`UPDATE draftsV2 SET participants = array_append(participants, ${playerId}) WHERE draft_id = ${draftId};`;
       await addPicks(draftId, playerId);
       await snakePicks(draftId);
-      revalidatePath(`/draft/${draftId}/view`);  
-      revalidatePath(`/draft`);  
+      revalidatePath(`/draft/${draftId}/view`);
+      revalidatePath(`/draft`);
     }
 
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to join draft');
   } finally {
-    redirect(`/draft/${draftId}/live`);  
+    redirect(`/draft/${draftId}/live`);
   }
 }
 
 export const redirectIfJoined = async (participants: number[], playerId: number, draftId: string) => {
   noStore();
-  
+
   let shouldRedirect = false;
   try {
     if (participants.includes(playerId)) {
@@ -176,12 +176,12 @@ const snakePicks = async (draftId: string) => {
     const rounds = draft.rounds;
     const picksPerRound = participants.length;
     // even numbered rounds are reversed (2nd, 4th, etc.)
-    for (let i = 1; i < rounds; i=i+2) {
+    for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
-      await sql`UPDATE picksV3 SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound-1]};`;
+      await sql`UPDATE picksV3 SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound - 1]};`;
       for (let j = 0; j < picksPerRound; j++) {
         // move pick j over 1
-        await sql`UPDATE picksV3 SET pick_number = ${picksPerRound-j-1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
+        await sql`UPDATE picksV3 SET pick_number = ${picksPerRound - j - 1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
       }
     }
   } catch (error) {
@@ -194,7 +194,7 @@ export const fetchPicks = async (draftId: string) => {
   noStore();
   try {
     const res = await sql<DraftPick>`SELECT * FROM picksV3 WHERE draft_id = ${draftId};`;
-    revalidatePath(`/draft/${draftId}/live`);  
+    revalidatePath(`/draft/${draftId}/live`);
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -229,7 +229,7 @@ export const makePick = async (draftId: string, playerId: number, cardName: stri
       await sql`UPDATE draftsV2 SET active = false WHERE draft_id = ${draftId};`;
       await updateCollectionWithCompleteDraft(draftId);
     }
-    revalidatePath(`/draft/${draftId}/live`);  
+    revalidatePath(`/draft/${draftId}/live`);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to make pick');
@@ -239,17 +239,30 @@ export const makePick = async (draftId: string, playerId: number, cardName: stri
 export const getOrCreateCard = async (cardName: string, set: string) => {
   try {
     // Check if card exists in the database
-    const existingCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${cardName}) LIMIT 1`;
+    // remove '//'  and everything after it
+    const frontSideName = cardName.split(' //')[0].trim();
+    const existingCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${frontSideName}) LIMIT 1`;
     if (existingCard.rows.length > 0) {
+      if (existingCard.rows[0].name !== cardName) {
+        // update the name to include the full, double sided name
+        await sql`UPDATE cards SET name = ${cardName} WHERE card_id = ${existingCard.rows[0].card_id};`;
+      }
       return existingCard.rows[0].card_id;
-    } else {
+    }
+    if (frontSideName === cardName) {
       const newCard = await sql<Card>`INSERT INTO cards (name, origin) VALUES (${cardName}, ${set}) RETURNING card_id;`;
       console.log('New card created:', newCard)
       return newCard.rows[0].card_id;
     }
+    const existingDoubleFaceCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${cardName}) LIMIT 1`;
+    if (existingDoubleFaceCard.rows.length > 0) {
+      return existingDoubleFaceCard.rows[0].card_id;
+    }
+    const newCard = await sql<Card>`INSERT INTO cards (name, origin) VALUES (${cardName}, ${set}) RETURNING card_id;`;
+    console.log('New card created:', newCard)
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to get or create card');
+    throw new Error(`Failed to get or create card: ${error}`);
   }
 }
 
