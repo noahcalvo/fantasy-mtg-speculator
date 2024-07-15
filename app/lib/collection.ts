@@ -38,7 +38,7 @@ export async function fetchPlayerCollection(playerId: number, leagueId: number):
         SELECT 
           card_id
         FROM
-          ownershipV2
+          ownershipV3
         WHERE
           player_id = ${playerId}
         AND
@@ -62,7 +62,7 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
         FROM
           Cards C
         JOIN 
-          OwnershipV2 O ON C.card_id = O.card_id
+          OwnershipV3 O ON C.card_id = O.card_id
         WHERE
           O.player_id = ${playerId}
         AND
@@ -104,7 +104,7 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number, lea
     FROM
     Cards C
     JOIN 
-        OwnershipV2 O ON C.card_id = O.card_id
+        OwnershipV3 O ON C.card_id = O.card_id
     JOIN 
         Performance PF ON C.card_id = PF.card_id
     LEFT JOIN 
@@ -145,7 +145,7 @@ export async function updateCollectionWithCompleteDraft(draftId: string) {
     const picks = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id
     for (const pick of picks.rows) {
-      await sql`INSERT INTO ownershipV2 (player_id, card_id, league_id) VALUES (${pick.player_id}, ${pick.card_id}, ${leagueId});`;
+      await sql`INSERT INTO ownershipV3 (player_id, card_id, league_id) VALUES (${pick.player_id}, ${pick.card_id}, ${leagueId});`;
     }
     revalidatePath(`/dashboard`);
   } catch (error) {

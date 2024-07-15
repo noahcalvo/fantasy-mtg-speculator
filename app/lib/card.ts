@@ -45,7 +45,7 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
         const cardData = card.data[0];
         return {
             name: cardData.name,
-            image: cardData.card_faces ? [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png] : [cardData.image_uris.png],
+            image: cardData.image_uris?.png ? [cardData.image_uris.png] : [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png],
             price: {
                 tix: cardData.prices.tix,
                 usd: cardData.prices.usd,

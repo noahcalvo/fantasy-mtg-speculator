@@ -71,13 +71,13 @@ def createTables(conn):
 
             # -- Ownership
             create_ownership_table_query = """
-            CREATE TABLE IF NOT EXISTS OwnershipV2 (
+            CREATE TABLE IF NOT EXISTS OwnershipV3 (
             player_id INT NOT NULL,
             card_id INT NOT NULL,
             league_id INT NOT NULL,
             FOREIGN KEY (player_id) REFERENCES Users(player_id),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
-            PRIMARY KEY(card_id)
+            PRIMARY KEY(card_id, league_id)
             );
             """
             cur.execute(create_ownership_table_query)

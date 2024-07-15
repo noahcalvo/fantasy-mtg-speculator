@@ -109,7 +109,7 @@ export async function fetchOwnedCards(set: string, league_id: number): Promise<C
     const data = await sql<Card>`
         SELECT c.card_id, c.name, c.origin 
         FROM Cards AS c
-        JOIN OwnershipV2 AS o ON c.card_id = o.card_id
+        JOIN OwnershipV3 AS o ON c.card_id = o.card_id
         WHERE c.origin = ${set}
         AND o.league_id = ${league_id};
     `;
