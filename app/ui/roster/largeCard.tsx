@@ -1,11 +1,13 @@
+'use client';
 import { CardDetails, CardPoint } from '@/app/lib/definitions';
+import { routeToCardPageById } from '@/app/lib/routing';
 import Image from 'next/image';
 
 export default function LargeCard({
   position,
   card,
   scoreOne,
-  scoreTwo
+  scoreTwo,
 }: {
   position: string;
   card: CardDetails | null;
@@ -20,7 +22,10 @@ export default function LargeCard({
         </div>
         <div className="flex p-2">
           <div className="w-2/3">
-            <p className="line-clamp-2 text-ellipsis font-bold sm:text-lg text-center">
+            <p
+              className="line-clamp-2 cursor-pointer text-ellipsis text-center font-bold underline sm:text-lg"
+              onClick={() => routeToCardPageById(card?.card_id ?? -1)}
+            >
               {card ? card.name : 'empty'}
             </p>
             {card ? (
@@ -33,7 +38,7 @@ export default function LargeCard({
                     {scoreOne?.total_points || 0}
                   </p>
                 </div>
-                <div className='h-2'/>
+                <div className="h-2" />
                 <div className="mr-2 border border-gray-300">
                   <div className="flex justify-center text-xs">
                     <div>week {scoreTwo?.week}</div>
@@ -42,7 +47,6 @@ export default function LargeCard({
                     {scoreTwo?.total_points || 0}
                   </p>
                 </div>
-
               </div>
             ) : (
               <div />
@@ -51,13 +55,15 @@ export default function LargeCard({
           <div className="w-1/3">
             {card ? (
               <Image
-                src={card.image}
+                src={card.image[0]}
                 alt={card.name}
                 width={100}
                 height={100}
+                className="cursor-pointer"
+                onClick={() => routeToCardPageById(card.card_id)}
               />
             ) : (
-              <div className="flex w-full h-full min-h-[50px] items-center justify-center rounded-sm border border-black bg-gray-300">
+              <div className="flex h-full min-h-[50px] w-full items-center justify-center rounded-sm border border-black bg-gray-300">
                 ?
               </div>
             )}

@@ -9,7 +9,7 @@ import {
 } from '@/app/lib/definitions';
 import Image from 'next/image';
 import { makePick } from '@/app/lib/draft';
-import { routeToCardPage } from '@/app/lib/routing';
+import { routeToCardPageById, routeToCardPageByName } from '@/app/lib/routing';
 
 type SortBy = 'price' | 'points';
 
@@ -69,7 +69,20 @@ export default function AvailableCards({
             className="mt-2 flex flex-col items-center justify-center"
             key={card.name}
           >
-            <Image src={card.image} alt={card.name} width="125" height="125" />
+            <Image
+              src={card.image[0]}
+              alt={card.name}
+              width="125"
+              height="125"
+              className="cursor-pointer"
+              onClick={() => {
+                if (card.card_id !== -1) {
+                  routeToCardPageById(card.card_id);
+                  return;
+                }
+                routeToCardPageByName(card.name);
+              }}
+            />
             <button
               className={`mx-2 mt-2 rounded-md border border-white p-2 text-black ${
                 activeDrafter
@@ -85,8 +98,8 @@ export default function AvailableCards({
         ),
       );
 
-  function handleCardClicked(
-    e: MouseEvent<HTMLDivElement, MouseEvent>,
+  function handleNameClicked(
+    e: React.MouseEvent<HTMLDivElement>,
     card: CardDetails,
   ) {
     switch (e.detail) {
@@ -94,7 +107,11 @@ export default function AvailableCards({
         setExpandedCard(card.name);
         break;
       case 2:
-        routeToCardPage(card.card_id);
+        if (card.card_id !== -1) {
+          routeToCardPageById(card.card_id);
+          break;
+        }
+        routeToCardPageByName(card.name);
         break;
     }
   }
@@ -155,7 +172,7 @@ export default function AvailableCards({
               {paginatedCards.map((card: CardDetailsWithPoints) => (
                 <div
                   key={card.name}
-                  onClick={(e) => handleCardClicked(e, card)}
+                  onClick={(e) => handleNameClicked(e, card)}
                   className="cursor-pointer"
                 >
                   <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">

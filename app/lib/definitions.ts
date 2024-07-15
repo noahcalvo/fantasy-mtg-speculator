@@ -45,16 +45,17 @@ export type Price = {
 };
 
 export type CardDetails = {
-    card_id: number;
-    name: string;
-    image: string;
-    price: Price;
-    scryfallUri: string;
-    colorIdentity: string[];
-    typeLine: string;
+  card_id: number;
+  name: string;
+  image: string[];
+  price: Price;
+  scryfallUri: string;
+  colorIdentity: string[];
+  typeLine: string;
+  set: string;
 }
 
-export type CardDetailsWithPoints =  CardDetails & {
+export type CardDetailsWithPoints = CardDetails & {
   points: number;
   week: number;
 }
@@ -106,18 +107,17 @@ export type RosterCardDetailsMap = {
   [key: string]: CardDetails | null;
 };
 
-export const getCardIdsFromMap = (map: RosterCardDetailsMap) =>
-  {
-    const cardIds: number[] = [];
+export const getCardIdsFromMap = (map: RosterCardDetailsMap) => {
+  const cardIds: number[] = [];
 
-    Object.keys(map).forEach(key => {
-      const details = map[key];
-      if (details !== null) {
-        cardIds.push(details.card_id)
-      }
-    });
-    return cardIds
-  }
+  Object.keys(map).forEach(key => {
+    const details = map[key];
+    if (details !== null) {
+      cardIds.push(details.card_id)
+    }
+  });
+  return cardIds
+}
 
 export const getRosterPositions = () => {
   return [
@@ -129,7 +129,7 @@ export const getRosterPositions = () => {
   ];
 }
 
-export const getCardTypes = (typeLine: string):string => {
+export const getCardTypes = (typeLine: string): string => {
   const allPositions = getRosterPositions();
   let cardApplicablePositions = allPositions.filter((position) => {
     if (position.includes('/')) {
@@ -144,7 +144,7 @@ export const getCardTypes = (typeLine: string):string => {
   return cardApplicablePositions.join("/");
 }
 
-export const getCardTypesList = (typeLine: string):string[] => {
+export const getCardTypesList = (typeLine: string): string[] => {
   const allPositions = getRosterPositions();
   let cardApplicablePositions = allPositions.filter((position) => {
     if (position.includes('/')) {
@@ -215,7 +215,7 @@ export type TradeOfferWithCardDetails = {
 export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffer {
   return {
     recipient: trade.recipient.player_id,
-    offerer: trade.offerer.player_id, 
+    offerer: trade.offerer.player_id,
     offered: trade.offeredCards.map(card => card.card_id),
     requested: trade.requestedCards.map(card => card.card_id),
     trade_id: trade.trade_id,

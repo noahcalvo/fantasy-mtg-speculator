@@ -13,7 +13,7 @@ import { RevenueChartSkeleton } from '../skeletons';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
 import { Paper, ThemeProvider, colors, createTheme } from '@mui/material';
-import { routeToCardPage } from '@/app/lib/routing';
+import { routeToCardPageById } from '@/app/lib/routing';
 
 const darkTheme = createTheme({
   palette: {
@@ -168,15 +168,7 @@ export default function PointChart() {
                     axisContent: CustomAxisTooltipContent,
                   }}
                   onItemClick={(event, data) => {
-                    routeToCardPage(cardData[data.dataIndex].card_id);
-                    console.log(
-                      'event',
-                      event,
-                      'data',
-                      data,
-                      'cardData',
-                      cardData[data.dataIndex],
-                    );
+                    routeToCardPageById(cardData[data.dataIndex].card_id);
                   }}
                   {...getSettings(cardData, containerWidth)}
                 />

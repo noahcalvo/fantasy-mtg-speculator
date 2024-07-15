@@ -1,7 +1,7 @@
 import { fetchCard } from '@/app/lib/card';
 import { error } from 'console';
-import Image from 'next/image';
-import BackButton from './components/back-button';
+import BackButton from '../components/back-button';
+import GeneralCardDetails from '../components/generalCardDetails';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id);
@@ -16,14 +16,8 @@ export default async function Page({ params }: { params: { id: string } }) {
   return (
     <div>
       <BackButton />
-      <div className="flex items-center p-2 text-white">
-        <Image
-          src={cardDetails.image}
-          alt={cardDetails.name}
-          width={250}
-          height={250}
-        />
-        {cardDetails.name}
+      <div className="flex flex-col items-center p-2 text-white">
+        <GeneralCardDetails cardDetails={cardDetails} />
       </div>
     </div>
   );

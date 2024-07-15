@@ -1,7 +1,7 @@
 import { StarIcon } from '@heroicons/react/24/outline';
 import { fetchPlayerCollectionWithPerformance } from '@/app/lib/collection';
 import { fetchCard } from '@/app/lib/card';
-import Image from 'next/image';
+import ClickableCard from '@/app/ui/clickableCard';
 
 export default async function BestPerformerBadge({
   playerId,
@@ -33,12 +33,10 @@ export default async function BestPerformerBadge({
       </div>
       <div className="flex h-full flex-row items-center justify-center rounded-xl bg-white shadow-sm">
         {cardData?.image && (
-          <Image
-            src={cardData?.image}
-            alt={cardData?.name}
-            width={100}
-            height={100}
-            className="mx-2 mt-1"
+          <ClickableCard
+            source={cardData?.image[0]}
+            id={collectionPerformance[0]?.card_id}
+            name={collectionPerformance[0]?.name}
           />
         )}
         {cardData?.name ? (

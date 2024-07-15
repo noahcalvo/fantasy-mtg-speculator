@@ -8,7 +8,7 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     if (!cardId) {
         return {
             name: "",
-            image: "",
+            image: [],
             price: {
                 tix: 0,
                 usd: 0,
@@ -16,11 +16,12 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
             scryfallUri: "",
             colorIdentity: [],
             typeLine: "",
-            card_id: -1
+            card_id: -1,
+            set: ""
         };
     }
     try {
-        data = await sql<CardPoint>`
+        data = await sql<Card>`
         SELECT name FROM Cards WHERE card_id = ${cardId};
         `;
     } catch (error) {
@@ -29,7 +30,7 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     }
     try {
         const encodedName = encodeURIComponent(data.rows[0].name);
-        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`, {
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`, {
             next: { revalidate: 600 },
         });
 
@@ -41,18 +42,19 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
         if (card.object === "error") {
             throw new Error(`Card not found: ${data.rows[0].name}`);
         }
-        const { name, image_uris, prices, scryfall_uri, color_identity, type_line } = card;
+        const cardData = card.data[0];
         return {
-            name,
-            image: image_uris?.png ?? card.card_faces[0].image_uris.png ?? "",
+            name: cardData.name,
+            image: cardData.card_faces ? [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png] : [cardData.image_uris.png],
             price: {
-                tix: prices.tix,
-                usd: prices.usd,
+                tix: cardData.prices.tix,
+                usd: cardData.prices.usd,
             },
-            scryfallUri: scryfall_uri,
-            colorIdentity: color_identity,
-            typeLine: type_line,
-            card_id: cardId
+            scryfallUri: cardData.scryfall_uri,
+            colorIdentity: cardData.color_identity,
+            typeLine: cardData.type_line,
+            card_id: cardId,
+            set: cardData.set_name
         };
     } catch (error) {
         console.error('scryfall error:', error);
@@ -79,5 +81,40 @@ export async function fetchCardId(cardName: string): Promise<number> {
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error(`Failed to fetch card id for card:${cardName}`);
+    }
+}
+
+export async function fetchScryfallDataByCardName(cardName: string): Promise<CardDetails> {
+    try {
+        const encodedName = encodeURIComponent(cardName);
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`, {
+            next: { revalidate: 600 },
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const card = await response.json();
+        if (card.object === "error") {
+            throw new Error(`Card not found: ${cardName}`);
+        }
+        const cardData = card.data[0];
+        const { name, prices, scryfall_uri, color_identity, type_line } = cardData;
+        return {
+            name,
+            image: cardData.card_faces ? [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png] : [cardData.image_uris.png],
+            price: {
+                tix: prices.tix,
+                usd: prices.usd,
+            },
+            scryfallUri: scryfall_uri,
+            colorIdentity: color_identity,
+            typeLine: type_line,
+            set: card.set_name,
+            card_id: -1
+        };
+    } catch (error) {
+        console.error('scryfall error:', error);
+        throw new Error(`Failed to fetch card for cardName:${cardName}`);
     }
 }

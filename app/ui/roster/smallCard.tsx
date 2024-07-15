@@ -1,4 +1,5 @@
 import { CardDetails, CardPoint } from '@/app/lib/definitions';
+import { routeToCardPageById } from '@/app/lib/routing';
 import Image from 'next/image';
 
 export default function SmallCard({
@@ -11,7 +12,7 @@ export default function SmallCard({
   score: number;
 }) {
   return (
-    <div className="w-30 text-sm sm:w-50 border overflow-auto rounded-md">
+    <div className="w-30 sm:w-50 overflow-auto rounded-md border text-sm">
       <div className="h-full w-full overflow-auto">
         <div className="flex justify-center overflow-auto">
           <div>{availablePosition}</div>
@@ -25,13 +26,15 @@ export default function SmallCard({
           <div>
             {card ? (
               <Image
-                src={card.image}
+                src={card.image[0]}
                 alt={card.name}
                 width={93}
                 height={130}
+                onClick={() => routeToCardPageById(card.card_id)}
+                className="cursor-pointer"
               />
             ) : (
-              <div className="flex w-full h-full min-h-[50px] items-center justify-center rounded-sm border border-black bg-gray-300">
+              <div className="flex h-full min-h-[50px] w-full items-center justify-center rounded-sm border border-black bg-gray-300">
                 ?
               </div>
             )}
