@@ -6,7 +6,7 @@ import GeneralCardDetails from '../components/generalCardDetails';
 export default async function Page({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id);
   //check if cardId is a number
-  if (isNaN(cardId)) {
+  if (isNaN(cardId) || cardId < 0) {
     return error();
   }
   const cardDetails = await fetchCard(cardId);

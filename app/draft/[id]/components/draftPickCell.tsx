@@ -1,7 +1,7 @@
 import { DraftPick, getCardTypesAbbreviation } from '@/app/lib/definitions';
 import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/card';
-import PickCell from './completedPickCell';
+import PickCell from './pickCell';
 
 export default async function draftPickCell({
   pick,

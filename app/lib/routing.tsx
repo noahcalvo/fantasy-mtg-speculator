@@ -3,6 +3,6 @@ export function routeToCardPageById(cardId: number) {
 }
 
 export function routeToCardPageByName(cardName: string) {
-  const encodedCardName = encodeURIComponent(cardName);
+const encodedCardName = encodeURIComponent(cardName);
   window.location.href = `/dashboard/cards/unidentified/${encodedCardName}`;
 }

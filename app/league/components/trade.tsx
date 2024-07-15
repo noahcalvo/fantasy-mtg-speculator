@@ -146,7 +146,6 @@ export default function Trade({
             {leagueCollections
               .filter((collection) => collection.player_id == tradePartner)[0]
               ?.cards.map((card, index) => {
-                // const points = yourCollectionPerformance.find(element => element.card_id === card?.card_id)?.total_points ?? 0
                 const position = getCardTypesAbbreviationString(card.typeLine);
                 return (
                   <div key={index} className="flex items-center">

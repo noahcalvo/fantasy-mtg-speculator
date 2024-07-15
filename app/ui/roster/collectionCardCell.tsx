@@ -7,6 +7,7 @@ import {
   getRosterPositions,
 } from '@/app/lib/definitions';
 import { playPositionSlot } from '@/app/lib/rosters';
+import { routeToCardPageById } from '@/app/lib/routing';
 import Image from 'next/image';
 
 export default function CollectionCardCell({
@@ -30,12 +31,18 @@ export default function CollectionCardCell({
           <Image
             src={card.image[0]}
             alt={card.name}
-            className="h-auto w-1/4"
+            className="h-auto w-1/4 cursor-pointer"
             width={100}
             height={100}
+            onClick={() => routeToCardPageById(card.card_id)}
           />
           <div className="flex flex-col items-end justify-around">
-            <div className="font-bold">{card.name}</div>
+            <div
+              className="cursor-pointer font-bold underline"
+              onClick={() => routeToCardPageById(card.card_id)}
+            >
+              {card.name}
+            </div>
             <div>{cardTypeName}</div>
             <div className="flex">
               {cardTypeName &&
