@@ -22,7 +22,7 @@ base_url = "https://www.mtggoldfish.com"
 def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
     print("Scraping", type, "for week", week_to_scrape)
     searchKeyword = {
-        "challenge": "Modern Challenge",
+        # "challenge": "Modern Challenge",
         "league": "Modern League"
     }.get(type)
 
@@ -43,6 +43,9 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
             if html_content:
                 deck_list_links = extract_deck_links(html_content, type)
                 for deck in deck_list_links:
+                    print("deck:", deck)
+                    if deck[1] != "/deck/6494302":
+                        continue
                     print("fetching deck list page:", "https://www.mtggoldfish.com"+deck[1])
                     deck_list_html = fetch_webpage("https://www.mtggoldfish.com"+deck[1])
 
@@ -62,7 +65,7 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
         page += 1
 
 # Convert command-line arguments to integers and store in weeks_to_scrape
-weeks_to_scrape = [get_last_week_number()]
+weeks_to_scrape = [12]
 if(len(sys.argv) > 1):
     weeks_to_scrape = list(map(int, sys.argv[1:]))
 
@@ -75,8 +78,8 @@ for week_to_scrape in weeks_to_scrape:
     sorted_stats = sorted(combined_stats_dict.items(), key=lambda item: item[1]['league_copies'], reverse=True)
 
     # Print the top 5 cards
-    print("Top 5 cards of the week from league copies number:")
-    for i in range(min(5, len(sorted_stats))):
+    print("Top 20 cards of the week from league copies number:")
+    for i in range(min(20, len(sorted_stats))):
         print(f"{i+1}. {sorted_stats[i][0]}: {sorted_stats[i][1]['league_copies']} copies")
 
     # Connect to the database

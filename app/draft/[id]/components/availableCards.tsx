@@ -107,7 +107,7 @@ export default function AvailableCards({
         setExpandedCard(card.name);
         break;
       case 2:
-        if (card.card_id !== -1) {
+        if (card.card_id && card.card_id >= 0) {
           routeToCardPageById(card.card_id);
           break;
         }

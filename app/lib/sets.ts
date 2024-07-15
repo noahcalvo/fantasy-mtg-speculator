@@ -64,11 +64,13 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
         }
 
         const nextSetData = await nextResponse.json();
-        const nextCards = nextSetData.data.map((card: any) => {
+        const nextCards = nextSetData.data.map(async (card: any) => {
             const { name, prices, scryfall_uri, color_identity, type_line } = card;
+            const cardId = await fetchCardId(name);
             return {
+                "card_id": cardId,
                 name,
-                image: card.card_faces ? [card.card_faces[0].image_uris.png, card.card_faces[1].image_uris.png] : [card.image_uris.png],
+                image: card.image_uris?.png ? [card.image_uris.png] : [card.card_faces[0].image_uris?.png, card.card_faces[1].image_uris?.png],
                 price: {
                     tix: prices.tix,
                     usd: prices.usd,

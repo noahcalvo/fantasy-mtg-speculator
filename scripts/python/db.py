@@ -36,7 +36,21 @@ def connect_to_database():
 def insert_stats(db_connection, card_stats, week, price):
     with db_connection.cursor() as cur:
         # Insert cards into Cards table if they don't exist
+        double_faced_revised_dir = {}
         for card_name in card_stats.keys():
+            # check for double faced cards
+            print("Checking for double faced card:", card_name)
+
+            cur.execute("""
+                SELECT name FROM Cards WHERE name LIKE %s;
+            """, (card_name + ' //%',))            
+            
+            res = cur.fetchone()
+            if res is not None:
+                # update card_name to be the full name of the card
+                double_faced_revised_dir[res[0]] = card_stats[card_name]
+                continue  
+            double_faced_revised_dir[card_name] = card_stats[card_name]
             cur.execute("""
                 INSERT INTO Cards (name) VALUES (%s)
                 ON CONFLICT (name) DO NOTHING;
@@ -45,7 +59,7 @@ def insert_stats(db_connection, card_stats, week, price):
         # Commit after inserting all cards to ensure they're available for subsequent queries.
         db_connection.commit()
 
-        for card_name, stats in card_stats.items():
+        for card_name, stats in double_faced_revised_dir.items():
             # Get card_id for the current card
             cur.execute("SELECT card_id FROM Cards WHERE name = %s;", (card_name,))
             card_id = cur.fetchone()[0]

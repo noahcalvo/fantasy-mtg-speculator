@@ -53,6 +53,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       !draftedCardNames.includes(card.name) &&
       !alreadyOwnedCards.some((ownedCard) => ownedCard.name === card.name),
   );
+  // console.log(undraftedCards.filter((card) => card.name === 'Solitude'));
 
   const undraftedCardIds = undraftedCards
     .filter(

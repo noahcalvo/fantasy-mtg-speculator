@@ -32,6 +32,7 @@ export async function fetchPlayerRosterWithDetails(
     let newMap: { [key: string]: CardDetails } = {};
 
     if (data.rows[0]?.roster) {
+      console.log(data.rows[0].roster);
       for (const [key, value] of Object.entries(data.rows[0].roster)) {
         if (value) {
           const valueNumber = parseInt(value);

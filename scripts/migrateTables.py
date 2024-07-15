@@ -55,14 +55,69 @@ def migrateTables(conn):
             # cur.execute(migrate_leagues_table_query)
             # print("Migrated 'leagues' table")
 
-            # Migrate TeamPerformances table
-            migrate_team_performances_table_query = """ 
-            INSERT INTO TeamPerformancesV3 (league_id, player_id, week, points, roster)
-            SELECT league_id, player_id, week, points, roster FROM TeamPerformancesV2;
-            """
-            cur.execute(migrate_team_performances_table_query)
-            print("Migrated 'team_performances' table")
+            # # Migrate TeamPerformances table
+            # migrate_team_performances_table_query = """ 
+            # INSERT INTO TeamPerformancesV3 (league_id, player_id, week, points, roster)
+            # SELECT league_id, player_id, week, points, roster FROM TeamPerformancesV2;
+            # """
+            # cur.execute(migrate_team_performances_table_query)
+            # print("Migrated 'team_performances' table")
 
+            # Migrate card data from double sided to single sided
+            get_double_sided_cards_query = """
+            SELECT * FROM Cards WHERE name LIKE '%//%';
+            """
+            cur.execute(get_double_sided_cards_query)
+            double_sided_cards = cur.fetchall()
+            # for each card, check if frontside has entry in Cards table
+            for card in double_sided_cards:
+                frontside_name = card[1].split(" //")[0].replace("'", "''")  # Escape single quotes
+                get_frontside_card_query = f"""
+                SELECT * FROM Cards WHERE name = '{frontside_name}';
+                """
+                cur.execute(get_frontside_card_query)
+                frontside_card = cur.fetchone()
+                if frontside_card:
+                    # update card_id in picks table
+                    update_picks_table_query = f"""
+                    UPDATE PicksV3 SET card_id = {frontside_card[0]} WHERE card_id = {card[0]};
+                    """
+                    cur.execute(update_picks_table_query)
+                    # update card_id in ownership table
+                    update_ownership_table_query = f"""
+                    UPDATE OwnershipV2 SET card_id = {frontside_card[0]} WHERE card_id = {card[0]};
+                    """
+                    cur.execute(update_ownership_table_query)
+                    # update card_id in team_performances table
+                    # since it is a jsonb column, we need to update the roster field
+                    
+                    # Assuming 'card' is the current double-sided card being migrated and 'frontside_card' is its corresponding single-sided card
+                    positions = ['Creature', 'Instant/Sorcery', 'Artifact/Enchantment', 'Land', 'Flex']
+                    for position in positions:
+                        update_team_performances_table_query = f"""
+                        UPDATE TeamPerformancesV3
+                        SET roster = CASE
+                        WHEN roster->>'{position}' = '{card[0]}' THEN jsonb_set(roster, '{{{position}}}', '"{frontside_card[0]}"')
+                        ELSE roster
+                        END;
+                        """
+                        cur.execute(update_team_performances_table_query)                    
+
+                        update_team_performances_table_query = f"""
+                        UPDATE RostersV2
+                        SET roster = CASE
+                        WHEN roster->>'{position}' = '{card[0]}' THEN jsonb_set(roster, '{{{position}}}', '"{frontside_card[0]}"')
+                        ELSE roster
+                        END;
+                        """
+                        cur.execute(update_team_performances_table_query)                    
+
+                    # delete double sided card
+                    delete_double_sided_card_query = f"""
+                    DELETE FROM Cards WHERE card_id = {card[0]};
+                    """
+                    cur.execute(delete_double_sided_card_query)
+                    print("Migrated card", card[0])
 
         conn.commit()
     except Exception as error:

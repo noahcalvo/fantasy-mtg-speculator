@@ -74,10 +74,17 @@ export async function fetchCardId(cardName: string): Promise<number> {
         const data = await sql<Card>`
         SELECT * FROM Cards WHERE name = ${cardName};
         `;
-        if (data.rows.length === 0) {
-            return -1;
+        if (data.rows.length > 0) {
+            return data.rows[0].card_id;
         }
-        return data.rows[0].card_id;
+        if (cardName.includes('//')) {
+            const frontSideName = cardName.split(' //')[0].trim();
+            const existingCard = await sql<Card>`SELECT * FROM Cards WHERE LOWER(name) = LOWER(${frontSideName}) LIMIT 1`;
+            if (existingCard.rows.length > 0) {
+                return existingCard.rows[0].card_id;
+            }
+        }
+        return -1;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error(`Failed to fetch card id for card:${cardName}`);

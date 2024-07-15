@@ -282,7 +282,7 @@ export async function fetchUniqueWeekNumbers() {
           SELECT DISTINCT
               week
           FROM 
-              PerformanceV2
+              Performance
           ORDER BY 
               week;
       `);
