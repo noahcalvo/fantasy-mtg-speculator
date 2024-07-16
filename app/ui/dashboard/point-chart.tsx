@@ -63,6 +63,14 @@ export default function PointChart() {
       } else {
         result = await fetchTopWeeklyCardsFromSet(week, set);
       }
+
+      // change each cardName to be only 18 characters
+      result.forEach((card) => {
+        if (card.name.length > 18) {
+          card.name = card.name.substring(0, 18) + '...';
+        }
+      });
+
       setCardData(result);
       setCardDataLoading(false);
     };
