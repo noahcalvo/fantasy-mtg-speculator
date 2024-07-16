@@ -62,7 +62,7 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
         page += 1
 
 # Convert command-line arguments to integers and store in weeks_to_scrape
-weeks_to_scrape = [12,13,14]
+weeks_to_scrape = [get_last_week_number()]
 if(len(sys.argv) > 1):
     weeks_to_scrape = list(map(int, sys.argv[1:]))
 
