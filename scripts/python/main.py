@@ -22,7 +22,7 @@ base_url = "https://www.mtggoldfish.com"
 def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
     print("Scraping", type, "for week", week_to_scrape)
     searchKeyword = {
-        # "challenge": "Modern Challenge",
+        "challenge": "Modern Challenge",
         "league": "Modern League"
     }.get(type)
 
@@ -43,9 +43,6 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
             if html_content:
                 deck_list_links = extract_deck_links(html_content, type)
                 for deck in deck_list_links:
-                    print("deck:", deck)
-                    if deck[1] != "/deck/6494302":
-                        continue
                     print("fetching deck list page:", "https://www.mtggoldfish.com"+deck[1])
                     deck_list_html = fetch_webpage("https://www.mtggoldfish.com"+deck[1])
 
@@ -65,7 +62,7 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
         page += 1
 
 # Convert command-line arguments to integers and store in weeks_to_scrape
-weeks_to_scrape = [12]
+weeks_to_scrape = [get_last_week_number()]
 if(len(sys.argv) > 1):
     weeks_to_scrape = list(map(int, sys.argv[1:]))
 
