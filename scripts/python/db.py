@@ -39,7 +39,6 @@ def insert_stats(db_connection, card_stats, week, price):
         double_faced_revised_dir = {}
         for card_name in card_stats.keys():
             # check for double faced cards
-            print("Checking for double faced card:", card_name)
 
             cur.execute("""
                 SELECT name FROM Cards WHERE name LIKE %s;
@@ -48,6 +47,7 @@ def insert_stats(db_connection, card_stats, week, price):
             res = cur.fetchone()
             if res is not None:
                 # update card_name to be the full name of the card
+                print(f"Found double faced card: {card_name} // {res[0]}")
                 double_faced_revised_dir[res[0]] = card_stats[card_name]
                 continue  
             double_faced_revised_dir[card_name] = card_stats[card_name]
