@@ -91,6 +91,10 @@ export default function PointChart() {
   useEffect(() => {
     function handleResize() {
       if (containerRef.current) {
+        console.log(
+          'resizing',
+          containerRef.current.getBoundingClientRect().width,
+        );
         setContainerWidth(containerRef.current.getBoundingClientRect().width);
       }
     }

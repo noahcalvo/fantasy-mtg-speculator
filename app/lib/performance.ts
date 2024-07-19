@@ -105,7 +105,6 @@ export async function fetchCardPerformancesFromWeek(cardIds: number[], week: num
   if (cardIds.length === 0) {
     return [];
   }
-  noStore();
   try {
     const data = await pool.query(
       `SELECT 
@@ -141,6 +140,63 @@ export async function fetchCardPerformancesFromWeek(cardIds: number[], week: num
       total_points: Number(row.total_points),
     }));
     return convertedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card point data for week');
+  }
+}
+
+export async function fetchLastFiveWeeksCardPerformance(cardId: number) {
+  try {
+    const data = await pool.query(
+      `SELECT 
+          C.card_id, 
+          C.name, 
+          SUM(
+              COALESCE(CP.champs * 5, 0) +
+              COALESCE(CP.copies * 0.5, 0) +
+              COALESCE(LP.copies * 0.25, 0)
+          ) AS total_points,
+          PF.week
+          FROM
+          Cards C
+          JOIN 
+              Performance PF ON C.card_id = PF.card_id
+          LEFT JOIN 
+              ChallengePerformance CP ON PF.performance_id = CP.performance_id
+          LEFT JOIN 
+              LeaguePerformance LP ON PF.performance_id = LP.performance_id
+        WHERE
+            C.card_id = $1
+          AND PF.week >= (SELECT MAX(week) - 4 FROM Performance WHERE card_id = C.card_id)
+          GROUP BY 
+              C.card_id,
+              C.name,
+              PF.week
+          ORDER BY
+            PF.week;
+      `, [cardId]);
+    // Convert points to numbers
+    const convertedData = data.rows.map((row) => ({
+      ...row,
+      total_points: Number(row.total_points),
+    }));
+    // Fill in missing weeks with zeros
+    const filledData = [];
+    for (let i = 0; i < 5; i++) {
+      const weekData = convertedData.find((row) => row.week === getCurrentWeek() - i);
+      if (weekData) {
+        filledData.push(weekData);
+      } else {
+        filledData.push({
+          card_id: cardId,
+          name: '',
+          total_points: 0,
+          week: getCurrentWeek() - i,
+        });
+      }
+    }
+    return filledData;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card point data for week');
