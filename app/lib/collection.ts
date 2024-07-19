@@ -1,8 +1,9 @@
 'use server';
 import { sql } from '@vercel/postgres';
-import { Card, CardDetails, CardPerformances, CardPoint, Collection } from './definitions';
+import { Card, CardDetails, CardPerformances, CardPoint, Collection, Player } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
+import { fetchParticipantData } from './player';
 
 export async function fetchCardPerformanceByWeek(
   collectionIDs: number[],
@@ -181,5 +182,30 @@ export async function playerOwnsCards(playerId: number, cardIds: number[], leagu
   } catch (error) {
     console.error(`Failed to check if player ${playerId} owns ${cardIds}`, error);
     throw new Error(`Failed to check if player ${playerId} owns ${cardIds}`);
+  }
+}
+
+export async function fetchOwnership(leagueId: number, cardId: number): Promise<Player | null> {
+  noStore();
+  try {
+    const data = await sql`
+        SELECT 
+          player_id
+        FROM
+          ownershipV3
+        WHERE
+          league_id = ${leagueId}
+        AND
+          card_id = ${cardId}
+      `;
+    if (data.rows.length === 0) {
+      return null;
+    }
+    const playerId: number = data.rows[0].player_id;
+    const player = fetchParticipantData(playerId);
+    return player;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch ownership for card:${cardId}`);
   }
 }

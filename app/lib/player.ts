@@ -10,12 +10,12 @@ export async function fetchParticipantData(id: number) {
       SELECT  player_id, name, email from users WHERE player_id = ${id};
         `;
     if (data.rows.length === 0) {
-      throw new Error('No player found with the given id');
+      throw new Error(`No player found with the given id ${id}`);
     }
     return data.rows[0];
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch drafts');
+    throw new Error(`Failed to fetch player: ${id}`);
   }
 }
 
@@ -28,7 +28,7 @@ export async function fetchMultipleParticipantData(ids: number[]) {
     }
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch drafts');
+    throw new Error('Failed to fetch multiple participants');
   } finally {
     return participants;
   }

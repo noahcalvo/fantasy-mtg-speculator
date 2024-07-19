@@ -2,6 +2,8 @@ import { fetchCard } from '@/app/lib/card';
 import { error } from 'console';
 import BackButton from '../components/back-button';
 import GeneralCardDetails from '../components/generalCardDetails';
+import OwnerShipDetails from '../components/ownershipDetails';
+import CardPerformanceChart from '../components/cardPerformanceChart';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id);
@@ -18,6 +20,8 @@ export default async function Page({ params }: { params: { id: string } }) {
       <BackButton />
       <div className="flex flex-col items-center p-2 text-white">
         <GeneralCardDetails cardDetails={cardDetails} />
+        <OwnerShipDetails cardId={cardId} />
+        <CardPerformanceChart cardId={cardId} />
       </div>
     </div>
   );
