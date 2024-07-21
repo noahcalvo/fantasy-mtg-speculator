@@ -1,5 +1,9 @@
-import { DarkLoading } from '../ui/loadingSpinner';
+import { DarkLoading } from '@/app/ui/loadingSpinner';
 
 export default function Loading() {
-  return <DarkLoading />;
+  return (
+    <div className="flex justify-center py-5">
+      <DarkLoading />
+    </div>
+  );
 }

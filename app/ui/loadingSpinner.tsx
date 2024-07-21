@@ -1,3 +1,4 @@
+'use client';
 export function DarkLoading() {
   return (
     <div role="status">

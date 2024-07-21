@@ -1,5 +1,9 @@
-import { LightLoading } from '../ui/loadingSpinner';
+import { LightLoading } from '@/app/ui/loadingSpinner';
 
 export default function Loading() {
-  return <LightLoading />;
+  return (
+    <div className="flex justify-center py-5">
+      <LightLoading />
+    </div>
+  );
 }
