@@ -7,11 +7,9 @@ import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
 import { EPOCH } from '../consts';
 import { DarkNavTab } from './nav-tab';
+import { getCurrentWeek } from '../lib/utils';
 
-export function SetPicker({
-  placeholder}: {
-  placeholder: string;
-}) {
+export function SetPicker({ placeholder }: { placeholder: string }) {
   const [sets, setSets] = useState<string[]>([]);
   useEffect(() => {
     fetchRecentSets().then((result) => {
@@ -21,7 +19,7 @@ export function SetPicker({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  
+
   const handleSearch = useDebouncedCallback((set) => {
     const params = new URLSearchParams(searchParams);
     if (set) {
@@ -80,7 +78,8 @@ export function WeekPicker({
 
   const weekOptions = getWeekStrings(availableWeeks);
 
-  const overwriteablePlaceholder = searchParams.get('week')?.toString() ?? placeholder;
+  const overwriteablePlaceholder =
+    searchParams.get('week')?.toString() ?? placeholder;
 
   return (
     <div className="relative inline-block flex-shrink-0">
@@ -114,17 +113,36 @@ export function WeekPickerRouter({
   availableWeeks: number[];
   leagueId: number;
 }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const currentWeek = getCurrentWeek();
   return (
     <div>
-      <div className='flex mt-4'>
-      <DarkNavTab name="all weeks" path={`/league/${leagueId}/standings`} active={pathname === `/league/${leagueId}/standings`} />
+      <div className="mt-4 flex">
+        <DarkNavTab
+          name="all weeks"
+          path={`/league/${leagueId}/standings/alltime`}
+          active={pathname === `/league/${leagueId}/standings/alltime`}
+        />
+        <DarkNavTab
+          name={`${currentWeek}`}
+          path={`/league/${leagueId}/standings`}
+          active={
+            pathname === `/league/${leagueId}/standings` ||
+            pathname === `/league/${leagueId}/standings/${currentWeek}`
+          }
+        />
 
         {
           // for each week, create a new WeekPickerRouter
           availableWeeks.map((week) => {
+            if (week === currentWeek) return null;
             return (
-              <DarkNavTab key={week} name={`${week}`} path={`/league/${leagueId}/standings/${week}`} active={pathname === `/league/${leagueId}/standings/${week}`} />
+              <DarkNavTab
+                key={week}
+                name={`${week}`}
+                path={`/league/${leagueId}/standings/${week}`}
+                active={pathname === `/league/${leagueId}/standings/${week}`}
+              />
             );
           })
         }
@@ -132,8 +150,6 @@ export function WeekPickerRouter({
     </div>
   );
 }
-
-
 
 function getWeekStrings(weeks: number[]) {
   const sortedWeeks = weeks.sort((a, b) => b - a);

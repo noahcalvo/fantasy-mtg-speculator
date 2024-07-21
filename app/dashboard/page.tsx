@@ -9,6 +9,7 @@ import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '../lib/player';
 import Collection from '../ui/roster/collection';
 import { fetchLeague } from '../lib/leagues';
+import Loading, { DarkLoading } from '../ui/loadingSpinner';
 
 export default async function Page() {
   const user = await auth().then((res) => res?.user);
@@ -21,6 +22,7 @@ export default async function Page() {
 
   return (
     <main>
+      <DarkLoading />
       <div className="mb-4 text-2xl text-white md:text-3xl">Dashboard</div>
       <div className="grid gap-6 xl:grid-cols-2">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1">

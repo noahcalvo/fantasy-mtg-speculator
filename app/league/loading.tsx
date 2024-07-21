@@ -1,3 +1,5 @@
+import { LightLoading } from '../ui/loadingSpinner';
+
 export default function Loading() {
-  return <div className="p-8">loading</div>;
+  return <LightLoading />;
 }
