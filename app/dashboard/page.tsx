@@ -9,7 +9,7 @@ import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '../lib/player';
 import Collection from '../ui/roster/collection';
 import { fetchLeague } from '../lib/leagues';
-import Loading, { DarkLoading } from '../ui/loadingSpinner';
+import { DarkLoading } from '../ui/loadingSpinner';
 
 export default async function Page() {
   const user = await auth().then((res) => res?.user);
