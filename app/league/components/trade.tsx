@@ -26,17 +26,22 @@ export default function Trade({
   const [tradePartner, setTradePartner] = useState(teamsInLeague[0].player_id);
   const [ownedSelectedCards, setOwnedSelectedCards] = useState<number[]>([]);
   const [wantSelectedCards, setWantSelectedCards] = useState<number[]>([]);
+  const [loadingMakeOffer, setLoadingMakeOffer] = useState(false);
 
-  function makeOffer() {
-    makeTradeOffer(
+  async function makeOffer() {
+    setLoadingMakeOffer(true);
+    await makeTradeOffer(
       ownedSelectedCards,
       player.player_id,
       wantSelectedCards,
       tradePartner,
       leagueId,
     );
+    window.location.reload();
+    setLoadingMakeOffer(false);
     setOwnedSelectedCards([]);
     setWantSelectedCards([]);
+    // refresh the page to show new trade offer
   }
 
   const handleTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -64,10 +69,12 @@ export default function Trade({
   function handleCardClicked(
     e: React.MouseEvent<HTMLDivElement>,
     cardId: number,
+    owned: boolean,
   ) {
     switch (e.detail) {
       case 1:
-        handleWantSelectedCardsChange(cardId);
+        if (owned) handleOwnedSelectedCardsChange(cardId);
+        else handleWantSelectedCardsChange(cardId);
         break;
       case 2:
         routeToCardPageById(cardId);
@@ -79,6 +86,16 @@ export default function Trade({
   teamsInLeague = teamsInLeague.filter(
     (teamPlayer) => teamPlayer.player_id !== player.player_id,
   );
+
+  if (teamsInLeague.length === 0) {
+    return (
+      <div className="py-8 text-center">No other teams in this league</div>
+    );
+  }
+
+  if (loadingMakeOffer) {
+    return <div>Sending offer...</div>;
+  }
 
   return (
     <div className="w-full">
@@ -109,20 +126,21 @@ export default function Trade({
             ))}
           </select>
         </div>
-        <div className="flex place-content-between md:place-content-around">
+        <div className="flex place-content-between items-start md:place-content-around">
           <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {playerCollection.map((card, index) => {
               const position = getCardTypesAbbreviationString(card.typeLine);
               return (
                 <div key={index} className="flex items-center">
                   <div
-                    onClick={(e) => handleCardClicked(e, card.card_id)}
+                    onClick={(e) => handleCardClicked(e, card.card_id, true)}
                     className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-white'} mx-2 mb-2 rounded-xl border-4`}
                   >
                     <SmallCard
                       availablePosition={position}
                       card={card}
                       score={0}
+                      onClick={false}
                     />
                   </div>
                 </div>
@@ -150,13 +168,14 @@ export default function Trade({
                 return (
                   <div key={index} className="flex items-center">
                     <div
-                      onClick={(e) => handleCardClicked(e, card.card_id)}
+                      onClick={(e) => handleCardClicked(e, card.card_id, false)}
                       className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-white'} mx-2 mb-2 rounded-xl border-4`}
                     >
                       <SmallCard
                         availablePosition={position}
                         card={card}
                         score={0}
+                        onClick={false}
                       />
                     </div>
                   </div>
