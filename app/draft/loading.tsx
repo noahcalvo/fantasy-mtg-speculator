@@ -1,5 +1,9 @@
-import DashboardSkeleton from '@/app/ui/skeletons';
- 
+import { DarkLoading } from '@/app/ui/loadingSpinner';
+
 export default function Loading() {
-  return <DashboardSkeleton />;
+  return (
+    <div className="flex justify-center py-5">
+      <DarkLoading />
+    </div>
+  );
 }

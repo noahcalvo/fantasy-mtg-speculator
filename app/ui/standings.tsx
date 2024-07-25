@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { CreatePerformanceMap, TwoWeekStatus } from '../lib/performance-utils';
-import { fetchAlltimeLeaguePerformance, fetchAlltimeLeaguePerformanceLastWeek, fetchWeeklyLeaguePerformance } from '../lib/performance';
+import {
+  fetchAlltimeLeaguePerformance,
+  fetchAlltimeLeaguePerformanceLastWeek,
+  fetchWeeklyLeaguePerformance,
+} from '../lib/performance';
 import { fetchParticipantData } from '../lib/player';
 import { WeeklyLeaguePerformances } from '../lib/definitions';
 
@@ -11,8 +15,17 @@ export default async function Standings({
   leagueId: number;
   week: number;
 }) {
-  const thisWeek = week < 0 ? await fetchAlltimeLeaguePerformance(leagueId) : await fetchWeeklyLeaguePerformance(leagueId, week);
-  const lastWeek = week < 0 ? await fetchAlltimeLeaguePerformanceLastWeek(leagueId) as WeeklyLeaguePerformances : await fetchWeeklyLeaguePerformance(leagueId, week - 1);
+  console.log(week);
+  const thisWeek =
+    week < 0
+      ? await fetchAlltimeLeaguePerformance(leagueId)
+      : await fetchWeeklyLeaguePerformance(leagueId, week);
+  const lastWeek =
+    week < 0
+      ? ((await fetchAlltimeLeaguePerformanceLastWeek(
+          leagueId,
+        )) as WeeklyLeaguePerformances)
+      : await fetchWeeklyLeaguePerformance(leagueId, week - 1);
 
   let performanceMap = CreatePerformanceMap(thisWeek, lastWeek);
   const sortedPointsArray = Array.from(performanceMap.entries()).sort(
@@ -23,19 +36,43 @@ export default async function Standings({
 
   return (
     <div>
-      <div className="ml-4 text-xl font-bold">{ week > 0 ? `Week ${week} League Standings` : "Total Points League Standings" }</div>
+      <div className="ml-4 text-xl font-bold">
+        {week > 0
+          ? `Week ${week} League Standings`
+          : 'Total Points League Standings'}
+      </div>
       {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
         let className =
           'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
         let emojiText = '   ';
-        if (sortedPointsArray[0][1].thisWeek == 0) emojiText = ' '
-        else if ((index === 0) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[0][1].thisWeek) emojiText = '🥇';
-        else if ((index === 1) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[1][1].thisWeek) emojiText = '🥈';
-        else if ((index === 2) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[2][1].thisWeek) emojiText = '🥉';
-        else if ((index === lastPosition) || sortedPointsArray[index][1].thisWeek == sortedPointsArray[lastPosition][1].thisWeek) emojiText = '💀';
+        if (sortedPointsArray[0][1].thisWeek == 0) emojiText = ' ';
+        else if (
+          index === 0 ||
+          sortedPointsArray[index][1].thisWeek ==
+            sortedPointsArray[0][1].thisWeek
+        )
+          emojiText = '🥇';
+        else if (
+          index === 1 ||
+          sortedPointsArray[index][1].thisWeek ==
+            sortedPointsArray[1][1].thisWeek
+        )
+          emojiText = '🥈';
+        else if (
+          index === 2 ||
+          sortedPointsArray[index][1].thisWeek ==
+            sortedPointsArray[2][1].thisWeek
+        )
+          emojiText = '🥉';
+        else if (
+          index === lastPosition ||
+          sortedPointsArray[index][1].thisWeek ==
+            sortedPointsArray[lastPosition][1].thisWeek
+        )
+          emojiText = '💀';
         const arrow = getStatusArrow(twoWeekStatus);
-        const player = await fetchParticipantData(twoWeekStatus.id)
-        const playerName = player?.name ?? "Unknown Player";
+        const player = await fetchParticipantData(twoWeekStatus.id);
+        const playerName = player?.name ?? 'Unknown Player';
         return (
           <Link
             key={index}
@@ -43,9 +80,7 @@ export default async function Standings({
             href={`/league/${leagueId}/teams/${playerId}`}
           >
             <div className="pr-0.5 text-right text-lg">{emojiText}</div>
-            <div className="text-bold col-span-7 text-lg">
-              {playerName}
-            </div>
+            <div className="text-bold col-span-7 text-lg">{playerName}</div>
             <div className="col-span-4">
               {arrow} {twoWeekStatus.thisWeek.toFixed(2)}
             </div>
