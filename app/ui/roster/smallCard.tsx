@@ -6,10 +6,12 @@ export default function SmallCard({
   availablePosition,
   card,
   score,
+  onClick = true,
 }: {
   availablePosition: string;
   card: CardDetails | null;
   score: number;
+  onClick?: boolean;
 }) {
   return (
     <div className="w-30 sm:w-50 overflow-auto rounded-md border text-sm">
@@ -30,7 +32,9 @@ export default function SmallCard({
                 alt={card.name}
                 width={93}
                 height={130}
-                onClick={() => routeToCardPageById(card.card_id)}
+                onClick={() => {
+                  onClick ? routeToCardPageById(card.card_id) : null;
+                }}
                 className="cursor-pointer"
               />
             ) : (
