@@ -4,12 +4,9 @@ import { sql } from '@vercel/postgres';
 import {
   League,
   Player,
-  TeamPerformance,
-  WeeklyLeaguePerformances,
 } from './definitions';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { fetchPlayerRosterScore } from './rosters';
 
 export async function fetchLeague(userId: number): Promise<League | null> {
   try {

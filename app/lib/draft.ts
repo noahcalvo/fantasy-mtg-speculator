@@ -214,8 +214,7 @@ export const fetchAvailableCards = async (cards: CardDetails[], draftId: number)
   }
 }
 
-export const makePick = async (draftId: number, playerId: number, cardName: string, set: string) => {
-  'use client';
+export async function makePick(draftId: number, playerId: number, cardName: string, set: string) {
   try {
     const cardId = await getOrCreateCard(cardName, set);
     if (!cardId) {
