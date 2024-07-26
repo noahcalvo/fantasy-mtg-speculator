@@ -1,5 +1,5 @@
 'use client';
-import { MouseEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CardDetails,
   CardDetailsWithPoints,
@@ -8,7 +8,6 @@ import {
   getRosterPositions,
 } from '@/app/lib/definitions';
 import Image from 'next/image';
-import { makePick } from '@/app/lib/draft';
 import { routeToCardPageById, routeToCardPageByName } from '@/app/lib/routing';
 
 type SortBy = 'price' | 'points';
@@ -23,7 +22,7 @@ export default function AvailableCards({
   undraftedCards: CardDetailsWithPoints[];
   playerId: number;
   activeDrafter: boolean;
-  draftId: string;
+  draftId: number;
   set: string;
 }) {
   const [page, setPage] = useState(0);
@@ -90,7 +89,7 @@ export default function AvailableCards({
                   : 'bg-gray-500 text-white'
               }`}
               disabled={!activeDrafter}
-              onClick={() => makePick(draftId, playerId, card.name, set)}
+              onClick={() => makePickTest(draftId, playerId, card.name, set)}
             >
               Draft
             </button>
@@ -257,4 +256,20 @@ function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
     // Default to sorting by points if sortBy is not recognized
     return b.points - a.points;
   });
+}
+
+async function makePickTest(
+  draftId: string,
+  playerId: number,
+  cardName: string,
+  set: string,
+) {
+  const res = await fetch('/api/makePick', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ draftId, playerId, cardName, set }),
+  });
+  const json = await res.json();
 }

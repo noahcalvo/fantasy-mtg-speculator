@@ -66,17 +66,18 @@ export type Collection = {
 }
 
 export type Draft = {
-  draft_id: string;
+  draft_id: number;
   set: string;
   active: boolean;
   participants: number[];
   name: string;
   rounds: number;
+  league_id: number;
 };
 
 export type DraftPick = {
-  pick_id: string;
-  draft_id: string;
+  pick_id: number;
+  draft_id: number;
   round: number;
   player_id: number;
   card_id: string;

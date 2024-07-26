@@ -1,59 +1,38 @@
-import { fetchDraft, fetchPicks } from '@/app/lib/draft';
+import { fetchDraft, fetchPicks, fetchUndrafterCards } from '@/app/lib/draft';
 import notFound from '../not-found';
 import {
-  fetchMultipleParticipantData,
   fetchPlayerByEmail,
 } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
-import { fetchOwnedCards, fetchSet } from '@/app/lib/sets';
-import { fetchCardName } from '@/app/lib/card';
 import {
   CardDetails,
   CardDetailsWithPoints,
   CardPoint,
-  DraftPick,
 } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
-import { fetchLeague } from '@/app/lib/leagues';
 import { fetchCardPerformances } from '@/app/lib/performance';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const user = await auth().then((res) => res?.user);
   const player = await fetchPlayerByEmail(user?.email || '');
-  const playerId = player.player_id;
-  const league = await fetchLeague(playerId);
-  const leagueId = league?.league_id ?? 0;
 
-  const draftId = params.id;
+  const draftIdString = params.id;
+  // convert draftId to number
+  const draftId = parseInt(draftIdString, 10);
+  if (isNaN(draftId)) {
+    notFound();
+  }
 
   const draft = await fetchDraft(draftId);
   if (!draft) {
     notFound();
   }
 
-  const participantIDs = draft.participants;
+  const picks = await fetchPicks(draftId);
 
-  let picks = await fetchPicks(draftId);
-  const participants = await fetchMultipleParticipantData(participantIDs);
-
-  const cards = await fetchSet(draft.set);
-
-  const alreadyOwnedCards = await fetchOwnedCards(draft.set, leagueId);
-
-  const draftedCardNames = await Promise.all(
-    picks.map((pick: DraftPick) =>
-      pick.card_id ? fetchCardName(pick.card_id) : null,
-    ),
-  );
-
-  const undraftedCards = cards.filter(
-    (card: CardDetails) =>
-      !draftedCardNames.includes(card.name) &&
-      !alreadyOwnedCards.some((ownedCard) => ownedCard.name === card.name),
-  );
-
+  const undraftedCards = await fetchUndrafterCards(draftId);
   const undraftedCardIds = undraftedCards
     .filter(
       (card: CardDetails) => card.card_id !== undefined && card.card_id !== -1,
@@ -88,7 +67,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   return (
     <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-0 xl:flex-row">
       <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
-        <DraftGrid picks={picks} participants={participants} />
+        <DraftGrid draftId={draftId} />
       </div>
       <div>
         <AvailableCards
