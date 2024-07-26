@@ -1,6 +1,5 @@
 'use server';
 
-import { sql } from '@vercel/postgres';
 import { Card, CardDetails, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -9,6 +8,13 @@ import { updateCollectionWithCompleteDraft } from './collection';
 import { isCommissioner } from './leagues';
 import { fetchOwnedCards, fetchSet } from './sets';
 import { fetchCardName } from './card';
+import pg from 'pg';
+
+const { Pool } = pg;
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+});
 
 const FormSchema = z.object({
   id: z.string(),
@@ -60,7 +66,7 @@ export async function createDraft(prevState: State, formData: FormData, league_i
 
   let resp;
   try {
-    resp = await sql`INSERT INTO draftsV4 (set, active, rounds, name, participants, league_id, auto_draft) VALUES (${set}, true, ${rounds}, ${name}, array[]::int[], ${league_id}, ${auto_draft}) RETURNING draft_id;`;
+    resp = await pool.query(`INSERT INTO draftsV4 (set, active, rounds, name, participants, league_id, auto_draft) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING draft_id;`, [set, true, rounds, name, [], league_id, auto_draft]);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to create draft for {set}');
@@ -71,7 +77,7 @@ export async function createDraft(prevState: State, formData: FormData, league_i
 
 const fetchAllDrafts = async (leagueId: number): Promise<Draft[]> => {
   try {
-    const res = await sql<Draft>`SELECT * FROM draftsV4 WHERE league_id = ${leagueId};`;
+    const res = await pool.query<Draft>(`SELECT * FROM draftsV4 WHERE league_id = $1;`, [leagueId]);
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -81,7 +87,7 @@ const fetchAllDrafts = async (leagueId: number): Promise<Draft[]> => {
 
 const fetchDraftsBySet = async (leagueId: number, set: string): Promise<Draft[]> => {
   try {
-    const res = await sql<Draft>`SELECT * FROM draftsV4 WHERE set = ${set} AND league_id = ${leagueId};`;
+    const res = await pool.query<Draft>(`SELECT * FROM draftsV4 WHERE set = $1 AND league_id = $2;`, [set, leagueId]);
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -96,9 +102,9 @@ export const fetchDrafts = async (leagueId: number, set?: string): Promise<Draft
   return fetchAllDrafts(leagueId);
 };
 
-export const fetchDraft = async (id: number): Promise<Draft> => {
+export const fetchDraft = async (draftId: number): Promise<Draft> => {
   try {
-    const res = await sql<Draft>`SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = ${id};`;
+    const res = await pool.query<Draft>(`SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = $1;`, [draftId]);
     return res.rows[0];
   } catch (error) {
     console.error('Database Error:', error);
@@ -109,7 +115,7 @@ export const fetchDraft = async (id: number): Promise<Draft> => {
 export const joinDraft = async (draftId: number, playerId: number): Promise<void> => {
   try {
     // Check if the player is already a participant
-    const draftResult = await sql`SELECT participants, active FROM draftsV4 WHERE draft_id = ${draftId};`;
+    const draftResult = await pool.query(`SELECT participants, active FROM draftsV4 WHERE draft_id = $1;`, [draftId]);
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
     }
@@ -120,7 +126,7 @@ export const joinDraft = async (draftId: number, playerId: number): Promise<void
     if (participants.includes(playerId)) {
       console.log('Player is already a participant');
     } else {
-      await sql`UPDATE draftsV4 SET participants = array_append(participants, ${playerId}) WHERE draft_id = ${draftId};`;
+      await pool.query(`UPDATE draftsV4 SET participants = array_append(participants, $1) WHERE draft_id = $2;`, [playerId, draftId]);
       await addPicks(draftId, playerId);
       await snakePicks(draftId);
       revalidatePath(`/draft/${draftId}/view`);
@@ -157,7 +163,7 @@ const addPicks = async (draftId: number, playerId: number) => {
     const rounds = draft.rounds;
     const pick = draft.participants.length - 1;
     for (let i = 0; i < rounds; i++) {
-      await sql`INSERT INTO picksV5 (draft_id, player_id, round, pick_number) VALUES (${draftId}, ${playerId}, ${i}, ${pick});`;
+      await pool.query(`INSERT INTO picksV5 (draft_id, player_id, round, pick_number) VALUES ($1, $2, $3, $4);`, [draftId, playerId, i, pick]);
     }
   } catch (error) {
     console.error('Database Error:', error);
@@ -174,10 +180,10 @@ const snakePicks = async (draftId: number) => {
     // even numbered rounds are reversed (2nd, 4th, etc.)
     for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
-      await sql`UPDATE picksV5 SET pick_number = ${picksPerRound} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[picksPerRound - 1]};`;
+      await pool.query(`UPDATE picksV5 SET pick_number = $1 WHERE draft_id = $2 AND round = $2 AND player_id = $4;`, [picksPerRound, draftId, i, participants[picksPerRound - 1]]);
       for (let j = 0; j < picksPerRound; j++) {
         // move pick j over 1
-        await sql`UPDATE picksV5 SET pick_number = ${picksPerRound - j - 1} WHERE draft_id = ${draftId} AND round = ${i} AND player_id = ${participants[j]};`;
+        await pool.query(`UPDATE picksV5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`, [picksPerRound - j - 1, draftId, i, participants[j]]);
       }
     }
   } catch (error) {
@@ -188,7 +194,7 @@ const snakePicks = async (draftId: number) => {
 
 export const fetchPicks = async (draftId: number) => {
   try {
-    const res = await sql<DraftPick>`SELECT * FROM picksV5 WHERE draft_id = ${draftId};`;
+    const res = await pool.query<DraftPick>(`SELECT * FROM picksV5 WHERE draft_id = $1;`, [draftId]);
     revalidatePath(`/draft/${draftId}/live`);
     return res.rows;
   } catch (error) {
@@ -199,7 +205,7 @@ export const fetchPicks = async (draftId: number) => {
 
 export const fetchAvailableCards = async (cards: CardDetails[], draftId: number) => {
   try {
-    const res = await sql`SELECT * FROM picksV5 WHERE draft_id = ${draftId});`;
+    const res = await pool.query(`SELECT * FROM picksV5 WHERE draft_id = $1);`, [draftId]);
     const undraftedCards = cards.filter(card => !res.rows.some(pick => pick.card_id === card.name));
     return undraftedCards;
   } catch (error) {
@@ -219,10 +225,10 @@ export async function makePick(draftId: number, playerId: number, cardName: stri
       console.log('Not your turn', activePick, playerId)
       throw new Error('Not your turn');
     }
-    await sql`UPDATE picksV5 SET card_id = ${cardId} WHERE draft_id = ${draftId} AND player_id = ${playerId} AND round = ${activePick.round} AND pick_number = ${activePick.pick_number};`;
-    await sql`UPDATE draftsV4 SET last_pick_timestamp = NOW() WHERE draft_id = ${draftId};`;
+    await pool.query(`UPDATE picksV5 SET card_id = $1 WHERE draft_id = $2 AND player_id = $3 AND round = $4 AND pick_number = $5;`, [cardId, draftId, playerId, activePick.round, activePick.pick_number]);
+    await pool.query(`UPDATE draftsV4 SET last_pick_timestamp = NOW() WHERE draft_id = $1;`, [draftId]);
     if (await isDraftComplete(draftId)) {
-      await sql`UPDATE draftsV4 SET active = false WHERE draft_id = ${draftId};`;
+      await pool.query(`UPDATE draftsV4 SET active = false WHERE draft_id = ${draftId};`);
       await updateCollectionWithCompleteDraft(draftId);
     }
     revalidatePath(`/draft/${draftId}/live`);
@@ -237,24 +243,24 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     // Check if card exists in the database
     // remove '//'  and everything after it
     const frontSideName = cardName.split(' //')[0].trim();
-    const existingCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${frontSideName}) LIMIT 1`;
+    const existingCard = await pool.query<Card>(`SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`, [frontSideName]);
     if (existingCard.rows.length > 0) {
       if (existingCard.rows[0].name !== cardName) {
         // update the name to include the full, double sided name
-        await sql`UPDATE cards SET name = ${cardName} WHERE card_id = ${existingCard.rows[0].card_id};`;
+        await pool.query(`UPDATE cards SET name = $1 WHERE card_id = $1;`, [cardName, existingCard.rows[0].card_id]);
       }
       return existingCard.rows[0].card_id;
     }
     if (frontSideName === cardName) {
-      const newCard = await sql<Card>`INSERT INTO cards (name, origin) VALUES (${cardName}, ${set}) RETURNING card_id;`;
+      const newCard = await pool.query<Card>(`INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`, [cardName, set]);
       console.log('New card created:', newCard)
       return newCard.rows[0].card_id;
     }
-    const existingDoubleFaceCard = await sql<Card>`SELECT * FROM cards WHERE LOWER(name) = LOWER(${cardName}) LIMIT 1`;
+    const existingDoubleFaceCard = await pool.query<Card>(`SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`, [cardName]);
     if (existingDoubleFaceCard.rows.length > 0) {
       return existingDoubleFaceCard.rows[0].card_id;
     }
-    const newCard = await sql<Card>`INSERT INTO cards (name, origin) VALUES (${cardName}, ${set}) RETURNING card_id;`;
+    const newCard = await pool.query<Card>(`INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`, [cardName, set]);
     console.log('New card created:', newCard)
   } catch (error) {
     console.error('Database Error:', error);
@@ -277,14 +283,14 @@ const isDraftComplete = async (draftId: number) => {
 
 export const getActivePick = async (draftId: number): Promise<DraftPick | null> => {
   try {
-    const activePick = await sql<DraftPick>`
+    const activePick = await pool.query<DraftPick>(`
     SELECT p.*
     FROM picksV5 p
     JOIN draftsV4 d ON p.draft_id = d.draft_id
-    WHERE d.draft_id = ${draftId} AND p.card_id IS NULL
+    WHERE d.draft_id = $1 AND p.card_id IS NULL
     ORDER BY p.round ASC, p.pick_number ASC
     LIMIT 1;
-  `;
+  `, [draftId]);
     // return null if no active pick
     if (activePick.rows.length === 0) {
       return null;
@@ -338,7 +344,7 @@ export const fetchUndrafterCards = async (draftId: number) => {
 
 export const fetchAutoDraftTime = async (draftId: number): Promise<number | null> => {
   try {
-    const pick_time_seconds = await sql`SELECT pick_time_seconds, auto_draft FROM draftsV4 WHERE draft_id = ${draftId};`;
+    const pick_time_seconds = await pool.query(`SELECT pick_time_seconds, auto_draft FROM draftsV4 WHERE draft_id = $1;`, [draftId]);
     const pick_time = pick_time_seconds.rows[0].pick_time_seconds;
     const auto_draft = pick_time_seconds.rows[0].auto_draft;
     if (auto_draft) {
@@ -353,7 +359,7 @@ export const fetchAutoDraftTime = async (draftId: number): Promise<number | null
 
 export const fetchDraftTimer = async (draftId: number): Promise<number | null> => {
   try {
-    const draft = await sql`SELECT pick_time_seconds, auto_draft, last_pick_timestamp FROM draftsV4 WHERE draft_id = ${draftId};`;
+    const draft = await pool.query(`SELECT pick_time_seconds, auto_draft, last_pick_timestamp FROM draftsV4 WHERE draft_id = $1;`, [draftId]);
     if (draft.rowCount === 0) {
       throw new Error('Draft not found');
     }
