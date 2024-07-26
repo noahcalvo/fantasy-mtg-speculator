@@ -89,7 +89,7 @@ export default function AvailableCards({
                   : 'bg-gray-500 text-white'
               }`}
               disabled={!activeDrafter}
-              onClick={() => makePickTest(draftId, playerId, card.name, set)}
+              onClick={() => makePickAPICall(draftId, playerId, card.name, set)}
             >
               Draft
             </button>
@@ -258,7 +258,7 @@ function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
   });
 }
 
-async function makePickTest(
+async function makePickAPICall(
   draftId: number,
   playerId: number,
   cardName: string,

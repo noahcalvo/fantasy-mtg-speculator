@@ -1,7 +1,5 @@
 import { fetchAutoDraftTime, fetchMostValuableUndraftedCard, getActivePick, makePick } from "@/app/lib/draft";
 
-export const dynamic = 'force-dynamic'; // static by default, unless reading the request
-
 let timerMap = new Map();
 
 // Step 2: Define the recursive auto-draft function
