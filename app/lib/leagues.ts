@@ -5,7 +5,7 @@ import {
   League,
   Player,
 } from './definitions';
-import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function fetchLeague(userId: number): Promise<League | null> {
@@ -125,7 +125,7 @@ export async function createLeague(leagueName: string, userId: number) {
 export async function fetchPlayersInLeague(
   leagueId: number,
 ): Promise<Player[]> {
-  noStore();
+  
   try {
     const data = await sql<Player>`
     SELECT p.name, p.email, p.player_id
@@ -149,7 +149,7 @@ export async function fetchPlayersInLeague(
 export async function fetchPlayerIdInLeague(
   leagueId: number,
 ): Promise<number[]> {
-  noStore();
+  
   try {
     const data = await sql`
     SELECT participants FROM leaguesV3 WHERE league_id=${leagueId} LIMIT 1;`;

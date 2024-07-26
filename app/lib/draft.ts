@@ -5,7 +5,6 @@ import { Card, CardDetails, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { unstable_noStore as noStore } from 'next/cache';
 import { updateCollectionWithCompleteDraft } from './collection';
 import { isCommissioner } from './leagues';
 import { fetchOwnedCards, fetchSet } from './sets';
@@ -98,8 +97,6 @@ export const fetchDrafts = async (leagueId: number, set?: string): Promise<Draft
 };
 
 export const fetchDraft = async (id: number): Promise<Draft> => {
-  noStore();
-
   try {
     const res = await sql<Draft>`SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = ${id};`;
     return res.rows[0];
@@ -139,8 +136,6 @@ export const joinDraft = async (draftId: number, playerId: number): Promise<void
 }
 
 export const redirectIfJoined = async (participants: number[], playerId: number, draftId: number) => {
-  noStore();
-
   let shouldRedirect = false;
   try {
     if (participants.includes(playerId)) {
@@ -192,7 +187,6 @@ const snakePicks = async (draftId: number) => {
 }
 
 export const fetchPicks = async (draftId: number) => {
-  noStore();
   try {
     const res = await sql<DraftPick>`SELECT * FROM picksV5 WHERE draft_id = ${draftId};`;
     revalidatePath(`/draft/${draftId}/live`);
