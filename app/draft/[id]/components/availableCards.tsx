@@ -259,7 +259,7 @@ function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
 }
 
 async function makePickTest(
-  draftId: string,
+  draftId: number,
   playerId: number,
   cardName: string,
   set: string,
