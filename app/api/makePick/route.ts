@@ -44,6 +44,7 @@ export async function POST(req: Request): Promise<Response> {
     draft(draftId, set, playerId, cardName);
 
     // Return a response to indicate the process has started
+    console.error("returning response");
     return new Response(JSON.stringify({
       message: "Drafting process initiated",
     }), {
