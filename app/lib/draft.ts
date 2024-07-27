@@ -215,6 +215,8 @@ export const fetchAvailableCards = async (cards: CardDetails[], draftId: number)
 }
 
 export async function makePick(draftId: number, playerId: number, cardName: string, set: string) {
+  console.error('Making pick:', draftId, playerId, cardName, set);
+  console.error('using pool:', pool);
   try {
     const cardId = await getOrCreateCard(cardName, set);
     if (!cardId) {
