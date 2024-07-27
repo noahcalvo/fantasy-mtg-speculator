@@ -1,34 +1,26 @@
-import { fetchAutoDraftTime, fetchMostValuableUndraftedCard, getActivePick, makePick } from "@/app/lib/draft";
+import { Worker } from 'worker_threads';
 
-let timerMap = new Map();
+let timerMap = new Map<number, NodeJS.Timeout>();
 
-// Step 2: Define the recursive auto-draft function
-async function draft(draftId: number, set: string, playerId?: number, cardName?: string) {
-  // Make the pick
-  if (playerId && cardName) {
-    await makePick(draftId, playerId, cardName, set);
-  }
-  else {
-    const mostValuableCard = await fetchMostValuableUndraftedCard(draftId);
-    const activePick = await getActivePick(draftId);
-    if (!activePick) {
-      console.log("No next pick available");
-      return; // Exit condition
-    }
-    await makePick(draftId, activePick.player_id, mostValuableCard.name, set);
-  }
-
-  const pickTime = await fetchAutoDraftTime(draftId);
-  if (pickTime) {
-    console.log("Auto-drafting in progress, with picktime: ", pickTime);
-    // Wait for a delay before making the next pick and add it to the timerMap
-    // e.g. "draftId1 => timeout"
-    timerMap.set(draftId, setTimeout(() => draft(draftId, set), pickTime * 1000));
-  }
-  else {
-    console.log("Draft not set up to autodraft");
-  }
-
+// Start a worker thread to run the draft function
+async function startDraftWorker(draftId: number, set: string, playerId?: number, cardName?: string) {
+  return new Promise<void>((resolve, reject) => {
+    const worker = new Worker('./worker.js', { workerData: { draftId, set, playerId, cardName } });
+    worker.on('message', (message: any) => {
+      console.log('Worker sent message:', message);
+      if (message === 'done') {
+        resolve();
+      }
+    });
+    worker.on('error', (error: Error) => {
+      reject(error);
+    });
+    worker.on('exit', (code: number) => {
+      if (code !== 0) {
+        reject(new Error(`Worker exited with code ${code}`));
+      }
+    });
+  });
 }
 
 // Modified POST function to initiate auto-drafting
@@ -40,8 +32,8 @@ export async function POST(req: Request): Promise<Response> {
       clearTimeout(timerMap.get(draftId));
     }
 
-    // Start auto-drafting for subsequent picks
-    draft(draftId, set, playerId, cardName);
+    // Start auto-drafting for subsequent picks using a worker thread
+    await startDraftWorker(draftId, set, playerId, cardName);
 
     // Return a response to indicate the process has started
     console.error("returning response");
