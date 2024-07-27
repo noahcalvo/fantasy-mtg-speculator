@@ -241,11 +241,13 @@ export async function makePick(draftId: number, playerId: number, cardName: stri
 }
 
 export const getOrCreateCard = async (cardName: string, set: string) => {
+  console.error('Getting or creating card:', cardName, set);
   try {
     // Check if card exists in the database
     // remove '//'  and everything after it
     const frontSideName = cardName.split(' //')[0].trim();
     const existingCard = await pool.query<Card>(`SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`, [frontSideName]);
+    console.error('Existing card:', existingCard);
     if (existingCard.rows.length > 0) {
       if (existingCard.rows[0].name !== cardName) {
         // update the name to include the full, double sided name
