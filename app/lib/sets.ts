@@ -8,9 +8,7 @@ const POSITIVE_OUTLIERS = ["Modern Horizons 3", "Modern Horizons 2", "Assassin's
 const NEGATIVE_OUTLIERS = ["Modern Horizons 2 Timeshifts"]
 
 export async function fetchRecentSets(): Promise<string[]> {
-    const response = await fetch('https://api.scryfall.com/sets', {
-        next: { revalidate: 600 },
-    })
+    const response = await fetch('https://api.scryfall.com/sets')
 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -28,9 +26,7 @@ export async function fetchRecentSets(): Promise<string[]> {
 
 export async function fetchSet(set: string): Promise<CardDetails[]> {
     const setCode = await getSetCode(set);
-    const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+set%3A${setCode}`, {
-        next: { revalidate: 600 },
-    });
+    const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+set%3A${setCode}`);
 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status} set: ${set}`);
@@ -55,9 +51,7 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
         };
     });
     while (setData.has_more) {
-        const nextResponse = await fetch(setData.next_page, {
-            next: { revalidate: 600 },
-        });
+        const nextResponse = await fetch(setData.next_page);
 
         if (!nextResponse.ok) {
             throw new Error(`HTTP error! status: ${nextResponse.status}`);
@@ -93,9 +87,7 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
 
 async function getSetCode(set: string): Promise<string> {
     const setNoPunctuation = set.replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~\s]/g, '').toLowerCase();
-    const response = await fetch(`https://api.scryfall.com/sets/${setNoPunctuation}`, {
-        next: { revalidate: 600 },
-    });
+    const response = await fetch(`https://api.scryfall.com/sets/${setNoPunctuation}`);
 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

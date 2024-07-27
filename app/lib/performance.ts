@@ -1,7 +1,6 @@
 'use server';
 
 import { CardPoint, RosterIdMap, TeamPerformance, WeeklyLeaguePerformances } from './definitions';
-import { unstable_noStore as noStore } from 'next/cache';
 import pg from 'pg';
 import { fetchAllLeagues, fetchPlayersInLeague } from './leagues';
 import { getCurrentWeek } from './utils';
@@ -15,7 +14,6 @@ const pool = new Pool({
 
 
 export async function fetchTopCards() {
-  noStore();
   try {
     const data = await pool.query(
       `SELECT 
@@ -57,7 +55,6 @@ export async function fetchCardPerformances(cardIds: number[]): Promise<CardPoin
   if (cardIds.length === 0) {
     return [];
   }
-  noStore();
   try {
     const data = await pool.query(
       `SELECT 
@@ -204,7 +201,6 @@ export async function fetchLastFiveWeeksCardPerformance(cardId: number) {
 }
 
 export async function fetchTopWeeklyCards(week: number) {
-  noStore();
   try {
     const data = await pool.query(
       `
@@ -247,7 +243,6 @@ export async function fetchTopWeeklyCards(week: number) {
 }
 
 export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
-  noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
     const data = await pool.query(
@@ -290,7 +285,6 @@ export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
 }
 
 export async function fetchTopCardsFromSet(set: string) {
-  noStore();
   try {
     // await new Promise((resolve) => setTimeout(resolve, 3000));
     const data = await pool.query(`
@@ -332,7 +326,7 @@ export async function fetchTopCardsFromSet(set: string) {
 }
 
 export async function fetchUniqueWeekNumbers() {
-  noStore();
+  
   try {
     const data = await pool.query(`
           SELECT DISTINCT
@@ -353,7 +347,7 @@ export async function fetchUniqueWeekNumbers() {
 }
 
 export async function fetchLeagueWeeks(leagueId: number) {
-  noStore();
+  
   try {
     const data = await pool.query(`
           SELECT DISTINCT
@@ -375,7 +369,7 @@ export async function fetchLeagueWeeks(leagueId: number) {
 }
 
 export async function fetchRosterFromTeamPerformance(playerId: number, leagueId: number, week: number): Promise<RosterIdMap> {
-  noStore();
+  
   try {
     const data = await pool.query(`
           SELECT 
@@ -491,7 +485,7 @@ async function upsertWeeklyTeamPerformance(leagueId: number, roster: RosterIdMap
 }
 
 export async function fetchWeeklyLeaguePerformance(leagueId: number, week: number): Promise<WeeklyLeaguePerformances> {
-  noStore();
+  
   if (week == getCurrentWeek()) {
     try {
       const data = await fetchOngoingWeekPerformance(leagueId);
@@ -530,7 +524,7 @@ export async function fetchWeeklyLeaguePerformance(leagueId: number, week: numbe
 }
 
 export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<WeeklyLeaguePerformances> {
-  noStore();
+  
   try {
     const data = await pool.query(`
           SELECT 
@@ -566,7 +560,7 @@ export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<W
 }
 
 export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): Promise<WeeklyLeaguePerformances> {
-  noStore();
+  
   try {
     const data = await pool.query(`
           WITH LatestWeek AS (
@@ -598,7 +592,7 @@ export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): P
 }
 
 export async function fetchOngoingWeekPerformance(leagueId: number): Promise<TeamPerformance[]> {
-  noStore();
+  
   const week = getCurrentWeek();
   let performances: TeamPerformance[] = [];
   try {

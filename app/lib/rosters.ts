@@ -2,7 +2,7 @@
 
 import { sql } from '@vercel/postgres';
 import { CardDetails, CardPerformances, RosterCardDetailsMap, RosterIdMap } from './definitions';
-import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchCardPerformanceByWeek } from './collection';
 
@@ -14,7 +14,7 @@ export async function fetchPlayerRosterWithDetails(
   userId: number,
   league_id: number,
 ): Promise<RosterCardDetailsMap> {
-  noStore();
+
   try {
     await checkRosterExists(userId, league_id);
     const data = await sql<RosterSlotToId>`
@@ -47,7 +47,7 @@ export async function fetchPlayerRosterWithDetails(
 }
 
 export async function fetchPlayerRoster(userId: number, leagueId: number): Promise<RosterIdMap> {
-  noStore();
+
   try {
     await checkRosterExists(userId, leagueId);
     const data = await sql<RosterIdMap>`
@@ -107,7 +107,7 @@ export async function playPositionSlot(
   position: string,
   leagueId: number
 ): Promise<void> {
-  noStore();
+
   position = position.toLowerCase();
   try {
     await checkRosterExists(userId, leagueId);
@@ -130,7 +130,7 @@ export async function playPositionSlot(
 }
 
 export async function checkRosterExists(userId: number, leagueId: number): Promise<void> {
-  noStore();
+
   try {
     // Check if a roster exists for the user
     const rosterExists = await sql`

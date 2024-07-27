@@ -15,7 +15,6 @@ export default async function Standings({
   leagueId: number;
   week: number;
 }) {
-  console.log(week);
   const thisWeek =
     week < 0
       ? await fetchAlltimeLeaguePerformance(leagueId)

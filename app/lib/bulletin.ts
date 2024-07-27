@@ -11,7 +11,7 @@ export async function completedTradeBulletin(trade: TradeOffer, leagueId: number
         const message = `Trade between ${tradeWithDetails.offerer.name} and ${tradeWithDetails.recipient.name} has been completed.
         \t${tradeWithDetails.offerer.name} recieves ${tradeWithDetails.requestedCards.map(card => card.name).join(', ')}
         \t${tradeWithDetails.recipient.name} recieves ${tradeWithDetails.offeredCards.map(card => card.name).join(', ')}`;
-        await sql`INSERT INTO bulletinItems (league_id, player_id, message) VALUES (${leagueId}, 0, ${message}) RETURNING league_id;`;
+        await sql`INSERT INTO bulletinItemsV2 (league_id, player_id, message) VALUES (${leagueId}, 0, ${message}) RETURNING league_id;`;
         revalidatePath(`/league/${leagueId}/bulletin`);
     } catch (error) {
         console.error('Database Error:', error);
@@ -28,7 +28,7 @@ export async function fetchBulletinItems(leagueId: number): Promise<BulletinItem
                 b.created,
                 u.name as author
             FROM
-                bulletinItems b
+                bulletinItemsV2 b
             JOIN
                 users u
             ON

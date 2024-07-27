@@ -30,9 +30,7 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     }
     try {
         const encodedName = encodeURIComponent(data.rows[0].name);
-        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`, {
-            next: { revalidate: 600 },
-        });
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,9 +92,7 @@ export async function fetchCardId(cardName: string): Promise<number> {
 export async function fetchScryfallDataByCardName(cardName: string): Promise<CardDetails> {
     try {
         const encodedName = encodeURIComponent(cardName);
-        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`, {
-            next: { revalidate: 600 },
-        });
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

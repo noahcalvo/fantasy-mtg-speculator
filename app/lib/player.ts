@@ -2,7 +2,6 @@
 
 import { sql } from '@vercel/postgres';
 import { Player } from './definitions';
-import { unstable_noStore as noStore } from 'next/cache';
 
 export async function fetchParticipantData(id: number) {
   try {
@@ -20,7 +19,6 @@ export async function fetchParticipantData(id: number) {
 }
 
 export async function fetchMultipleParticipantData(ids: number[]) {
-  noStore();
   let participants: Player[] = [];
   try {
     for (const id of ids) {

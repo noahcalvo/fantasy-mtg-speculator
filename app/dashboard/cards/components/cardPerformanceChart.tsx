@@ -19,7 +19,6 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
     setCardDataLoading(true);
     const fetchData = async () => {
       const result = await fetchLastFiveWeeksCardPerformance(cardId);
-      console.log('result', result);
 
       setCardData(result);
       setCardDataLoading(false);
@@ -41,10 +40,6 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
   useEffect(() => {
     function handleResize() {
       if (containerRef.current) {
-        console.log(
-          'resizing',
-          containerRef.current.getBoundingClientRect().width,
-        );
         setContainerWidth(containerRef.current.getBoundingClientRect().width);
       }
     }
@@ -90,7 +85,6 @@ function getSettings(cardPoints: CardPoint[], containerWidth: number) {
     ...cardPoints.map((cardPoint) => cardPoint.total_points.toString().length),
   );
   const marginPerChar = 7; // Adjust this value based on your font size
-  console.log('containerWidth', containerWidth);
   return {
     margin: {
       left: maxLabelLength * marginPerChar, // Calculate margin based on max label length

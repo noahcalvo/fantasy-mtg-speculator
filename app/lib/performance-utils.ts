@@ -1,4 +1,4 @@
-import { WeeklyLeaguePerformances, calculateTotalPoints } from "./definitions";
+import { WeeklyLeaguePerformances } from "./definitions";
 
 export type TwoWeekStatus = {
   thisWeek: number;

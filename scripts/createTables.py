@@ -84,28 +84,32 @@ def createTables(conn):
             print("Created 'ownership' table")
 
             create_drafts_table_query = """
-            CREATE TABLE IF NOT EXISTS DraftsV2 (
+            CREATE TABLE IF NOT EXISTS DraftsV4 (
             draft_id SERIAL PRIMARY KEY,
             league_id INT NOT NULL,
             participants INT[],
             active boolean NOT NULL,
             set VARCHAR(255) NOT NULL,
             name VARCHAR(255) NOT NULL,
-            rounds INT NOT NULL
+            rounds INT NOT NULL,
+            auto_draft BOOLEAN NOT NULL,
+            pick_time_seconds INT,
+            last_pick_timestamp timestamp with time zone,
+            FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id)
             );
             """
             cur.execute(create_drafts_table_query)
             print("Created 'drafts' table")
 
             create_picks_table_query = """
-            CREATE TABLE IF NOT EXISTS PicksV3 (
+            CREATE TABLE IF NOT EXISTS PicksV5 (
             pick_id SERIAL PRIMARY KEY,
             draft_id INT NOT NULL,
             player_id INT,
             pick_number INT NOT NULL,
             round INT NOT NULL,
             card_id INT,
-            FOREIGN KEY (draft_id) REFERENCES DraftsV2(draft_id),
+            FOREIGN KEY (draft_id) REFERENCES DraftsV4(draft_id),
             FOREIGN KEY (player_id) REFERENCES Users(player_id),
             FOREIGN KEY (card_id) REFERENCES Cards(card_id),
             UNIQUE (draft_id, pick_number, round),
@@ -156,13 +160,13 @@ def createTables(conn):
             print("Created 'trades' table")
 
             create_bulletin_table_query = """
-            CREATE TABLE IF NOT EXISTS BulletinItems (
+            CREATE TABLE IF NOT EXISTS BulletinItemsV2 (
             item_id SERIAL PRIMARY KEY,
             league_id INT NOT NULL,
             player_id INT NOT NULL,
             message TEXT NOT NULL,
             created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (league_id) REFERENCES Leagues(league_id),
+            FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id),
             FOREIGN KEY (player_id) REFERENCES Users(player_id)
             );
             """

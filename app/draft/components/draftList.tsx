@@ -1,6 +1,5 @@
 import { Draft } from '@/app/lib/definitions';
 import { fetchDrafts } from '@/app/lib/draft';
-import Link from 'next/link';
 import { DraftPill } from './draftPill';
 
 export const DraftList = async ({leagueId}:{leagueId: number}) => {

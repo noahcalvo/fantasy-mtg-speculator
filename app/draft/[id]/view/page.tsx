@@ -5,8 +5,13 @@ import notFound from '../not-found';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const draftId = params.id;
-
+  const draftIdString = params.id;
+  // convert draftId to number
+  const draftId = parseInt(draftIdString, 10);
+  if (isNaN(draftId)) {
+    notFound();
+  }
+  
   const draft = await fetchDraft(draftId);
   if (!draft) {
     notFound();
