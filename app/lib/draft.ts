@@ -246,6 +246,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     // Check if card exists in the database
     // remove '//'  and everything after it
     const frontSideName = cardName.split(' //')[0].trim();
+    console.error("one more shot", frontSideName);
     const existingCard = await pool.query<Card>(`SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`, [frontSideName]);
     console.error('Existing card:', existingCard);
     if (existingCard.rows.length > 0) {
