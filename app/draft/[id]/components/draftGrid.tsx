@@ -61,7 +61,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
         .catch((error) => {
           console.error(error);
         });
-    }, 2000);
+    }, 20000);
 
     return () => clearInterval(interval);
   }, [draftId, picks, rounds, activePick, participants]);

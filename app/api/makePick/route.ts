@@ -5,7 +5,8 @@ let timerMap = new Map<number, NodeJS.Timeout>();
 // Start a worker thread to run the draft function
 async function startDraftWorker(draftId: number, set: string, playerId?: number, cardName?: string) {
   return new Promise<void>((resolve, reject) => {
-    const worker = new Worker('./worker.js', { workerData: { draftId, set, playerId, cardName } });
+    const worker = new Worker('/workers/worker.ts', { workerData: { draftId, set, playerId, cardName } });
+    console.log("hurr")
     worker.on('message', (message: any) => {
       console.log('Worker sent message:', message);
       if (message === 'done') {
@@ -13,6 +14,7 @@ async function startDraftWorker(draftId: number, set: string, playerId?: number,
       }
     });
     worker.on('error', (error: Error) => {
+      console.log("worker error:", error)
       reject(error);
     });
     worker.on('exit', (code: number) => {
@@ -28,6 +30,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const data = await req.json();
     const { draftId, playerId, cardName, set } = data;
+    console.log(data)
     if (timerMap.has(draftId)) {
       clearTimeout(timerMap.get(draftId));
     }
