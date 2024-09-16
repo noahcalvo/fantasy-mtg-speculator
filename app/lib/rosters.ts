@@ -109,6 +109,7 @@ export async function playPositionSlot(
 ): Promise<void> {
 
   position = position.toLowerCase();
+  console.log("playPositionSlot", cardId, userId, position, leagueId);
   try {
     await checkRosterExists(userId, leagueId);
     let roster = await fetchPlayerRoster(userId, leagueId);

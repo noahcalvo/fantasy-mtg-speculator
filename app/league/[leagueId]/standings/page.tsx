@@ -11,7 +11,6 @@ export default async function Page({
     : parseInt(params.leagueId, 10);
 
   const week = getCurrentWeek();
-  console.log('page: ', week);
   return (
     <main className="mb-4 p-2">
       <div>
