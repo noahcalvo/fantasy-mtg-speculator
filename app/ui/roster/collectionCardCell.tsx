@@ -4,7 +4,6 @@ import {
   getAbbreviation,
   getCardTypes,
   getCardTypesList,
-  getRosterPositions,
 } from '@/app/lib/definitions';
 import { playPositionSlot } from '@/app/lib/rosters';
 import { routeToCardPageById } from '@/app/lib/routing';
@@ -19,13 +18,12 @@ export default function CollectionCardCell({
   playerId: number;
   leagueId: number;
 }) {
-  const positions = getRosterPositions();
   let cardTypes = getCardTypesList(card?.typeLine ?? '');
   let cardTypeName = getCardTypes(card?.typeLine ?? '');
   return (
     // add cardType to the card item
 
-    <div className="m-2 flex justify-between border border-gray-300 p-2">
+    <div className="m-2 flex justify-between border border-gray-300 p-2 mt-[-">
       {card ? (
         <div className="flex w-full justify-between">
           <Image

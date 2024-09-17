@@ -1,7 +1,7 @@
 'use server';
 import { sql } from '@vercel/postgres';
 import { Card, CardDetails, CardPerformances, CardPoint, Collection, Player } from './definitions';
-import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
 
@@ -9,7 +9,6 @@ export async function fetchCardPerformanceByWeek(
   collectionIDs: number[],
   week: number,
 ): Promise<CardPerformances> {
-  noStore();
   const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points, PF.week
   FROM Cards C
   JOIN Performance PF ON C.card_id = PF.card_id
@@ -33,7 +32,6 @@ export async function fetchCardPerformanceByWeek(
 }
 
 export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {
-  noStore();
   try {
     const data = await sql`
         SELECT 
@@ -55,7 +53,6 @@ export async function fetchPlayerCollection(playerId: number, leagueId: number):
 }
 
 export async function fetchPlayerCollectionWithDetails(playerId: number, league_id: number): Promise<CardDetails[]> {
-  noStore();
   try {
     const data = await sql<Card>`
         SELECT 
@@ -90,7 +87,6 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
 }
 
 export async function fetchPlayerCollectionWithPerformance(playerId: number, league_id: number): Promise<CardPoint[]> {
-  noStore();
   try {
     const data = await sql<CardPoint>`
     SELECT 
@@ -138,8 +134,8 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number, lea
   }
 }
 
-export async function updateCollectionWithCompleteDraft(draftId: string) {
-  noStore();
+export async function updateCollectionWithCompleteDraft(draftId: number) {
+  
   try {
     const leagueIdQuery = await sql`SELECT league_id FROM draftsV2 WHERE draft_id = ${draftId}`;
     const leagueId = leagueIdQuery.rows[0].league_id;
@@ -186,7 +182,7 @@ export async function playerOwnsCards(playerId: number, cardIds: number[], leagu
 }
 
 export async function fetchOwnership(leagueId: number, cardId: number): Promise<Player | null> {
-  noStore();
+  
   try {
     const data = await sql`
         SELECT 
