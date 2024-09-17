@@ -2,7 +2,6 @@
 import { CardDetails, DraftPick } from '@/app/lib/definitions';
 import { routeToCardPageById } from '@/app/lib/routing';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 export default function PickCell({
   picksTilActive,
@@ -10,39 +9,17 @@ export default function PickCell({
   playerName,
   pick,
   cardType,
-  timebomb,
 }: {
   picksTilActive: number;
   cardData: CardDetails | null;
   playerName: string;
   pick: DraftPick;
   cardType: string;
-  timebomb: number | null;
 }) {
-  const [countdown, setCountdown] = useState<number>();
-
-  useEffect(() => {
-    if (timebomb) {
-      const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = timebomb - now;
-        const seconds = Math.floor(distance / 1000);
-        setCountdown(seconds);
-
-        if (distance < 0) {
-          clearInterval(interval);
-          setCountdown(0);
-        }
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [timebomb]);
-
   return (
     (!pick?.card_id && (
       <td
-        className={`w-24 overflow-auto rounded-md border-2 border-white p-4 px-1 py-2 text-center text-xs
+        className={`w-24 overflow-auto rounded-md border-2 border-white p-4 px-1 py-2 text-center text-xs capitalize
     ${
       picksTilActive == 0
         ? 'bg-white bg-clip-padding text-black shadow-inner-shadow'
@@ -56,18 +33,10 @@ export default function PickCell({
     }`}
       >
         <div className="w-24 overflow-hidden">
-          {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
           <p>
             {picksTilActive == 0 ? `${playerName} is up!` : `${playerName}`}
           </p>
-          {picksTilActive == 0 && countdown !== undefined ? (
-            <div>
-              <p className="font-bold">{countdown}s</p>
-              <p>to pick!</p>
-            </div>
-          ) : (
-            ''
-          )}
+          {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
         </div>
       </td>
     )) || (

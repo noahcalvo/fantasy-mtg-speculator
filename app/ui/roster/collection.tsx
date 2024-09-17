@@ -25,10 +25,11 @@ export default function Collection({
       <div className="grid grid-cols-2">
         <div className="mt-32 rounded-md bg-white">
           <div className="flex flex-col items-center">
-            {collection.map((card) => (
+            {collection.map((card, index) => (
               <div
                 className="relative -mt-32 cursor-pointer transition hover:rotate-[15deg] hover:pl-5"
                 onClick={() => setSelectedCard(card)}
+                key={index}
               >
                 <Image
                   src={card.image[0]}
@@ -53,14 +54,14 @@ export default function Collection({
             />
           )}
           <div>
-            This week's points:{' '}
+            This week&apos;s points:{' '}
             {mostRecentPoints.cards.find(
               (element) => element.card_id === selectedCard?.card_id,
             )?.total_points ?? '0'}
           </div>
 
           <div>
-            Last week's points:{' '}
+            Last week&apos;s points:{' '}
             {secondMostRecentPoints.cards.find(
               (element) => element.card_id === selectedCard?.card_id,
             )?.total_points ?? '0'}
