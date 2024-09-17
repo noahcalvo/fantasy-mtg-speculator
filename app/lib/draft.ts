@@ -180,7 +180,7 @@ const snakePicks = async (draftId: number) => {
     // even numbered rounds are reversed (2nd, 4th, etc.)
     for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
-      await pool.query(`UPDATE picksV3 SET pick_number = $1 WHERE draft_id = $2 AND round = $2 AND player_id = $4;`, [picksPerRound, draftId, i, participants[picksPerRound - 1]]);
+      await pool.query(`UPDATE picksV3 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`, [picksPerRound, draftId, i, participants[picksPerRound - 1]]);
       for (let j = 0; j < picksPerRound; j++) {
         // move pick j over 1
         await pool.query(`UPDATE picksV3 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`, [picksPerRound - j - 1, draftId, i, participants[j]]);
