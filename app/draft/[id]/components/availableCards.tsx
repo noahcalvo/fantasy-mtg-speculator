@@ -9,6 +9,7 @@ import {
 } from '@/app/lib/definitions';
 import Image from 'next/image';
 import { routeToCardPageById, routeToCardPageByName } from '@/app/lib/routing';
+import { makePick } from '@/app/lib/draft';
 
 type SortBy = 'price' | 'points';
 
@@ -89,7 +90,7 @@ export default function AvailableCards({
                   : 'bg-gray-500 text-white'
               }`}
               disabled={!activeDrafter}
-              onClick={() => makePickAPICall(draftId, playerId, card.name, set)}
+              onClick={() => makePick(draftId, playerId, card.name, set)}
             >
               Draft
             </button>
@@ -258,18 +259,18 @@ function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
   });
 }
 
-async function makePickAPICall(
-  draftId: number,
-  playerId: number,
-  cardName: string,
-  set: string,
-) {
-  const res = await fetch('/api/makePick', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ draftId, playerId, cardName, set }),
-  });
-  const json = await res.json();
-}
+// async function makePickAPICall(
+//   draftId: number,
+//   playerId: number,
+//   cardName: string,
+//   set: string,
+// ) {
+//   const res = await fetch('/api/makePick', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({ draftId, playerId, cardName, set }),
+//   });
+//   const json = await res.json();
+// }
