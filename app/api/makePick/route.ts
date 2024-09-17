@@ -6,7 +6,6 @@ let timerMap = new Map<number, NodeJS.Timeout>();
 async function startDraftWorker(draftId: number, set: string, playerId?: number, cardName?: string) {
   return new Promise<void>((resolve, reject) => {
     const worker = new Worker('/workers/worker.ts', { workerData: { draftId, set, playerId, cardName } });
-    console.log("hurr")
     worker.on('message', (message: any) => {
       console.log('Worker sent message:', message);
       if (message === 'done') {

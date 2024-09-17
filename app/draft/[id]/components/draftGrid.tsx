@@ -16,55 +16,51 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   );
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchPicks(draftId)
-        .then((newPicks) => {
-          if (JSON.stringify(newPicks) !== JSON.stringify(picks)) {
-            setPicks(newPicks);
+    const fetchData = async () => {
+      try {
+        const newPicks = await fetchPicks(draftId);
+        const draft = await fetchDraft(draftId);
+
+        if (!draft) {
+          notFound();
+        }
+
+        const participantIDs = draft.participants;
+        const participantsData =
+          await fetchMultipleParticipantData(participantIDs);
+
+        setPicks((prevPicks) => {
+          if (JSON.stringify(newPicks) !== JSON.stringify(prevPicks)) {
             const newRounds =
               Math.max(...newPicks.map((pick) => pick.round)) + 1;
-            if (newRounds !== rounds) {
-              setRounds(newRounds);
-            }
+            setRounds(newRounds);
             const newActivePick = getActivePick(newPicks);
-            if (
-              newActivePick?.pick_number !== activePick?.pick_number ||
-              newActivePick?.round !== activePick?.round
-            ) {
-              setActivePick(newActivePick);
-            }
+            setActivePick(newActivePick);
+            return newPicks;
           }
-        })
-        .catch((error) => {
-          console.error(error);
+          return prevPicks;
         });
-      fetchDraft(draftId)
-        .then((draft) => {
-          if (!draft) {
-            notFound();
-          }
 
-          const participantIDs = draft.participants;
-          fetchMultipleParticipantData(participantIDs)
-            .then((participantsData) => {
-              if (
-                JSON.stringify(participantsData) !==
-                JSON.stringify(participants)
-              ) {
-                setParticipants(participantsData);
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        })
-        .catch((error) => {
-          console.error(error);
+        setParticipants((prevParticipants) => {
+          if (
+            JSON.stringify(participantsData) !==
+            JSON.stringify(prevParticipants)
+          ) {
+            return participantsData;
+          }
+          return prevParticipants;
         });
-    }, 20000);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const interval = setInterval(fetchData, 20000);
+    fetchData(); // Initial fetch
 
     return () => clearInterval(interval);
-  }, [draftId, picks, rounds, activePick, participants]);
+  }, [draftId]);
+
   return (
     <div className="overflow-auto rounded-lg border-2 border-white">
       <table className="table-fixed divide-y divide-white rounded-lg">

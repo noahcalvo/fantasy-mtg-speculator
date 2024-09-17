@@ -1,8 +1,6 @@
 import { fetchDraft, fetchPicks, fetchUndrafterCards } from '@/app/lib/draft';
 import notFound from '../not-found';
-import {
-  fetchPlayerByEmail,
-} from '@/app/lib/player';
+import { fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
 import {

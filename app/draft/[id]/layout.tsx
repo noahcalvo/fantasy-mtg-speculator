@@ -23,8 +23,8 @@ export default async function Layout({
   return (
     <div>
       <main>
-        <div className="flex items-center p-2">
-          <div className="w-28">
+        <div className="flex w-full items-center p-2">
+          <div className="w-20">
             <Link
               href="/draft"
               className="rounded-md border border-white bg-white px-1 py-1 text-sm text-black transition-colors hover:bg-red-800 hover:text-white"
@@ -32,7 +32,10 @@ export default async function Layout({
               All drafts
             </Link>
           </div>
-          <DraftInfoHeader draft={draft} />
+          <div className="inline-flex flex-1 content-center justify-center text-center">
+            <DraftInfoHeader draft={draft} />
+          </div>
+          <div className="w-20"></div>
         </div>
         {children}
       </main>

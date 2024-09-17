@@ -17,7 +17,7 @@ def migrateTables(conn):
 
             # Migrate Drafts table
             migrate_drafts_table_query = """
-            INSERT INTO DraftsV4 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, last_pick_timestamp)
+            INSERT INTO DraftsV2 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, last_pick_timestamp)
             SELECT draft_id, league_id, participants, active, set, name, rounds, false, NOW() FROM DraftsV2;
             """
             cur.execute(migrate_drafts_table_query)
@@ -25,7 +25,7 @@ def migrateTables(conn):
 
             # Migrate Picks table
             migrate_picks_table_query = """
-            INSERT INTO PicksV5 (draft_id, player_id, pick_number, round, card_id)
+            INSERT INTO PicksV3 (draft_id, player_id, pick_number, round, card_id)
             SELECT draft_id, player_id, pick_number, round, card_id FROM PicksV3;
             """
             cur.execute(migrate_picks_table_query)
