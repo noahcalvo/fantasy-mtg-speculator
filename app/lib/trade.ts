@@ -1,7 +1,7 @@
 'use server';
 import { playerOwnsCards } from './collection';
 import pg from 'pg';
-import { fetchPlayerIdInLeague, fetchPlayersInLeague } from './leagues';
+import { fetchPlayerIdInLeague } from './leagues';
 import {
   CardDetails,
   TradeOffer,
@@ -188,6 +188,15 @@ export async function acceptTrade(
   leagueId: number,
 ) {
   try {
+    // check if trade is still pending
+    const tradeEntry = await pool.query(
+      'SELECT * FROM tradesV2 WHERE trade_id = $1 AND state = $2',
+      [trade.trade_id, 'pending'],
+    );
+    if (tradeEntry.rowCount === 0) {
+      console.error('Trade not found or not pending');
+      throw new Error(`Trade not found or not pending`);
+    }
     const tradeQuery =
       'UPDATE tradesV2 SET state = $1 WHERE trade_id = $2 AND recipient = $3';
     const res = await pool.query(tradeQuery, [

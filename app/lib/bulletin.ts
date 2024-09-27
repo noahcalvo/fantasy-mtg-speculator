@@ -54,13 +54,13 @@ export async function postBulletinItem(leagueId: number, message: string, player
         if (message.length === 0) {
             throw new Error('Message too short');
         }
-        if (playerId !== 0 ) {
+        if (playerId !== 0) {
             const isValidPlayer = await isPlayerInLeague(playerId, leagueId);
             if (!isValidPlayer) {
                 throw new Error('Player not in league');
             }
         }
-        await sql`INSERT INTO bulletinItems (league_id, player_id, message) VALUES (${leagueId}, ${playerId}, ${message}) RETURNING league_id;`;
+        await sql`INSERT INTO bulletinItemsV2 (league_id, player_id, message) VALUES (${leagueId}, ${playerId}, ${message}) RETURNING league_id;`;
         revalidatePath(`/league/${leagueId}/bulletin`);
     } catch (error) {
         console.error('Database Error:', error);

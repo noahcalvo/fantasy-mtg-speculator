@@ -143,7 +143,7 @@ export async function fetchCardPerformancesFromWeek(cardIds: number[], week: num
   }
 }
 
-export async function fetchLastFiveWeeksCardPerformance(cardId: number) {
+export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: number) {
   try {
     const data = await pool.query(
       `SELECT 
@@ -165,14 +165,14 @@ export async function fetchLastFiveWeeksCardPerformance(cardId: number) {
               LeaguePerformance LP ON PF.performance_id = LP.performance_id
         WHERE
             C.card_id = $1
-          AND PF.week >= (SELECT MAX(week) - 4 FROM Performance WHERE card_id = C.card_id)
+          AND PF.week >= (SELECT MAX(week) - $2 FROM Performance WHERE card_id = C.card_id)
           GROUP BY 
               C.card_id,
               C.name,
               PF.week
           ORDER BY
             PF.week;
-      `, [cardId]);
+      `, [cardId, weeks - 1]);
     // Convert points to numbers
     const convertedData = data.rows.map((row) => ({
       ...row,
@@ -180,7 +180,7 @@ export async function fetchLastFiveWeeksCardPerformance(cardId: number) {
     }));
     // Fill in missing weeks with zeros
     const filledData = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < weeks; i++) {
       const weekData = convertedData.find((row) => row.week === getCurrentWeek() - i);
       if (weekData) {
         filledData.push(weekData);
