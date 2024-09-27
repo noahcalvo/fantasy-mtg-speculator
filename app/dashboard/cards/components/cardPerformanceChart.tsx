@@ -1,6 +1,6 @@
 'use client';
 import { CardPoint } from '@/app/lib/definitions';
-import { fetchLastFiveWeeksCardPerformance } from '@/app/lib/performance';
+import { fetchLastNWeeksCardPerformance } from '@/app/lib/performance';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -14,11 +14,12 @@ const darkTheme = createTheme({
 export default function CardPerformanceChart({ cardId }: { cardId: number }) {
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
+  const [weeks, setWeeks] = useState(10);
 
   useEffect(() => {
     setCardDataLoading(true);
     const fetchData = async () => {
-      const result = await fetchLastFiveWeeksCardPerformance(cardId);
+      const result = await fetchLastNWeeksCardPerformance(cardId, weeks);
 
       setCardData(result);
       setCardDataLoading(false);
@@ -26,7 +27,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
     fetchData().catch((error) =>
       console.error('Failed to fetch card data:', error),
     );
-  }, [cardId]);
+  }, [cardId, weeks]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -56,6 +57,45 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
 
   return (
     <ThemeProvider theme={darkTheme}>
+      {/* offer selection of 5 weeks, 10 weeks, 20 weeks */}
+      <div className="flex justify-center space-x-4">
+        <label className="text-white">
+          <input
+            type="radio"
+            name="weeks"
+            value="5"
+            checked={weeks === 5}
+            onChange={() => setWeeks(5)}
+            disabled={cardDataLoading}
+            className="mr-1"
+          />
+          5 weeks
+        </label>
+        <label className="text-white">
+          <input
+            type="radio"
+            name="weeks"
+            value="10"
+            checked={weeks === 10}
+            onChange={() => setWeeks(10)}
+            disabled={cardDataLoading}
+            className="mr-1"
+          />
+          10 weeks
+        </label>
+        <label className="text-white">
+          <input
+            type="radio"
+            name="weeks"
+            value="20"
+            checked={weeks === 20}
+            onChange={() => setWeeks(20)}
+            disabled={cardDataLoading}
+            className="mr-1"
+          />
+          20 weeks
+        </label>
+      </div>{' '}
       <div className="-mx-4 block w-full rounded-md text-white">
         <div ref={containerRef} className="">
           {hasMounted && cardData?.length > 0 ? (

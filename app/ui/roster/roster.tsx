@@ -88,7 +88,7 @@ export default async function Roster({
               replacements={replacements}
               playerId={playerId}
               leagueId={league?.league_id ?? 0}
-              owner={owner}
+              owner={false}
             />
           );
         })}
