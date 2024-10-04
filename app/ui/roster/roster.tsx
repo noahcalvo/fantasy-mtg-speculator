@@ -17,9 +17,11 @@ import { fetchPlayerByEmail } from '@/app/lib/player';
 export default async function Roster({
   playerId,
   name,
+  owner,
 }: {
   playerId: number;
   name: string;
+  owner?: boolean;
 }) {
   const league = await fetchLeague(playerId);
   const roster = await fetchPlayerRosterWithDetails(
@@ -39,12 +41,6 @@ export default async function Roster({
     playerId,
     league?.league_id ?? 0,
   );
-
-  let owner = false;
-  const user = await auth().then((res) => res?.user);
-  const userEmail = user?.email || '';
-  const accountOwner = await fetchPlayerByEmail(userEmail);
-  owner = playerId == accountOwner.player_id;
 
   return (
     <div>
@@ -88,7 +84,7 @@ export default async function Roster({
               replacements={replacements}
               playerId={playerId}
               leagueId={league?.league_id ?? 0}
-              owner={false}
+              owner={owner ?? false}
             />
           );
         })}
