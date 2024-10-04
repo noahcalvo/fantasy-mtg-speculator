@@ -63,7 +63,7 @@ export default async function Page() {
         </div>
         <div className="grid grid-cols-1">
           <div className="rounded-md bg-white">
-            <Roster playerId={player.player_id} name={userName} />
+            <Roster playerId={player.player_id} name={userName} owner={true} />
             <Collection
               playerId={player.player_id}
               leagueId={leagueId}
