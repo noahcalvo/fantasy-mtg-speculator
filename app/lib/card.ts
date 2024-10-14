@@ -1,7 +1,7 @@
 'use server';
 
 import { sql } from "@vercel/postgres";
-import { Card, CardDetails, CardPoint } from "./definitions";
+import { Card, CardDetails } from "./definitions";
 
 export async function fetchCard(cardId: number): Promise<CardDetails> {
     let data;
@@ -30,17 +30,16 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     }
     try {
         const encodedName = encodeURIComponent(data.rows[0].name);
-        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`);
-
+        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const card = await response.json();
-        if (card.object === "error") {
+        const cardData = await response.json();
+        if (cardData.object === "error") {
             throw new Error(`Card not found: ${data.rows[0].name}`);
         }
-        const cardData = card.data[0];
+
         return {
             name: cardData.name,
             image: cardData.image_uris?.png ? [cardData.image_uris.png] : [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png],
@@ -92,16 +91,15 @@ export async function fetchCardId(cardName: string): Promise<number> {
 export async function fetchScryfallDataByCardName(cardName: string): Promise<CardDetails> {
     try {
         const encodedName = encodeURIComponent(cardName);
-        const response = await fetch(`https://api.scryfall.com/cards/search?q=is%3Afirstprint+${encodedName}`);
+        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const card = await response.json();
-        if (card.object === "error") {
+        const cardData = await response.json();
+        if (cardData.object === "error") {
             throw new Error(`Card not found: ${cardName}`);
         }
-        const cardData = card.data[0];
         const { name, prices, scryfall_uri, color_identity, type_line } = cardData;
         return {
             name,
@@ -113,7 +111,7 @@ export async function fetchScryfallDataByCardName(cardName: string): Promise<Car
             scryfallUri: scryfall_uri,
             colorIdentity: color_identity,
             typeLine: type_line,
-            set: card.set_name,
+            set: cardData.set_name,
             card_id: -1
         };
     } catch (error) {

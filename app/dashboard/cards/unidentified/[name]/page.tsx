@@ -1,8 +1,10 @@
-import { fetchCard, fetchScryfallDataByCardName } from '@/app/lib/card';
+import { fetchScryfallDataByCardName } from '@/app/lib/card';
 import { error } from 'console';
-import Image from 'next/image';
 import BackButton from '../../components/back-button';
 import GeneralCardDetails from '../../components/generalCardDetails';
+import CardSearchBar from '../../components/cardSearchBar';
+import OwnerShipDetails from '../../components/ownershipDetails';
+import CardPerformanceChart from '../../components/cardPerformanceChart';
 
 export default async function Page({ params }: { params: { name: string } }) {
   const name = decodeURIComponent(params.name);
@@ -13,9 +15,14 @@ export default async function Page({ params }: { params: { name: string } }) {
   }
   return (
     <div>
-      <BackButton />
-      <div className="flex items-center p-2 text-white">
+      <div className="flex justify-between">
+        <BackButton />
+        <CardSearchBar />
+      </div>
+      <div className="flex flex-col items-center p-2 text-white">
         <GeneralCardDetails cardDetails={cardDetails} />
+        <OwnerShipDetails cardId={-1} />
+        <CardPerformanceChart cardId={-1} />
       </div>
     </div>
   );
