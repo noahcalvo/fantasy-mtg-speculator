@@ -1,8 +1,16 @@
+import { fetchCardId } from './card';
+
 export function routeToCardPageById(cardId: number) {
   window.location.href = `/dashboard/cards/${cardId}`;
 }
 
-export function routeToCardPageByName(cardName: string) {
+export async function routeToCardPageByName(cardName: string) {
+  const cardId = await fetchCardId(cardName);
+  if (cardId != -1) {
+    console.log('cardId:', cardId);
+    routeToCardPageById(cardId);
+    return;
+  }
   const encodedCardName = encodeURIComponent(cardName);
   window.location.href = `/dashboard/cards/unidentified/${encodedCardName}`;
 }

@@ -11,8 +11,6 @@ import {
 } from '@/app/lib/collection';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { fetchLeague } from '@/app/lib/leagues';
-import { auth } from '@/auth';
-import { fetchPlayerByEmail } from '@/app/lib/player';
 
 export default async function Roster({
   playerId,

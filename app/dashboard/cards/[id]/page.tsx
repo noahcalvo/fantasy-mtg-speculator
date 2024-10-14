@@ -4,6 +4,7 @@ import BackButton from '../components/back-button';
 import GeneralCardDetails from '../components/generalCardDetails';
 import OwnerShipDetails from '../components/ownershipDetails';
 import CardPerformanceChart from '../components/cardPerformanceChart';
+import CardSearchBar from '../components/cardSearchBar';
 
 export default async function Page({ params }: { params: { id: string } }) {
   const cardId = parseInt(params.id);
@@ -17,7 +18,10 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
   return (
     <div>
-      <BackButton />
+      <div className="flex justify-between">
+        <BackButton />
+        <CardSearchBar />
+      </div>
       <div className="flex flex-col items-center p-2 text-white">
         <GeneralCardDetails cardDetails={cardDetails} />
         <OwnerShipDetails cardId={cardId} />
