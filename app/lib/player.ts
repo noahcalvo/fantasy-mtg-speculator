@@ -46,6 +46,6 @@ export async function fetchPlayerByEmail(email: string) {
     return data.rows[0];
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch drafts');
+    throw new Error('Failed to fetch player by email');
   }
 }
