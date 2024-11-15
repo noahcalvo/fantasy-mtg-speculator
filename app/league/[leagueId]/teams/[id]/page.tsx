@@ -9,7 +9,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <Roster playerId={playerId} name={playerData.name} />
+      <Roster playerId={playerId} name={playerData.name} multiColumn={true} />
     </div>
   );
 }

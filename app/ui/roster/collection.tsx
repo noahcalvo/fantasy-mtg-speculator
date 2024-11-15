@@ -1,8 +1,13 @@
 'use client';
 import { CardDetails, CardPerformances } from '@/app/lib/definitions';
 import { routeToCardPageById } from '@/app/lib/routing';
-import Image from 'next/image';
-import { useState } from 'react';
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@mui/material';
 
 export default function Collection({
   collection,
@@ -15,59 +20,45 @@ export default function Collection({
   mostRecentPoints: CardPerformances;
   secondMostRecentPoints: CardPerformances;
 }) {
-  const [selectedCard, setSelectedCard] = useState<CardDetails | null>(
-    collection[0],
-  );
-
   return (
-    <>
-      <h2 className="m-2 pl-5 text-xl">Full Collection</h2>
-      <div className="grid grid-cols-2">
-        <div className="mt-32 rounded-md bg-white">
-          <div className="flex flex-col items-center">
-            {collection.map((card, index) => (
-              <div
-                className="relative -mt-32 cursor-pointer transition hover:rotate-[15deg] hover:pl-5"
-                onClick={() => setSelectedCard(card)}
-                key={index}
+    <div className="rounded-md bg-white p-4">
+      <h2 className="text-xl">Full Collection</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell align="right">This week</TableCell>
+            <TableCell align="right">Last week</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {collection.map((card) => (
+            <TableRow
+              key={card.name}
+              onClick={() => routeToCardPageById(card.card_id)}
+              className="cursor-pointer hover:bg-gray-100"
+            >
+              <TableCell
+                component="th"
+                scope="row"
+                className="line-clamp-1 overflow-hidden"
               >
-                <Image
-                  src={card.image[0]}
-                  alt={card.name}
-                  className={`h-auto w-full rounded-md border-2 border-white `}
-                  width={100}
-                  height={100}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          {selectedCard && (
-            <Image
-              src={selectedCard.image[0]}
-              alt={selectedCard.name}
-              className="h-auto w-full cursor-pointer pr-2"
-              width={100}
-              height={100}
-              onClick={() => routeToCardPageById(selectedCard.card_id)}
-            />
-          )}
-          <div>
-            This week&apos;s points:{' '}
-            {mostRecentPoints.cards.find(
-              (element) => element.card_id === selectedCard?.card_id,
-            )?.total_points ?? '0'}
-          </div>
-
-          <div>
-            Last week&apos;s points:{' '}
-            {secondMostRecentPoints.cards.find(
-              (element) => element.card_id === selectedCard?.card_id,
-            )?.total_points ?? '0'}
-          </div>
-        </div>
-      </div>
-    </>
+                {card.name}
+              </TableCell>
+              <TableCell align="right">
+                {mostRecentPoints.cards.find(
+                  (element) => element.card_id === card?.card_id,
+                )?.total_points ?? '0'}
+              </TableCell>
+              <TableCell align="right">
+                {secondMostRecentPoints.cards.find(
+                  (element) => element.card_id === card?.card_id,
+                )?.total_points ?? '0'}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

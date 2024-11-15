@@ -16,10 +16,12 @@ export default async function Roster({
   playerId,
   name,
   owner,
+  multiColumn,
 }: {
   playerId: number;
   name: string;
   owner?: boolean;
+  multiColumn?: boolean;
 }) {
   const league = await fetchLeague(playerId);
   const roster = await fetchPlayerRosterWithDetails(
@@ -41,11 +43,11 @@ export default async function Roster({
   );
 
   return (
-    <div>
-      <p className="m-2 pl-5 text-xl">
-        <span className="font-bold text-red-900">{name}&apos;s</span> Roster
-      </p>
+    <div className="p-2">
       <div className="flex flex-wrap justify-around">
+        <p className="m-2 w-full text-xl">
+          <span className="font-bold text-red-900">{name}&apos;s</span> Roster
+        </p>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(
             (element) =>
@@ -73,17 +75,21 @@ export default async function Roster({
             );
           });
           return (
-            <LargeCard
-              position={position}
-              card={roster[position.toLowerCase()]}
+            <div
+              className={`h-22 relative mx-2 mb-2 w-full text-sm ${multiColumn ? 'sm:w-80' : ''}`}
               key={index}
-              scoreOne={points}
-              scoreTwo={secondPoints}
-              replacements={replacements}
-              playerId={playerId}
-              leagueId={league?.league_id ?? 0}
-              owner={owner ?? false}
-            />
+            >
+              <LargeCard
+                position={position}
+                card={roster[position.toLowerCase()]}
+                scoreOne={points}
+                scoreTwo={secondPoints}
+                replacements={replacements}
+                playerId={playerId}
+                leagueId={league?.league_id ?? 0}
+                owner={owner ?? false}
+              />
+            </div>
           );
         })}
       </div>

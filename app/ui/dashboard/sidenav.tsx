@@ -17,12 +17,12 @@ export default async function SideNav() {
   }
 
   return (
-    <div className="flex h-full flex-col px-3 py-4 md:px-2">
+    <div className="flex h-full flex-col p-6 pb-0 md:p-2">
       <Link
-        className="mb-2 h-28 items-end justify-start rounded-md bg-white md:h-40 hidden md:flex"
+        className="mb-2 hidden h-28 items-end justify-start rounded-md bg-white md:flex md:h-40"
         href="/"
       >
-        <div className="w-28 h-28 mb-2 ml-4 p-0 text-white md:w-40 md:mb-8 md:ml-0">
+        <div className="mb-2 ml-4 h-28 w-28 p-0 text-white md:mb-8 md:ml-0 md:w-40">
           <SpecLogo />
         </div>
       </Link>
@@ -35,7 +35,7 @@ export default async function SideNav() {
             await signOut();
           }}
         >
-          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border-black bg-white p-3 text-sm border font-medium hover:bg-red-800 hover:text-white hover:border-white md:flex-none md:justify-start md:p-2 md:px-3">
+          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-white p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3">
             <PowerIcon className="w-6" />
             <div className="hidden md:block">Sign Out</div>
           </button>

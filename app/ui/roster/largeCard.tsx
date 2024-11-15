@@ -60,10 +60,10 @@ export default function LargeCard({
   };
 
   return (
-    <div className="h-22 relative mx-2 mb-2 w-full text-sm sm:w-80">
+    <div>
       <div className="h-full w-full">
-        <div className="flex justify-center bg-black text-white">
-          <div>{position}</div>
+        <div className="flex justify-center">
+          <div className="bg-black px-4 text-white">{position}</div>
         </div>
         <div className="relative flex p-2">
           <div className="w-2/3">
@@ -73,8 +73,8 @@ export default function LargeCard({
             {card ? (
               <>
                 {selectedCard?.card_id === card.card_id ? (
-                  <div>
-                    <div className="mr-2 border border-gray-300">
+                  <div className="flex flex-col">
+                    <div className="m-auto w-32 border border-gray-300">
                       <div className="flex justify-center text-xs">
                         <div>week {scoreOne?.week}</div>
                       </div>
@@ -83,7 +83,7 @@ export default function LargeCard({
                       </p>
                     </div>
                     <div className="h-2" />
-                    <div className="mr-2 border border-gray-300">
+                    <div className="m-auto w-32 border border-gray-300">
                       <div className="flex justify-center text-xs">
                         <div>week {scoreTwo?.week}</div>
                       </div>

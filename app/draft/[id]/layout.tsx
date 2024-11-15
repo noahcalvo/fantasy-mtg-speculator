@@ -23,7 +23,7 @@ export default async function Layout({
   return (
     <div>
       <main>
-        <div className="flex w-full flex-wrap items-center gap-2 p-2">
+        <div className="mb-2 flex w-full flex-wrap items-center gap-2">
           <div className="w-20">
             <Link
               href="/draft"
