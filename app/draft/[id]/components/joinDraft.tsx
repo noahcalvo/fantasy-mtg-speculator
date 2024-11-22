@@ -17,12 +17,12 @@ const JoinDraft: React.FC<JoinDraftProps> = ({
     <div className="mx-2 mt-4">
       <button
         type="submit"
-        className="rounded border border-white bg-white px-4 py-2 text-black hover:bg-red-800 hover:text-white"
+        className="rounded border border-white bg-gray-50 px-4 py-2 text-black hover:bg-red-800 hover:text-white"
         onClick={() => joinDraft(draftId, playerId)}
       >
         Join Draft
       </button>
-      <span className="ml-4 mr-1 rounded-full border border-white bg-white py-1 pl-1 pr-[3px] text-black">
+      <span className="ml-4 mr-1 rounded-full border border-white bg-gray-50 py-1 pl-1 pr-[3px] text-black">
         {' '}
         {participants.length}{' '}
       </span>

@@ -86,7 +86,7 @@ export default function AvailableCards({
             <button
               className={`mx-2 mt-2 rounded-md border border-white p-2 text-black ${
                 activeDrafter
-                  ? 'bg-white hover:bg-red-800 hover:text-white'
+                  ? 'bg-gray-50 hover:bg-red-800 hover:text-white'
                   : 'bg-gray-500 text-white'
               }`}
               disabled={!activeDrafter}
@@ -137,7 +137,7 @@ export default function AvailableCards({
                   <button
                     id={type}
                     className={`m-1 rounded-md border px-1 py-1  text-sm
-                  ${filteredTypes.includes(type) ? 'border-white bg-red-800 text-white' : 'border-white bg-white text-black'}
+                  ${filteredTypes.includes(type) ? 'border-white bg-red-800 text-white' : 'border-white bg-gray-50 text-black'}
                 `}
                     onClick={() => {
                       if (filteredTypes.includes(type)) {

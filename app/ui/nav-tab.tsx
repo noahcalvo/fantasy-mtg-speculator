@@ -1,11 +1,19 @@
 import Link from 'next/link';
 
-export function DarkNavTab({ name, path, active }: { name: string; path: string; active: boolean; }) {
+export function DarkNavTab({
+  name,
+  path,
+  active,
+}: {
+  name: string;
+  path: string;
+  active: boolean;
+}) {
   return (
     <Link
       href={path}
-      className={`focus-visible:outline-white border border-white flex h-10 items-center rounded-t-lg px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
-      ${active ? 'bg-white text-black ' : 'bg-black text-white'}
+      className={`flex h-10 items-center rounded-t-lg border border-white px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white 
+      ${active ? 'bg-gray-50 text-black ' : 'bg-black text-white'}
         `}
     >
       {name}
@@ -13,12 +21,20 @@ export function DarkNavTab({ name, path, active }: { name: string; path: string;
   );
 }
 
-export function LightNavTab({ name, path, active }: { name: string; path: string; active: boolean; }) {
+export function LightNavTab({
+  name,
+  path,
+  active,
+}: {
+  name: string;
+  path: string;
+  active: boolean;
+}) {
   return (
     <Link
       href={path}
-      className={`focus-visible:outline-black border border-black flex h-10 items-center rounded-l-lg sm:rounded-t-lg sm:rounded-bl-none px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
-      ${active ? 'bg-black text-white ' : 'bg-white text-black'}
+      className={`flex h-10 items-center rounded-l-lg border border-black px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black sm:rounded-t-lg sm:rounded-bl-none 
+      ${active ? 'bg-black text-white ' : 'bg-gray-50 text-black'}
         `}
     >
       {name}

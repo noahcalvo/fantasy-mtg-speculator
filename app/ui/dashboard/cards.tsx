@@ -3,7 +3,7 @@ import {
   ClockIcon,
   UserGroupIcon,
   InboxIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const iconMap = {
@@ -11,7 +11,7 @@ const iconMap = {
   customers: UserGroupIcon,
   pending: ClockIcon,
   invoices: InboxIcon,
-  info: InformationCircleIcon
+  info: InformationCircleIcon,
 };
 
 export default async function CardWrapper() {
@@ -36,7 +36,7 @@ export function Card({
   value,
   type,
   paragraphSize,
-  headerSize
+  headerSize,
 }: {
   title: string;
   value: number | string;
@@ -45,19 +45,17 @@ export function Card({
   headerSize?: string;
 }) {
   const Icon = iconMap[type];
-  paragraphSize ? 'text-2xl' : ''
-  headerSize ? 'text-3xl' : ''
+  paragraphSize ? 'text-2xl' : '';
+  headerSize ? 'text-3xl' : '';
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm flex flex-col justify-between">
+    <div className="flex flex-col justify-between rounded-xl bg-gray-50 p-2 shadow-sm">
       <div className="flex p-2">
         {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
-        <h3 className="ml-2 font-medium"
-          style={{ fontSize: headerSize }}
-        >
+        <h3 className="ml-2 font-medium" style={{ fontSize: headerSize }}>
           {title}
         </h3>
       </div>
-      <div className='h-full bg-white flex flex-row items-center justify-center'>
+      <div className="flex h-full flex-row items-center justify-center bg-gray-50">
         <p
           className="truncate rounded-xl text-center"
           style={{ fontSize: paragraphSize }}

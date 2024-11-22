@@ -19,7 +19,7 @@ export default async function SideNav() {
   return (
     <div className="flex h-full flex-col p-6 pb-0 md:p-2">
       <Link
-        className="mb-2 hidden h-28 items-end justify-start rounded-md bg-white md:flex md:h-40"
+        className="mb-2 hidden h-28 items-end justify-start rounded-md bg-gray-50 md:flex md:h-40"
         href="/"
       >
         <div className="mb-2 ml-4 h-28 w-28 p-0 text-white md:mb-8 md:ml-0 md:w-40">
@@ -35,7 +35,7 @@ export default async function SideNav() {
             await signOut();
           }}
         >
-          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-white p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3">
+          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3">
             <PowerIcon className="w-6" />
             <div className="hidden md:block">Sign Out</div>
           </button>

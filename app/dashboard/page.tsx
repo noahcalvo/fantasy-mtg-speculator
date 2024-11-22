@@ -61,7 +61,7 @@ export default async function Page() {
           </div>
           <PointChart />
         </div>
-        <div className="row-span-2 rounded-md bg-white lg:col-span-2 lg:col-start-2 lg:row-start-1">
+        <div className="row-span-2 rounded-md bg-gray-50 lg:col-span-2 lg:col-start-2 lg:row-start-1">
           <Roster playerId={player.player_id} name={userName} owner={true} />
         </div>
         <div className="col-start-1 row-span-2">

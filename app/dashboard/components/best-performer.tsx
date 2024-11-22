@@ -31,7 +31,7 @@ export default async function BestPerformerBadge({
           Your Weekly{week} Best Performing Card
         </p>
       </div>
-      <div className="flex h-full flex-row items-center justify-center rounded-xl bg-white shadow-sm">
+      <div className="flex h-full flex-row items-center justify-center rounded-xl bg-gray-50 shadow-sm">
         {cardData?.image && (
           <ClickableCard
             source={cardData?.image[0]}

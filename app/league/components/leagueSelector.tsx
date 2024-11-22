@@ -41,7 +41,7 @@ export default function LeagueSelector({
           active={pathname === `/league/${leagueId}/bulletin`}
         />
       </div>
-      <div className="h-full bg-white text-black">{children}</div>
+      <div className="h-full bg-gray-50 text-black">{children}</div>
     </div>
   );
 }

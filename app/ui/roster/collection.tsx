@@ -21,7 +21,7 @@ export default function Collection({
   secondMostRecentPoints: CardPerformances;
 }) {
   return (
-    <div className="rounded-md bg-white p-4">
+    <div className="rounded-md bg-gray-50 p-4">
       <h2 className="text-xl">Full Collection</h2>
       <Table>
         <TableHead>

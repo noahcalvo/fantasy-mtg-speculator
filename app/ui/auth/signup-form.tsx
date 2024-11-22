@@ -11,16 +11,16 @@ import { Button } from '../button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createAccount } from '@/app/lib/accountAuth';
 
-export default function SignupForm() {  
+export default function SignupForm() {
   const [errorMessage, dispatch] = useFormState(createAccount, undefined);
 
   return (
-    <div className="flex-1 rounded-lg bg-white px-6 pb-4 pt-8">
+    <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
       <form action={dispatch} className="space-y-3">
         <div>
           <h1 className="mb-3 text-2xl">Welcome.</h1>
           <div className="w-full">
-          <div>
+            <div>
               <label
                 className="mb-3 mt-5 block text-xs font-medium text-black"
                 htmlFor="name"
@@ -29,7 +29,7 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:ring-red-800 focus:border-red-800"
+                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="name"
                   type="name"
                   name="name"
@@ -40,7 +40,7 @@ export default function SignupForm() {
               </div>
             </div>
 
-<div>
+            <div>
               <label
                 className="mb-3 mt-5 block text-xs font-medium text-black"
                 htmlFor="email"
@@ -49,7 +49,7 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:ring-red-800 focus:border-red-800"
+                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="email"
                   type="email"
                   name="email"
@@ -68,7 +68,7 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:ring-red-800 focus:border-red-800"
+                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="password"
                   type="password"
                   name="password"

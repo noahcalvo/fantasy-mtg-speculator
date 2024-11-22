@@ -130,7 +130,7 @@ export default function LargeCard({
       </div>
       {isModalVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-white p-4">
+          <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-gray-50 p-4">
             <h2 className="text-lg font-bold">
               Select a card to swap to your {position} slot
             </h2>
@@ -156,7 +156,7 @@ export default function LargeCard({
             <div className="flex justify-between">
               <button
                 onClick={cancel}
-                className="mt-4 rounded border border-black bg-white p-2 text-black"
+                className="mt-4 rounded border border-black bg-gray-50 p-2 text-black"
               >
                 Close
               </button>

@@ -27,7 +27,7 @@ export default async function Layout({
           <div className="w-20">
             <Link
               href="/draft"
-              className="rounded-md border border-white bg-white px-1 py-1 text-sm text-black transition-colors hover:bg-red-800 hover:text-white"
+              className="rounded-md border border-white bg-gray-50 px-1 py-1 text-sm text-black transition-colors hover:bg-red-800 hover:text-white"
             >
               All drafts
             </Link>

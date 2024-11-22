@@ -23,7 +23,7 @@ export default function CollectionCardCell({
   return (
     // add cardType to the card item
 
-    <div className="m-2 flex justify-between border border-gray-300 p-2 mt-[-">
+    <div className="mt-[- m-2 flex justify-between border border-gray-300 p-2">
       {card ? (
         <div className="flex w-full justify-between">
           <Image
@@ -47,7 +47,7 @@ export default function CollectionCardCell({
                 cardTypes.map((cardType) => (
                   <button
                     key={cardType}
-                    className={`w-15 mx-2 rounded-md border border-black bg-white 
+                    className={`w-15 mx-2 rounded-md border border-black bg-gray-50 
     p-2 text-sm text-black hover:bg-red-800 hover:text-white`}
                     disabled={false}
                     onClick={() =>
@@ -63,10 +63,10 @@ export default function CollectionCardCell({
                   </button>
                 ))}
               <button
-                className={`w-15 mx-2 rounded-md border border-black bg-white 
+                className={`w-15 mx-2 rounded-md border border-black bg-gray-50 
                   p-2 text-sm text-black hover:bg-red-800 hover:text-white`}
                 //   ${
-                //     activeDrafter ? 'bg-white hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
+                //     activeDrafter ? 'bg-gray-50 hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
                 //   }
                 disabled={false}
                 onClick={() =>
