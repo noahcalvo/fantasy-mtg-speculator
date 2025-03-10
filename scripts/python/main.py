@@ -8,6 +8,7 @@ from fish_scraper import extract_deck_list
 from stat_generator import generate_stats
 from add_origin import set_origin
 import sys
+from time import sleep
 
 import urllib3
 
@@ -43,6 +44,7 @@ def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
             if html_content:
                 deck_list_links = extract_deck_links(html_content, type)
                 for deck in deck_list_links:
+                    sleep(.5) # sleep to avoid rate limit
                     print("fetching deck list page:", "https://www.mtggoldfish.com"+deck[1])
                     deck_list_html = fetch_webpage("https://www.mtggoldfish.com"+deck[1])
 
