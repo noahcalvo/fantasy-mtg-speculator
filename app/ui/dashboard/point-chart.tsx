@@ -10,7 +10,7 @@ import {
   fetchTopWeeklyCardsFromSet,
 } from '@/app/lib/performance';
 import { RevenueChartSkeleton } from '../skeletons';
-import { getCurrentWeek } from '@/app/lib/utils';
+import { capitalize, getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
 import { Paper, ThemeProvider, colors, createTheme } from '@mui/material';
 import { routeToCardPageById } from '@/app/lib/routing';
@@ -47,7 +47,7 @@ export default function PointChart() {
   const weekParam = searchParams.get('week');
   const week = weekParam === '0' ? 0 : Number(weekParam) || getCurrentWeek();
   const set = searchParams.get('set') || '';
-  const format = searchParams.get('format') || 'modern';
+  const format = searchParams.get('format')?.toLowerCase() || 'modern';
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
 
@@ -78,7 +78,7 @@ export default function PointChart() {
     fetchData().catch((error) =>
       console.error('Failed to fetch card data:', error),
     );
-  }, [week, set]); // The effect depends on week and set passed in via props
+  }, [week, set, format]); // The effect depends on week, set, and format
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -143,8 +143,8 @@ export default function PointChart() {
           textAlign: 'center',
         }}
       >
-        <p>{axisData.y.value}</p>
-        <p>{series[0].data[axisData.y.index]}pts</p>
+        <p>{axisData?.y?.value}</p>
+        <p>{series[0]?.data[axisData?.y?.index]}pts</p>
       </Paper>
     );
   };
@@ -155,7 +155,8 @@ export default function PointChart() {
         {(cardDataLoading && <RevenueChartSkeleton />) || (
           <div className="text-xl">
             <h1 className="mb-2 text-center text-xl">
-              Top Performing Cards{set ? ` from ${set}` : ''} for week {week}
+              Top Performing Cards{set ? ` from ${set}` : ''} for week {week} in{' '}
+              {capitalize(format)}
             </h1>
 
             <div ref={containerRef} className="">
