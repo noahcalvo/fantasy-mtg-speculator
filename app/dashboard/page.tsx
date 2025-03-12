@@ -1,5 +1,5 @@
 import PointChart from '@/app/ui/dashboard/point-chart';
-import { WeekPicker, SetPicker } from '../ui/picker';
+import { WeekPicker, SetPicker, FormatPicker } from '../ui/picker';
 import Roster from '@/app/ui/roster/roster';
 import { auth } from '@/auth';
 import { fetchUniqueWeekNumbers } from '@/app/lib/performance';
@@ -58,6 +58,7 @@ export default async function Page() {
               availableWeeks={await fetchUniqueWeekNumbers()}
             />
             <SetPicker placeholder="All Sets" />
+            {/* <FormatPicker placeholder="Modern" /> */}
           </div>
           <PointChart />
         </div>

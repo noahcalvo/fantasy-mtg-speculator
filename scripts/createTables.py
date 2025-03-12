@@ -31,9 +31,9 @@ def createTables(conn):
             cur.execute(create_performance_table_query)
             print("Created 'performance' table")
 
-            # -- challenge performance table
-            create_challenge_performance_table_query = """
-            CREATE TABLE IF NOT EXISTS ChallengePerformance (
+            # -- performance tables
+            create_modern_challenge_performance_table_query = """
+            CREATE TABLE IF NOT EXISTS ModernChallengePerformance (
             performance_id INT PRIMARY KEY,
             champs INT,
             decks INT,
@@ -41,20 +41,42 @@ def createTables(conn):
             FOREIGN KEY (performance_id) REFERENCES Performance(performance_id)
             );
             """
-            cur.execute(create_challenge_performance_table_query)
-            print("Created 'challenge performance' table")
+            cur.execute(create_modern_challenge_performance_table_query)
+            print("Created 'modern challenge performance' table")
 
-            # -- league performance table
-            create_league_performance_table_query = """
-            CREATE TABLE IF NOT EXISTS LeaguePerformance (
+            create_standard_challenge_performance_table_query = """
+            CREATE TABLE IF NOT EXISTS StandardChallengePerformance (
+            performance_id INT PRIMARY KEY,
+            champs INT,
+            decks INT,
+            copies INT,
+            FOREIGN KEY (performance_id) REFERENCES Performance(performance_id)
+            );
+            """
+            cur.execute(create_standard_challenge_performance_table_query)
+            print("Created 'standard challenge performance' table")
+
+            create_modern_league_performance_table_query = """
+            CREATE TABLE IF NOT EXISTS ModernLeaguePerformance (
             performance_id INT PRIMARY KEY,
             decks INT,
             copies INT,
             FOREIGN KEY (performance_id) REFERENCES Performance(performance_id)
             );
             """
-            cur.execute(create_league_performance_table_query)
-            print("Created 'league performance' table")
+            cur.execute(create_modern_league_performance_table_query)
+            print("Created 'modern league performance' table")
+
+            create_standard_league_performance_table_query = """
+            CREATE TABLE IF NOT EXISTS StandardLeaguePerformance (
+            performance_id INT PRIMARY KEY,
+            decks INT,
+            copies INT,
+            FOREIGN KEY (performance_id) REFERENCES Performance(performance_id)
+            );
+            """
+            cur.execute(create_standard_league_performance_table_query)
+            print("Created 'standard league performance' table")
 
             # -- Users
             # create Users table query

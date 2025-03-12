@@ -12,8 +12,8 @@ export async function fetchCardPerformanceByWeek(
   const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points, PF.week
   FROM Cards C
   JOIN Performance PF ON C.card_id = PF.card_id
-  LEFT JOIN ChallengePerformance CP ON PF.performance_id = CP.performance_id
-  LEFT JOIN LeaguePerformance LP ON PF.performance_id = LP.performance_id
+  LEFT JOIN ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
+  LEFT JOIN ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
   WHERE PF.week = $1 AND C.card_id = ANY($2)
   GROUP BY C.card_id, C.name, PF.week`;
   let params = [week, collectionIDs];
@@ -105,9 +105,9 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number, lea
     JOIN 
         Performance PF ON C.card_id = PF.card_id
     LEFT JOIN 
-        ChallengePerformance CP ON PF.performance_id = CP.performance_id
+        ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
     LEFT JOIN 
-        LeaguePerformance LP ON PF.performance_id = LP.performance_id
+        ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
 
     WHERE
         O.player_id = ${playerId}
@@ -135,7 +135,7 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number, lea
 }
 
 export async function updateCollectionWithCompleteDraft(draftId: number) {
-  
+
   try {
     const leagueIdQuery = await sql`SELECT league_id FROM draftsV2 WHERE draft_id = ${draftId}`;
     const leagueId = leagueIdQuery.rows[0].league_id;
@@ -182,7 +182,7 @@ export async function playerOwnsCards(playerId: number, cardIds: number[], leagu
 }
 
 export async function fetchOwnership(leagueId: number, cardId: number): Promise<Player | null> {
-  
+
   try {
     const data = await sql`
         SELECT 

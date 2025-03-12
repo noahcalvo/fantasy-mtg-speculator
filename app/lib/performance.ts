@@ -12,32 +12,50 @@ const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
 });
 
+function getPerformanceTableNames(format: string) {
+  let challengeTable = '';
+  let leagueTable = '';
 
-export async function fetchTopCards() {
+  if (format === 'standard') {
+    challengeTable = 'StandardChallengePerformance';
+    leagueTable = 'StandardLeaguePerformance';
+  } else if (format === 'modern') {
+    challengeTable = 'ModernChallengePerformance';
+    leagueTable = 'ModernLeaguePerformance';
+  } else {
+    throw new Error('Invalid format specified');
+  }
+
+  return { challengeTable, leagueTable };
+}
+
+
+export async function fetchTopCards(format: string) {
   try {
+    const { challengeTable, leagueTable } = getPerformanceTableNames(format);
     const data = await pool.query(
       `SELECT 
-            Cards.card_id,
-            Cards.name,
-            SUM(
-                COALESCE(ChallengePerformance.champs * 5, 0) +
-                COALESCE(ChallengePerformance.copies * 0.5, 0) +
-                COALESCE(LeaguePerformance.copies * 0.25, 0)
-            ) AS total_points
-        FROM 
-            Cards
-        JOIN 
-            Performance ON Cards.card_id = Performance.card_id
-        LEFT JOIN 
-            ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
-        LEFT JOIN 
-            LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
-        GROUP BY 
-            Cards.card_id,
-            Cards.name
-        ORDER BY 
-            total_points DESC
-        LIMIT 15;
+        Cards.card_id,
+        Cards.name,
+        SUM(
+          COALESCE(${challengeTable}.champs * 5, 0) +
+          COALESCE(${challengeTable}.copies * 0.5, 0) +
+          COALESCE(${leagueTable}.copies * 0.25, 0)
+        ) AS total_points
+      FROM 
+        Cards
+      JOIN 
+        Performance ON Cards.card_id = Performance.card_id
+      LEFT JOIN 
+        ${challengeTable} ON Performance.performance_id = ${challengeTable}.performance_id
+      LEFT JOIN 
+        ${leagueTable} ON Performance.performance_id = ${leagueTable}.performance_id
+      GROUP BY 
+        Cards.card_id,
+        Cards.name
+      ORDER BY 
+        total_points DESC
+      LIMIT 15;
     `);
     // Convert points to numbers
     const convertedData = data.rows.map((row) => ({
@@ -71,9 +89,9 @@ export async function fetchCardPerformances(cardIds: number[]): Promise<CardPoin
       JOIN 
           Performance PF ON C.card_id = PF.card_id
       LEFT JOIN 
-          ChallengePerformance CP ON PF.performance_id = CP.performance_id
+          ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
       LEFT JOIN 
-          LeaguePerformance LP ON PF.performance_id = LP.performance_id
+          ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
     WHERE
         C.card_id = ANY($1::int[])
       AND PF.week = (
@@ -118,9 +136,9 @@ export async function fetchCardPerformancesFromWeek(cardIds: number[], week: num
     JOIN 
         Performance PF ON C.card_id = PF.card_id
     LEFT JOIN 
-        ChallengePerformance CP ON PF.performance_id = CP.performance_id
+        ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
     LEFT JOIN 
-        LeaguePerformance LP ON PF.performance_id = LP.performance_id
+        ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
   WHERE
       C.card_id = ANY($1::int[])
     AND PF.week = $2
@@ -160,9 +178,9 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
           JOIN 
               Performance PF ON C.card_id = PF.card_id
           LEFT JOIN 
-              ChallengePerformance CP ON PF.performance_id = CP.performance_id
+              ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
           LEFT JOIN 
-              LeaguePerformance LP ON PF.performance_id = LP.performance_id
+              ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
         WHERE
             C.card_id = $1
           AND PF.week >= (SELECT MAX(week) - $2 FROM Performance WHERE card_id = C.card_id)
@@ -200,26 +218,28 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
   }
 }
 
-export async function fetchTopWeeklyCards(week: number) {
+export async function fetchTopWeeklyCards(week: number, format: string) {
   try {
+    const { challengeTable, leagueTable } = getPerformanceTableNames(format);
+    console.log("yoyo", challengeTable, leagueTable);
     const data = await pool.query(
       `
         SELECT 
             Cards.card_id,
             Cards.name,
             SUM(
-                COALESCE(ChallengePerformance.champs * 5, 0) +
-                COALESCE(ChallengePerformance.copies * 0.5, 0) +
-                COALESCE(LeaguePerformance.copies * 0.25, 0)
+                COALESCE(${challengeTable}.champs * 5, 0) +
+                COALESCE(${challengeTable}.copies * 0.5, 0) +
+                COALESCE(${leagueTable}.copies * 0.25, 0)
             ) AS total_points
         FROM 
             Cards
         JOIN 
             Performance ON Cards.card_id = Performance.card_id
         LEFT JOIN 
-            ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
+            ${challengeTable} ON Performance.performance_id = ${challengeTable}.performance_id
         LEFT JOIN 
-            LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
+            ${leagueTable} ON Performance.performance_id = ${leagueTable}.performance_id
         WHERE 
             Performance.week = $1
         GROUP BY 
@@ -235,6 +255,7 @@ export async function fetchTopWeeklyCards(week: number) {
       ...row,
       total_points: Number(row.total_points),
     }));
+    console.log(convertedData)
     return convertedData;
   } catch (error) {
     console.error('Database Error:', error);
@@ -242,27 +263,27 @@ export async function fetchTopWeeklyCards(week: number) {
   }
 }
 
-export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
+export async function fetchTopWeeklyCardsFromSet(week: number, set: string, format: string) {
   try {
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    const { challengeTable, leagueTable } = getPerformanceTableNames(format);
     const data = await pool.query(
       `
         SELECT 
             Cards.card_id,
             Cards.name,
             SUM(
-                COALESCE(ChallengePerformance.champs * 5, 0) +
-                COALESCE(ChallengePerformance.copies * 0.5, 0) +
-                COALESCE(LeaguePerformance.copies * 0.25, 0)
+                COALESCE(${challengeTable}.champs * 5, 0) +
+                COALESCE(${challengeTable}.copies * 0.5, 0) +
+                COALESCE(${leagueTable}.copies * 0.25, 0)
             ) AS total_points
         FROM 
             Cards
         JOIN 
             Performance ON Cards.card_id = Performance.card_id
         LEFT JOIN 
-            ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
+            ${challengeTable} ON Performance.performance_id = ${challengeTable}.performance_id
         LEFT JOIN 
-            LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
+            ${leagueTable} ON Performance.performance_id = ${leagueTable}.performance_id
         WHERE 
             Performance.week = $1 AND Cards.origin = $2
         GROUP BY 
@@ -284,26 +305,26 @@ export async function fetchTopWeeklyCardsFromSet(week: number, set: string) {
   }
 }
 
-export async function fetchTopCardsFromSet(set: string) {
+export async function fetchTopCardsFromSet(set: string, format: string) {
   try {
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    const { challengeTable, leagueTable } = getPerformanceTableNames(format);
     const data = await pool.query(`
           SELECT 
               Cards.card_id,
               Cards.name,
               SUM(
-                  COALESCE(ChallengePerformance.champs * 5, 0) +
-                  COALESCE(ChallengePerformance.copies * 0.5, 0) +
-                  COALESCE(LeaguePerformance.copies * 0.25, 0)
+                  COALESCE(${challengeTable}.champs * 5, 0) +
+                  COALESCE(${challengeTable}.copies * 0.5, 0) +
+                  COALESCE(${leagueTable}.copies * 0.25, 0)
               ) AS total_points
           FROM 
               Cards
           JOIN 
               Performance ON Cards.card_id = Performance.card_id
           LEFT JOIN 
-              ChallengePerformance ON Performance.performance_id = ChallengePerformance.performance_id
+              ${challengeTable} ON Performance.performance_id = ${challengeTable}.performance_id
           LEFT JOIN 
-              LeaguePerformance ON Performance.performance_id = LeaguePerformance.performance_id
+              ${leagueTable} ON Performance.performance_id = ${leagueTable}.performance_id
           WHERE 
             Cards.origin = $1
           GROUP BY 

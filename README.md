@@ -25,7 +25,7 @@ FOREIGN KEY (card_id) REFERENCES Cards(card_id),
 UNIQUE (card_id, week)
 );
 
-CREATE TABLE ChallengePerformance (
+CREATE TABLE ModernChallengePerformance (
 performance_id INT PRIMARY KEY,
 champs INT,
 decks INT,
@@ -33,7 +33,7 @@ copies INT,
 FOREIGN KEY (performance_id) REFERENCES Performance(performance_id)
 );
 
-CREATE TABLE LeaguePerformance (
+CREATE TABLE ModernLeaguePerformance (
 performance_id INT PRIMARY KEY,
 decks INT,
 copies INT,

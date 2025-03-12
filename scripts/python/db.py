@@ -33,7 +33,7 @@ def connect_to_database():
 #     except Error as e:
 #         print("Error inserting points data:", e)
 
-def insert_stats(db_connection, card_stats, week, price):
+def insert_stats(db_connection, card_stats, week, format, price):
     with db_connection.cursor() as cur:
         # Insert cards into Cards table if they don't exist
         double_faced_revised_dir = {}
@@ -74,9 +74,19 @@ def insert_stats(db_connection, card_stats, week, price):
             
             performance_id = cur.fetchone()[0]
 
+            if format == "modern":
+                challenge_table = "ModernChallengePerformance"
+                league_table = "ModernLeaguePerformance"
+            elif format == "standard":
+                challenge_table = "StandardChallengePerformance"
+                league_table = "StandardLeaguePerformance"
+            else:
+                print("Invalid format", format)
+                return
+
             # Insert corresponding challenge performance entry
-            cur.execute("""
-                INSERT INTO ChallengePerformance (performance_id, champs, decks, copies) VALUES (%s, %s, %s, %s)
+            cur.execute(f"""
+                INSERT INTO {challenge_table} (performance_id, champs, decks, copies) VALUES (%s, %s, %s, %s)
                 ON CONFLICT (performance_id)
                 DO UPDATE SET champs = EXCLUDED.champs, decks = EXCLUDED.decks, copies = EXCLUDED.copies;
             """, (
@@ -90,8 +100,8 @@ def insert_stats(db_connection, card_stats, week, price):
             # Note: If stats['league_copies'] == 0 you might want to skip this.
             
             if stats.get('league_copies', 0) > 0:
-                cur.execute("""
-                    INSERT INTO LeaguePerformance(performance_id, decks ,copies) VALUES(%s,%s,%s)
+                cur.execute(f"""
+                    INSERT INTO {league_table} (performance_id, decks ,copies) VALUES(%s,%s,%s)
                     ON CONFLICT (performance_id)
                     DO UPDATE SET decks = EXCLUDED.decks, copies = EXCLUDED.copies;
                 """, (

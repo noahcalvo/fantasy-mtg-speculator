@@ -7,6 +7,18 @@ load_dotenv()  # take environment variables from .env.
 def migrateTables(conn):
     try:
         with conn.cursor() as cur:
+            # Migrate performance tables to the modern tables
+            migrate_performance_table_query = """
+            INSERT INTO ModernChallengePerformance (performance_id, champs, decks, copies)
+            SELECT performance_id, champs, decks, copies FROM ChallengePerformance;
+
+
+            INSERT INTO ModernLeaguePerformance (performance_id, decks, copies)
+            SELECT performance_id, decks, copies FROM LeaguePerformance;
+            """
+            cur.execute(migrate_performance_table_query)
+            print("Migrated performance tables")
+
             # # Migrate Ownership table
             # migrate_ownership_table_query = """
             # INSERT INTO OwnershipV3 (player_id, card_id, league_id)
@@ -16,20 +28,20 @@ def migrateTables(conn):
             # print("Migrated 'ownership' table")
 
             # Migrate Drafts table
-            migrate_drafts_table_query = """
-            INSERT INTO DraftsV2 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, last_pick_timestamp)
-            SELECT draft_id, league_id, participants, active, set, name, rounds, false, NOW() FROM DraftsV2;
-            """
-            cur.execute(migrate_drafts_table_query)
-            print("Migrated 'drafts' table")
+            # migrate_drafts_table_query = """
+            # INSERT INTO DraftsV2 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, last_pick_timestamp)
+            # SELECT draft_id, league_id, participants, active, set, name, rounds, false, NOW() FROM DraftsV2;
+            # """
+            # cur.execute(migrate_drafts_table_query)
+            # print("Migrated 'drafts' table")
 
             # Migrate Picks table
-            migrate_picks_table_query = """
-            INSERT INTO PicksV3 (draft_id, player_id, pick_number, round, card_id)
-            SELECT draft_id, player_id, pick_number, round, card_id FROM PicksV3;
-            """
-            cur.execute(migrate_picks_table_query)
-            print("Migrated 'picks' table")
+            # migrate_picks_table_query = """
+            # INSERT INTO PicksV3 (draft_id, player_id, pick_number, round, card_id)
+            # SELECT draft_id, player_id, pick_number, round, card_id FROM PicksV3;
+            # """
+            # cur.execute(migrate_picks_table_query)
+            # print("Migrated 'picks' table")
 
             # # Migrate Rosters table
             # migrate_rosters_table_query = """

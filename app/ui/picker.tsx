@@ -163,3 +163,50 @@ function getWeekStrings(weeks: number[]) {
     return { label: `week ${week} - ${dateString}`, week };
   });
 }
+
+const formats = ['Modern', 'Standard'];
+
+export function FormatPicker({ placeholder }: { placeholder: string }) {
+  const [format, setFormat] = useState<string>();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  useEffect(() => {
+    const initialFormat = searchParams.get('format') ?? 'modern';
+    setFormat(initialFormat);
+  }, [searchParams]);
+
+  const handleSearch = useDebouncedCallback((set) => {
+    const params = new URLSearchParams(searchParams);
+    if (set) {
+      params.set('format', set);
+    } else {
+      params.delete('set');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
+  return (
+    <div className="relative inline-block flex-shrink-0">
+      <label htmlFor="formatPicker" className="sr-only">
+        Format Picker
+      </label>
+      <select
+        id="formatPicker"
+        className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+        onChange={(e) => {
+          handleSearch(e.target.value);
+        }}
+        defaultValue={format}
+      >
+        {formats.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+    </div>
+  );
+}
