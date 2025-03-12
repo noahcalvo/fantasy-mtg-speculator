@@ -47,6 +47,7 @@ export default function PointChart() {
   const weekParam = searchParams.get('week');
   const week = weekParam === '0' ? 0 : Number(weekParam) || getCurrentWeek();
   const set = searchParams.get('set') || '';
+  const format = searchParams.get('format') || 'modern';
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
 
@@ -55,13 +56,13 @@ export default function PointChart() {
     const fetchData = async () => {
       let result;
       if (typeof week === 'undefined' && set === '') {
-        result = await fetchTopCards();
+        result = await fetchTopCards(format);
       } else if (typeof week === 'undefined') {
-        result = await fetchTopCardsFromSet(set);
+        result = await fetchTopCardsFromSet(set, format);
       } else if (set === '') {
-        result = await fetchTopWeeklyCards(week);
+        result = await fetchTopWeeklyCards(week, format);
       } else {
-        result = await fetchTopWeeklyCardsFromSet(week, set);
+        result = await fetchTopWeeklyCardsFromSet(week, set, format);
       }
 
       // change each cardName to be only 18 characters

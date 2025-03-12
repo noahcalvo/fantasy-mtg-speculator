@@ -10,8 +10,8 @@ def dropTables(conn):
             # Drop the "points" table if it exists
             # cur.execute("DROP TABLE IF EXISTS Cards CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Performance CASCADE;")
-            # cur.execute("DROP TABLE IF EXISTS ChallengePerformance;")
-            # cur.execute("DROP TABLE IF EXISTS LeaguePerformance;")
+            # cur.execute("DROP TABLE IF EXISTS ModernChallengePerformance;")
+            # cur.execute("DROP TABLE IF EXISTS ModernLeaguePerformance;")
             # # cur.execute("DROP TABLE IF EXISTS Players CASCADE;")
             # cur.execute("DROP TABLE IF EXISTS Ownership;")
             # cur.execute("DROP TABLE IF EXISTS Users CASCADE;")

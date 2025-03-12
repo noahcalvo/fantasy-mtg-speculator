@@ -12,8 +12,8 @@ def createTables(conn):
             # Drop the "points" table if it exists
             cur.execute("DROP TABLE IF EXISTS Cards CASCADE;")
             cur.execute("DROP TABLE IF EXISTS Performance CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS ChallengePerformance;")
-            cur.execute("DROP TABLE IF EXISTS LeaguePerformance;")
+            cur.execute("DROP TABLE IF EXISTS ModernChallengePerformance;")
+            cur.execute("DROP TABLE IF EXISTS ModernLeaguePerformance;")
             cur.execute("DROP TABLE IF EXISTS Players CASCADE;")
             cur.execute("DROP TABLE IF EXISTS Ownership;")
             cur.execute("DROP TABLE IF EXISTS weeksPerformance;")
@@ -43,7 +43,7 @@ def createTables(conn):
 
             # -- challenge table
             create_challenge_performance_table_query = """
-            CREATE TABLE ChallengePerformance (
+            CREATE TABLE ModernChallengePerformance (
             performance_id INT,
             champs INT,
             decks INT,
@@ -56,7 +56,7 @@ def createTables(conn):
 
             # create league performance table query
             create_league_performance_table_query = """
-            CREATE TABLE LeaguePerformance (
+            CREATE TABLE ModernLeaguePerformance (
             performance_id INT,
             decks INT,
             copies INT,
@@ -134,13 +134,13 @@ def seedData(conn):
 
             for league_entry in league_performance_seed:
                 # This query will select 'performance_id' while joining on card name and week
-                # Then it will use these details to insert into LeaguePerformance table
+                # Then it will use these details to insert into ModernLeaguePerformance table
                 insert_league_query = """
                 WITH perf_data AS (
                     SELECT p.performance_id FROM Performance p
                     INNER JOIN Cards c ON c.card_id = p.card_id AND c.name = %s WHERE p.week = %s
                 )
-                INSERT INTO LeaguePerformance (performance_id, decks, copies)
+                INSERT INTO ModernLeaguePerformance (performance_id, decks, copies)
                 SELECT perf_data.performance_id, %s, %s FROM perf_data;
                 """
 
@@ -152,13 +152,13 @@ def seedData(conn):
             
             for challenge_entry in challenge_performance_seed:
                 # This query will select 'performance_id' while joining on card name and week
-                # Then it will use these details to insert into ChallengePerformance table
+                # Then it will use these details to insert into ModernChallengePerformance table
                 insert_challenge_query = """
                 WITH perf_data AS (
                     SELECT p.performance_id FROM Performance p
                     INNER JOIN Cards c ON c.card_id = p.card_id AND c.name = %s WHERE p.week = %s
                 )
-                INSERT INTO ChallengePerformance (performance_id, champs, decks, copies)
+                INSERT INTO ModernChallengePerformance (performance_id, champs, decks, copies)
                 SELECT perf_data.performance_id, %s, %s, %s FROM perf_data;
                 """
 

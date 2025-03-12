@@ -4,13 +4,13 @@ from bs4 import BeautifulSoup
 
 STARTDATE = "04/08/2024"
 
-def create_url(week, name, page=1):
+def create_url(week, name, format, page=1):
     date_range = create_date_range_string(week)
     base_url = "https://www.mtggoldfish.com/tournament_searches/create"
     query_parameters = {
         "utf8": "✓",
         "tournament_search[name]": name,
-        "tournament_search[format]": "modern",
+        "tournament_search[format]": format,
         "tournament_search[date_range]": date_range,
         "commit": "Search",
         "page": page

@@ -20,16 +20,19 @@ class ResultType:
 
 base_url = "https://www.mtggoldfish.com"
 
-def scrape_tournaments(type, combined_stats_dict, week_to_scrape):
-    print("Scraping", type, "for week", week_to_scrape)
+def scrape_tournaments(type, format, combined_stats_dict, week_to_scrape):
+    print("Scraping", format, type, "for week", week_to_scrape)
+    key = (type, format)
     searchKeyword = {
-        "challenge": "Modern Challenge",
-        "league": "Modern League"
-    }.get(type)
+        ("challenge", "modern"): "Modern Challenge",
+        ("league", "modern"): "Modern League",
+        ("challenge", "standard"): "Standard Challenge",
+        ("league", "standard"): "Standard League"
+    }.get(key)
 
     page = 1
     while True:
-        tournements_url = create_url(week_to_scrape, searchKeyword, page)
+        tournements_url = create_url(week_to_scrape, searchKeyword, format, page)
         print("fetching tournement list page:", tournements_url)
         this_weeks_tournements_html = fetch_webpage(tournements_url)
         if not this_weeks_tournements_html:
@@ -68,25 +71,26 @@ weeks_to_scrape = [get_last_week_number()]
 if(len(sys.argv) > 1):
     weeks_to_scrape = list(map(int, sys.argv[1:]))
 
-for week_to_scrape in weeks_to_scrape:    
-    combined_stats_dict = {} # Initialize an empty dictionary to store combined points for the week
-    scrape_tournaments("league", combined_stats_dict, week_to_scrape)
-    scrape_tournaments("challenge", combined_stats_dict, week_to_scrape)
-            
-    # Sort the combined_stats_dict by league_copies in descending order
-    sorted_stats = sorted(combined_stats_dict.items(), key=lambda item: item[1]['league_copies'], reverse=True)
+for week_to_scrape in weeks_to_scrape:
+    for format in ["modern", "standard"]:
+        combined_stats_dict = {} # Initialize an empty dictionary to store combined points for the week
+        scrape_tournaments("league", format, combined_stats_dict, week_to_scrape)
+        scrape_tournaments("challenge", format, combined_stats_dict, week_to_scrape)
 
-    # Print the top 5 cards
-    print("Top 20 cards of the week from league copies number:")
-    for i in range(min(20, len(sorted_stats))):
-        print(f"{i+1}. {sorted_stats[i][0]}: {sorted_stats[i][1]['league_copies']} copies")
+        # Sort the combined_stats_dict by league_copies in descending order
+        sorted_stats = sorted(combined_stats_dict.items(), key=lambda item: item[1]['league_copies'], reverse=True)
 
-    # Connect to the database
-    connection = connect_to_database()
-    if connection:
-        # Assuming combined_points_dict is your dictionary of card -> points
-        insert_stats(connection, combined_stats_dict, week_to_scrape, 0)  # Assuming the week starts on 04/08/2024
-        connection.close()  # Close the database connection when done
+        # Print the top 5 cards
+        print("Top 20 cards of the week from league copies number:")
+        for i in range(min(20, len(sorted_stats))):
+            print(f"{i+1}. {sorted_stats[i][0]}: {sorted_stats[i][1]['league_copies']} copies")
+
+        # Connect to the database
+        connection = connect_to_database()
+        if connection:
+            # Assuming combined_points_dict is your dictionary of card -> points
+            insert_stats(connection, combined_stats_dict, week_to_scrape, format, 0)  # Assuming the week starts on 04/08/2024
+            connection.close()  # Close the database connection when done
     
     
 conn = connect_to_database()
