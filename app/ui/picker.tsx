@@ -1,13 +1,13 @@
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
 import { EPOCH } from '../consts';
 import { DarkNavTab } from './nav-tab';
-import { getCurrentWeek } from '../lib/utils';
+import { capitalize, getCurrentWeek } from '../lib/utils';
 
 export function SetPicker({ placeholder }: { placeholder: string }) {
   const [sets, setSets] = useState<string[]>([]);
@@ -164,7 +164,7 @@ function getWeekStrings(weeks: number[]) {
   });
 }
 
-const formats = ['Modern', 'Standard'];
+const formats = ['modern', 'standard'];
 
 export function FormatPicker({ placeholder }: { placeholder: string }) {
   const [format, setFormat] = useState<string>();
@@ -177,12 +177,13 @@ export function FormatPicker({ placeholder }: { placeholder: string }) {
     setFormat(initialFormat);
   }, [searchParams]);
 
-  const handleSearch = useDebouncedCallback((set) => {
+  const handleSearch = useDebouncedCallback((format) => {
     const params = new URLSearchParams(searchParams);
-    if (set) {
-      params.set('format', set);
+    const standardizedFormat = format.toLowerCase();
+    if (standardizedFormat) {
+      params.set('format', standardizedFormat);
     } else {
-      params.delete('set');
+      params.delete('format');
     }
     replace(`${pathname}?${params.toString()}`);
   }, 300);
@@ -202,7 +203,7 @@ export function FormatPicker({ placeholder }: { placeholder: string }) {
       >
         {formats.map((option, index) => (
           <option key={index} value={option}>
-            {option}
+            {capitalize(option)}
           </option>
         ))}
       </select>

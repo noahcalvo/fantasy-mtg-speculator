@@ -78,3 +78,7 @@ export function getCurrentWeek() {
   const weekNo = diffWeeks - 1;
   return weekNo;
 }
+
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

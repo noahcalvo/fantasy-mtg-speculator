@@ -58,7 +58,7 @@ export default async function Page() {
               availableWeeks={await fetchUniqueWeekNumbers()}
             />
             <SetPicker placeholder="All Sets" />
-            {/* <FormatPicker placeholder="Modern" /> */}
+            <FormatPicker placeholder="Modern" />
           </div>
           <PointChart />
         </div>
