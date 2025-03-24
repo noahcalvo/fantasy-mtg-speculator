@@ -84,10 +84,10 @@ export default function AvailableCards({
               }}
             />
             <button
-              className={`mx-2 mt-2 rounded-md border border-white p-2 text-black ${
+              className={`mx-2 mt-2 rounded-md border border-white p-2 text-gray-950 ${
                 activeDrafter
-                  ? 'bg-gray-50 hover:bg-red-800 hover:text-white'
-                  : 'bg-gray-500 text-white'
+                  ? 'bg-gray-50 hover:bg-red-800 hover:text-gray-50'
+                  : 'bg-gray-500 text-gray-50'
               }`}
               disabled={!activeDrafter}
               onClick={() => makePick(draftId, playerId, card.name, set)}
@@ -118,7 +118,7 @@ export default function AvailableCards({
 
   return (
     <div className="h-full items-center justify-center overflow-auto border-2 border-white">
-      <div className="h-full w-full overflow-auto rounded-lg p-5 text-white shadow-md">
+      <div className="h-full w-full overflow-auto rounded-lg p-5 text-gray-50 shadow-md">
         <div className="mb-1 grid grid-cols-2">
           <h1 className="text-2xl font-bold lg:text-3xl">Available Cards</h1>
           <input
@@ -126,7 +126,7 @@ export default function AvailableCards({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search cards"
-            className="border-white px-2 py-1 text-black focus:border-red-800 focus:ring-red-800"
+            className="border-white px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-wrap">
@@ -137,7 +137,7 @@ export default function AvailableCards({
                   <button
                     id={type}
                     className={`m-1 rounded-md border px-1 py-1  text-sm
-                  ${filteredTypes.includes(type) ? 'border-white bg-red-800 text-white' : 'border-white bg-gray-50 text-black'}
+                  ${filteredTypes.includes(type) ? 'border-white bg-red-800 text-gray-50' : 'border-white bg-gray-50 text-gray-950'}
                 `}
                     onClick={() => {
                       if (filteredTypes.includes(type)) {
@@ -156,7 +156,7 @@ export default function AvailableCards({
           )}
           <div className="inline">
             <button
-              className="m-1 rounded-md border border-white bg-red-800  px-1 py-1 text-sm text-white"
+              className="m-1 rounded-md border border-white bg-red-800  px-1 py-1 text-sm text-gray-50"
               onClick={() =>
                 setSortedBy(sortedBy === 'price' ? 'points' : 'price')
               }

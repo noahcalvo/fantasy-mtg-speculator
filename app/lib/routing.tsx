@@ -7,7 +7,6 @@ export function routeToCardPageById(cardId: number) {
 export async function routeToCardPageByName(cardName: string) {
   const cardId = await fetchCardId(cardName);
   if (cardId != -1) {
-    console.log('cardId:', cardId);
     routeToCardPageById(cardId);
     return;
   }

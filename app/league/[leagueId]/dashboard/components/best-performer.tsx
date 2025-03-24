@@ -22,16 +22,16 @@ export default async function BestPerformerBadge({
     : 'no data';
   const cardData = await fetchCard(collectionPerformance[0]?.card_id);
   return (
-    <div className="flex flex-col rounded-xl bg-gray-50 p-2 shadow-sm">
+    <div className="flex flex-col rounded-xl bg-gray-950 p-2 text-gray-50 shadow-sm">
       <div className="flex p-2">
         <div className="w-5">
-          <StarIcon className="h-5 w-5 text-gray-700" />
+          <StarIcon className="h-5 w-5" />
         </div>
         <p className="ml-2 text-sm font-medium">
           Your Weekly{week} Best Performing Card
         </p>
       </div>
-      <div className="flex h-full flex-row items-center justify-center rounded-xl bg-gray-50 shadow-sm">
+      <div className="flex h-full flex-row items-center justify-center rounded-xl shadow-sm">
         {cardData?.image && (
           <ClickableCard
             source={cardData?.image[0]}

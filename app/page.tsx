@@ -11,8 +11,8 @@ import {
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col bg-black p-6">
-      <div className="flex shrink-0 items-end rounded-lg bg-white px-2">
+    <main className="flex min-h-screen flex-col bg-gray-950 p-6">
+      <div className="flex shrink-0 items-end rounded-lg bg-gray-50 px-2">
         <SpecLogo />
       </div>
       <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
@@ -32,7 +32,7 @@ export default function Page() {
           </div>
           <Link
             href="/login"
-            className="flex items-center gap-5 self-start rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-red-800 md:text-base"
+            className="flex items-center gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-sm font-medium text-gray-50 transition-colors hover:bg-red-800 md:text-base"
           >
             <span>Sign up (or log in)</span>
             <ArrowRightIcon className="w-5 md:w-6" />

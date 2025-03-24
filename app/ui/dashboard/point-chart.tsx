@@ -151,7 +151,7 @@ export default function PointChart() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className="block rounded-md text-white">
+      <div className="block rounded-md text-gray-50">
         {(cardDataLoading && <RevenueChartSkeleton />) || (
           <div className="text-xl">
             <h1 className="mb-2 text-center text-xl">

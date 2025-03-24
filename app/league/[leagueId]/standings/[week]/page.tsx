@@ -18,7 +18,7 @@ export default async function Page({
         : parseInt(params.week, 10);
 
   return (
-    <main className="mb-4 p-2">
+    <main className="mb-4 rounded-b-lg bg-gray-950 p-2 pb-1">
       <div>
         <Standings leagueId={leagueId} week={week} />
       </div>

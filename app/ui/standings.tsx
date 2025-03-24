@@ -34,7 +34,7 @@ export default async function Standings({
   const lastPosition = sortedPointsArray.length - 1;
 
   return (
-    <div>
+    <div className="text-gray-50">
       <div className="ml-4 text-xl font-bold">
         {week > 0
           ? `Week ${week} League Standings`

@@ -12,7 +12,7 @@ export default async function Page({
 
   const week = getCurrentWeek();
   return (
-    <main className="mb-4 p-2">
+    <main className="mb-4 bg-gray-950 p-2">
       <div>
         <Standings leagueId={leagueId} week={week} />
       </div>

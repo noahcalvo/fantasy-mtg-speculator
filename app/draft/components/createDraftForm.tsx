@@ -28,7 +28,7 @@ export default function CreateDraftForm({
       action={dispatch}
       className="flex flex-col gap-y-2 border bg-gray-50 p-4"
     >
-      <h2 className="text-xl text-black md:text-2xl">Create New Draft</h2>
+      <h2 className="text-xl text-gray-950 md:text-2xl">Create New Draft</h2>
       <div className="flex flex-col gap-x-2 gap-y-2 lg:flex-row">
         <div className="flex flex-col gap-x-2 gap-y-2 xl:flex-row">
           <select
@@ -63,7 +63,7 @@ export default function CreateDraftForm({
 
           <button
             type="submit"
-            className="rounded border bg-black px-4 py-2 text-white hover:border-white hover:bg-red-800 hover:text-white"
+            className="rounded border bg-gray-950 px-4 py-2 text-gray-50 hover:border-white hover:bg-red-800 hover:text-gray-50"
           >
             Create
           </button>

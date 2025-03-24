@@ -69,7 +69,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
             {participants.map((participant, index) => (
               <th
                 key={index}
-                className="no-scrollbar text-responsive overflow-auto rounded-lg border-2 border-white bg-black px-1 py-2 text-center text-xs capitalize text-white"
+                className="no-scrollbar text-responsive overflow-auto rounded-lg border-2 border-white bg-gray-950 px-1 py-2 text-center text-xs capitalize text-gray-50"
               >
                 <div className="w-24">{participant.name}</div>
               </th>

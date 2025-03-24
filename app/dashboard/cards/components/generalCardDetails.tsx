@@ -7,8 +7,8 @@ export default function GeneralCardDetails({
   cardDetails: CardDetails;
 }) {
   return (
-    <div className="flex flex-col items-start text-white">
-      <div className="my-2 flex flex-col items-center text-white">
+    <div className="flex flex-col items-start text-gray-50">
+      <div className="my-2 flex flex-col items-center text-gray-50">
         {cardDetails.image.length > 1 ? (
           <div className="flex">
             <div className="flex items-center">

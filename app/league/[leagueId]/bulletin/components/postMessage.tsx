@@ -30,7 +30,7 @@ export default function PostMessage({
         className="mr-2 rounded p-2"
         placeholder="Type your message here..."
       />
-      <button type="submit" className="rounded bg-red-900 p-2 text-white">
+      <button type="submit" className="rounded bg-red-900 p-2 text-gray-50">
         Send
       </button>
     </form>

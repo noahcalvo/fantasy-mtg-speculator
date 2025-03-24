@@ -22,7 +22,7 @@ export default function SignupForm() {
           <div className="w-full">
             <div>
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-black"
+                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
                 htmlFor="name"
               >
                 Name
@@ -42,7 +42,7 @@ export default function SignupForm() {
 
             <div>
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-black"
+                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
                 htmlFor="email"
               >
                 Email
@@ -61,7 +61,7 @@ export default function SignupForm() {
             </div>
             <div className="mt-4">
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-black"
+                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
                 htmlFor="password"
               >
                 Password

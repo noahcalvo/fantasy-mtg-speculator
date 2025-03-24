@@ -8,20 +8,16 @@ import {
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-export async function fetchLeague(userId: number): Promise<League | null> {
+export async function fetchLeagues(userId: number): Promise<League[]> {
   try {
     const data = await sql<League>`
       SELECT * FROM leaguesV3
       WHERE ${userId} = ANY (participants);
       `;
     if (data.rows.length === 0) {
-      console.log(`No leagues found for ${userId}`);
-      return null;
+      return [];
     }
-    if (data.rows.length > 1) {
-      throw new Error(`Uh oh. Multiple leagues found for ${userId}`);
-    }
-    return data.rows[0];
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch leagues for ${userId}`);
@@ -34,7 +30,6 @@ export async function fetchAllLeagues() {
         SELECT * FROM leaguesV3;
           `;
     if (data.rows.length === 0) {
-      console.log('No leagues found');
       return null;
     }
     return data.rows;
@@ -50,7 +45,6 @@ export async function fetchAllOpenLeagues() {
         SELECT * FROM leaguesV3 WHERE open = true;
           `;
     if (data.rows.length === 0) {
-      console.log('No leagues found');
       return null;
     }
     return data.rows;
@@ -125,7 +119,7 @@ export async function createLeague(leagueName: string, userId: number) {
 export async function fetchPlayersInLeague(
   leagueId: number,
 ): Promise<Player[]> {
-  
+
   try {
     const data = await sql<Player>`
     SELECT p.name, p.email, p.player_id
@@ -149,7 +143,7 @@ export async function fetchPlayersInLeague(
 export async function fetchPlayerIdInLeague(
   leagueId: number,
 ): Promise<number[]> {
-  
+
   try {
     const data = await sql`
     SELECT participants FROM leaguesV3 WHERE league_id=${leagueId} LIMIT 1;`;

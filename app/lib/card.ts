@@ -30,7 +30,7 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     }
     try {
         const encodedName = encodeURIComponent(data.rows[0].name);
-        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
+        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`, { cache: 'force-cache' });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

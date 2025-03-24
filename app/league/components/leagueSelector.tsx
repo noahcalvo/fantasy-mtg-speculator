@@ -1,47 +1,48 @@
 'use client';
-import { DarkNavTab } from '@/app/ui/nav-tab';
-import { usePathname } from 'next/navigation';
-
-const standingsUrlRegex = /^\/league\/\d+\/standings(?:\/\d+)?$/;
+import { League } from '@/app/lib/definitions';
+import { useRouter, usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LeagueSelector({
-  leagueId,
-  playerId,
-  children,
+  joinedLeagues,
 }: {
-  leagueId: number;
-  playerId: number;
-  children?: React.ReactNode;
+  joinedLeagues: League[];
 }) {
-  const pathname = usePathname();
-  const leagueMatch = new RegExp(`/league/${leagueId}/teams(/.*)?`).test(
-    pathname,
-  );
+  const router = useRouter();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // get the path and see if leagueid is already set
+  const currentPath = usePathname();
+  const currentLeagueId = currentPath.match(/\/league\/(\d+)/)?.[1];
+  // turn leagueId into a number
+  const currentLeagueIdNumber = currentLeagueId
+    ? parseInt(currentLeagueId)
+    : -1;
+  const currentLeagueName = joinedLeagues.find(
+    (league) => league.league_id === currentLeagueIdNumber,
+  )?.name;
+
   return (
-    <div>
-      <div className="mt-4 flex">
-        <DarkNavTab
-          name="Teams"
-          path={`/league/${leagueId}/teams/${playerId}`}
-          active={leagueMatch}
-        />
-        <DarkNavTab
-          name="Standings"
-          path={`/league/${leagueId}/standings`}
-          active={standingsUrlRegex.test(pathname)}
-        />
-        <DarkNavTab
-          name="Trade"
-          path={`/league/${leagueId}/trade`}
-          active={pathname === `/league/${leagueId}/trade`}
-        />
-        <DarkNavTab
-          name="Bulletin"
-          path={`/league/${leagueId}/bulletin`}
-          active={pathname === `/league/${leagueId}/bulletin`}
-        />
-      </div>
-      <div className="h-full bg-gray-50 text-black">{children}</div>
+    <div className="relative">
+      <button
+        className="text-border-white font-bold text-red-900 underline"
+        onClick={() => setIsDropdownOpen((prev) => !prev)}
+      >
+        {currentLeagueName || 'Select League'}
+      </button>
+      {isDropdownOpen && (
+        <div className="absolute mt-2 rounded bg-gray-800 p-2 shadow-lg">
+          {joinedLeagues.map((league) => (
+            <a
+              key={league.league_id}
+              href={`/league/${league.league_id}/standings`}
+              className="block cursor-pointer rounded p-1 text-gray-50 hover:bg-gray-700"
+            >
+              {league.name}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -48,7 +48,7 @@ export default function CollectionCardCell({
                   <button
                     key={cardType}
                     className={`w-15 mx-2 rounded-md border border-black bg-gray-50 
-    p-2 text-sm text-black hover:bg-red-800 hover:text-white`}
+    p-2 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50`}
                     disabled={false}
                     onClick={() =>
                       playPositionSlot(
@@ -64,9 +64,9 @@ export default function CollectionCardCell({
                 ))}
               <button
                 className={`w-15 mx-2 rounded-md border border-black bg-gray-50 
-                  p-2 text-sm text-black hover:bg-red-800 hover:text-white`}
+                  p-2 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50`}
                 //   ${
-                //     activeDrafter ? 'bg-gray-50 hover:bg-red-800 hover:text-white' : 'bg-gray-500 text-white'
+                //     activeDrafter ? 'bg-gray-50 hover:bg-red-800 hover:text-gray-50' : 'bg-gray-500 text-gray-50'
                 //   }
                 disabled={false}
                 onClick={() =>

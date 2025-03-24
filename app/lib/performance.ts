@@ -5,6 +5,7 @@ import pg from 'pg';
 import { fetchAllLeagues, fetchPlayersInLeague } from './leagues';
 import { getCurrentWeek } from './utils';
 import { fetchPlayerRoster } from './rosters';
+import { revalidatePath } from 'next/cache';
 
 const { Pool } = pg;
 
@@ -161,35 +162,37 @@ export async function fetchCardPerformancesFromWeek(cardIds: number[], week: num
   }
 }
 
-export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: number) {
+export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: number, format: string) {
   try {
+    const { challengeTable, leagueTable } = getPerformanceTableNames(format);
     const data = await pool.query(
       `SELECT 
-          C.card_id, 
-          C.name, 
+          Cards.card_id, 
+          Cards.name, 
           SUM(
-              COALESCE(CP.champs * 5, 0) +
-              COALESCE(CP.copies * 0.5, 0) +
-              COALESCE(LP.copies * 0.25, 0)
+            COALESCE(${challengeTable}.champs * 5, 0) +
+            COALESCE(${challengeTable}.copies * 0.5, 0) +
+            COALESCE(${leagueTable}.copies * 0.25, 0)
           ) AS total_points,
-          PF.week
-          FROM
-          Cards C
-          JOIN 
-              Performance PF ON C.card_id = PF.card_id
-          LEFT JOIN 
-              ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
-          LEFT JOIN 
-              ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
-        WHERE
-            C.card_id = $1
-          AND PF.week >= (SELECT MAX(week) - $2 FROM Performance WHERE card_id = C.card_id)
-          GROUP BY 
-              C.card_id,
-              C.name,
-              PF.week
-          ORDER BY
-            PF.week;
+          Performance.week
+      FROM
+          Cards
+      JOIN 
+          Performance ON Cards.card_id = Performance.card_id
+      LEFT JOIN 
+          ${challengeTable} ON Performance.performance_id = ${challengeTable}.performance_id
+      LEFT JOIN 
+          ${leagueTable} ON Performance.performance_id = ${leagueTable}.performance_id
+      WHERE
+          Cards.card_id = $1
+      AND 
+          Performance.week >= (SELECT MAX(week) - $2 FROM Performance WHERE card_id = Cards.card_id)
+      GROUP BY 
+          Cards.card_id,
+          Cards.name,
+          Performance.week
+      ORDER BY
+          Performance.week;
       `, [cardId, weeks - 1]);
     // Convert points to numbers
     const convertedData = data.rows.map((row) => ({
@@ -221,7 +224,6 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
 export async function fetchTopWeeklyCards(week: number, format: string) {
   try {
     const { challengeTable, leagueTable } = getPerformanceTableNames(format);
-    console.log("yoyo", challengeTable, leagueTable);
     const data = await pool.query(
       `
         SELECT 
@@ -255,7 +257,6 @@ export async function fetchTopWeeklyCards(week: number, format: string) {
       ...row,
       total_points: Number(row.total_points),
     }));
-    console.log(convertedData)
     return convertedData;
   } catch (error) {
     console.error('Database Error:', error);
@@ -467,6 +468,7 @@ async function initWeeklyPerformnceRoster(week: number) {
       for (let player of players) {
         const roster = await fetchPlayerRoster(player.player_id, leagueId);
         await upsertWeeklyTeamPerformance(leagueId, roster, week, player.player_id, 0);
+        revalidatePath(`/league/${leagueId}/teams/${player.player_id}`);
       }
     }
   }
@@ -476,7 +478,6 @@ export async function runMondayTask() {
   try {
     const week = getCurrentWeek();
     const lastWeek = week - 1
-
     await updateWeeklyPerformance(lastWeek);
     await initWeeklyPerformnceRoster(week);
   } catch (error) {

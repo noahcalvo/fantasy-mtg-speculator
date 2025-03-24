@@ -42,7 +42,7 @@ export function LightLoading() {
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only text-white">Loading...</span>
+      <span className="sr-only text-gray-50">Loading...</span>
     </div>
   );
 }

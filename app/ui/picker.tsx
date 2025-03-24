@@ -6,7 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { toZonedTime, format } from 'date-fns-tz';
 import { fetchRecentSets } from '../lib/sets';
 import { EPOCH } from '../consts';
-import { DarkNavTab } from './nav-tab';
+import { DarkNavTab, LightNavTab } from './nav-tab';
 import { capitalize, getCurrentWeek } from '../lib/utils';
 
 export function SetPicker({ placeholder }: { placeholder: string }) {
@@ -118,12 +118,12 @@ export function WeekPickerRouter({
   return (
     <div>
       <div className="mt-4 flex">
-        <DarkNavTab
+        <LightNavTab
           name="all weeks"
           path={`/league/${leagueId}/standings/alltime`}
           active={pathname === `/league/${leagueId}/standings/alltime`}
         />
-        <DarkNavTab
+        <LightNavTab
           name={`${currentWeek}`}
           path={`/league/${leagueId}/standings`}
           active={
@@ -137,7 +137,7 @@ export function WeekPickerRouter({
           availableWeeks.map((week) => {
             if (week === currentWeek) return null;
             return (
-              <DarkNavTab
+              <LightNavTab
                 key={week}
                 name={`${week}`}
                 path={`/league/${leagueId}/standings/${week}`}
