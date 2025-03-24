@@ -25,7 +25,7 @@ export default function LeagueSelector({
   return (
     <div className="relative">
       <button
-        className="text-border-white font-bold text-red-900 underline"
+        className="text-border-gray-950 font-bold text-red-900 underline"
         onClick={() => setIsDropdownOpen((prev) => !prev)}
       >
         {currentLeagueName || 'Select League'}

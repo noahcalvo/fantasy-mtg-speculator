@@ -42,7 +42,7 @@ export default async function Standings({
       </div>
       {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
         let className =
-          'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-white';
+          'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-gray-950';
         let emojiText = '   ';
         if (sortedPointsArray[0][1].thisWeek == 0) emojiText = ' ';
         else if (

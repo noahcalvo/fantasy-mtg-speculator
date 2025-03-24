@@ -32,7 +32,7 @@ export default async function BestPerformerBadge({
         </p>
       </div>
       <div className="flex h-full flex-row items-center justify-center rounded-xl shadow-sm">
-        {cardData?.image && (
+        {cardData?.image.length > 0 && (
           <ClickableCard
             source={cardData?.image[0]}
             id={collectionPerformance[0]?.card_id}

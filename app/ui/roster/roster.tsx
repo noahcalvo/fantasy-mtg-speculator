@@ -10,25 +10,22 @@ import {
   fetchPlayerCollectionWithDetails,
 } from '@/app/lib/collection';
 import { getCurrentWeek } from '@/app/lib/utils';
-import { fetchLeagues } from '@/app/lib/leagues';
 import { EmptyPositionPlaceholder } from './largeCard';
 
 export default async function Roster({
   playerId,
-  name,
   owner,
   multiColumn,
+  leagueId,
+  name,
 }: {
   playerId: number;
-  name: string;
   owner?: boolean;
   multiColumn?: boolean;
+  leagueId: number;
+  name?: string;
 }) {
-  const league = await fetchLeagues(playerId);
-  const roster = await fetchPlayerRosterWithDetails(
-    playerId,
-    league[0]?.league_id ?? 0,
-  );
+  const roster = await fetchPlayerRosterWithDetails(playerId, leagueId);
   const cardIds = getCardIdsFromMap(roster);
   const week = getCurrentWeek();
   const mostRecentPoints = await fetchCardPerformanceByWeek(cardIds, week);
@@ -38,15 +35,14 @@ export default async function Roster({
   );
   const positions = getRosterPositions();
 
-  const collection = await fetchPlayerCollectionWithDetails(
-    playerId,
-    league[0]?.league_id ?? 0,
-  );
+  const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
 
   return (
     <div className="p-2 text-gray-50">
       <div className="flex flex-wrap justify-around">
-        <p className="m-2 w-full text-xl">My roster</p>
+        <p className="m-2 w-full text-xl">
+          {owner ? 'My' : name ? name + "'s" : "Somebody's"} roster
+        </p>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(
             (element) =>
@@ -86,7 +82,7 @@ export default async function Roster({
                   scoreTwo={secondPoints}
                   replacements={replacements}
                   playerId={playerId}
-                  leagueId={league[0]?.league_id ?? 0}
+                  leagueId={leagueId}
                   owner={owner ?? false}
                 />
               ) : (
@@ -94,7 +90,7 @@ export default async function Roster({
                   position={position}
                   owner={owner ?? false}
                   playerId={playerId}
-                  leagueId={league[0]?.league_id ?? 0}
+                  leagueId={leagueId}
                   replacements={replacements}
                 />
               )}

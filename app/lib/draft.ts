@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { updateCollectionWithCompleteDraft } from './collection';
-import { isCommissioner } from './leagues';
+import { fetchLeague, isCommissioner } from './leagues';
 import { fetchOwnedCards, fetchSet } from './sets';
 import { fetchCardName } from './card';
 import pg from 'pg';
@@ -36,8 +36,8 @@ export type State = {
   message?: string | null;
 };
 
-export async function createDraft(prevState: State, formData: FormData, league_id: number, playerId: number, auto_draft: boolean = false) {
-  const commissioner = await isCommissioner(playerId, league_id);
+export async function createDraft(prevState: State, formData: FormData, leagueId: number, playerId: number, auto_draft: boolean = false) {
+  const commissioner = await isCommissioner(playerId, leagueId);
   if (!commissioner) {
     return {
       errors: {
@@ -66,13 +66,13 @@ export async function createDraft(prevState: State, formData: FormData, league_i
 
   let resp;
   try {
-    resp = await pool.query(`INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING draft_id;`, [set, true, rounds, name, [], league_id]);
+    resp = await pool.query(`INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING draft_id;`, [set, true, rounds, name, [], leagueId]);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to create draft for {set}');
   }
-  revalidatePath('/draft');
-  redirect(`/draft/${resp.rows[0].draft_id}/view`);
+  revalidatePath(`/league/${leagueId}/draft`);
+  redirect(`/league/${leagueId}/draft/${resp.rows[0].draft_id}/view`);
 };
 
 const fetchAllDrafts = async (leagueId: number): Promise<Draft[]> => {
@@ -112,36 +112,41 @@ export const fetchDraft = async (draftId: number): Promise<Draft> => {
   }
 }
 
-export const joinDraft = async (draftId: number, playerId: number): Promise<void> => {
+export const joinDraft = async (draftId: number, playerId: number, leagueId: number): Promise<void> => {
   try {
     // Check if the player is already a participant
-    const draftResult = await pool.query(`SELECT participants, active FROM draftsV2 WHERE draft_id = $1;`, [draftId]);
+    const draftResult = await pool.query(`SELECT participants, active FROM draftsV2 WHERE draft_id = $1 AND league_id = $2;`, [draftId, leagueId]);
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
     }
+
     if (!draftResult.rows[0].active) {
       throw new Error('Draft not active');
     }
     const participants = draftResult.rows[0].participants;
     if (participants.includes(playerId)) {
       console.log('Player is already a participant');
-    } else {
-      await pool.query(`UPDATE draftsV2 SET participants = array_append(participants, $1) WHERE draft_id = $2;`, [playerId, draftId]);
-      await addPicks(draftId, playerId);
-      await snakePicks(draftId);
-      revalidatePath(`/draft/${draftId}/view`);
-      revalidatePath(`/draft`);
+      return
     }
-
+    // Check if player belongs to the league
+    const leagueResult = await fetchLeague(leagueId);
+    if (!leagueResult.participants.includes(playerId)) {
+      throw new Error('Player not in league');
+    }
+    await pool.query(`UPDATE draftsV2 SET participants = array_append(participants, $1) WHERE draft_id = $2;`, [playerId, draftId]);
+    await addPicks(draftId, playerId);
+    await snakePicks(draftId);
+    revalidatePath(`/league/${leagueId}/draft/${draftId}/view`);
+    revalidatePath(`league/${leagueId}/draft`);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to join draft');
   } finally {
-    redirect(`/draft/${draftId}/live`);
+    redirect(`/league/${leagueId}/draft/${draftId}/live`);
   }
 }
 
-export const redirectIfJoined = async (participants: number[], playerId: number, draftId: number) => {
+export const redirectIfJoined = async (participants: number[], playerId: number, draftId: number, leagueId: number) => {
   let shouldRedirect = false;
   try {
     if (participants.includes(playerId)) {
@@ -152,7 +157,7 @@ export const redirectIfJoined = async (participants: number[], playerId: number,
     throw new Error('Failed to check if already joined draft');
   } finally {
     if (shouldRedirect) {
-      redirect(`/draft/${draftId}/live`);
+      redirect(`/league/${leagueId}/draft/${draftId}/live`);
     }
   }
 }
@@ -195,7 +200,6 @@ const snakePicks = async (draftId: number) => {
 export const fetchPicks = async (draftId: number) => {
   try {
     const res = await pool.query<DraftPick>(`SELECT * FROM picksV3 WHERE draft_id = $1;`, [draftId]);
-    revalidatePath(`/draft/${draftId}/live`);
     return res.rows;
   } catch (error) {
     console.error('Database Error:', error);
@@ -214,7 +218,7 @@ export const fetchAvailableCards = async (cards: CardDetails[], draftId: number)
   }
 }
 
-export async function makePick(draftId: number, playerId: number, cardName: string, set: string) {
+export async function makePick(draftId: number, playerId: number, cardName: string, set: string, leagueId: number) {
   console.error('Making pick:', draftId, playerId, cardName, set);
   console.error('using pool:', pool);
   try {
@@ -233,7 +237,7 @@ export async function makePick(draftId: number, playerId: number, cardName: stri
       await pool.query(`UPDATE draftsV2 SET active = false WHERE draft_id = ${draftId};`);
       await updateCollectionWithCompleteDraft(draftId);
     }
-    revalidatePath(`/draft/${draftId}/live`);
+    revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to make pick');

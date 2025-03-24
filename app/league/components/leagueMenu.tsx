@@ -19,7 +19,7 @@ export default function LeagueMenu({
   );
   return (
     <div>
-      <div className="mt-4 flex max-w-full overflow-x-auto">
+      <div className="flex max-w-full overflow-x-auto">
         <DarkNavTab
           name="My Team"
           path={`/league/${leagueId}/dashboard`}
@@ -45,8 +45,13 @@ export default function LeagueMenu({
           path={`/league/${leagueId}/bulletin`}
           active={pathname === `/league/${leagueId}/bulletin`}
         />
+        <DarkNavTab
+          name="Draft"
+          path={`/league/${leagueId}/draft`}
+          active={pathname === `/league/${leagueId}/draft`}
+        />
       </div>
-      <div className="h-full bg-gray-50 text-gray-950">{children}</div>
+      <div className="bg-gray-50 text-gray-950">{children}</div>
     </div>
   );
 }

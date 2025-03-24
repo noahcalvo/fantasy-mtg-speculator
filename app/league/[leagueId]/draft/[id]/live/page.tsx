@@ -12,7 +12,12 @@ import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchCardPerformances } from '@/app/lib/performance';
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: { leagueId: string; id: string };
+}) {
+  const leagueId = parseInt(params.leagueId);
   const user = await auth().then((res) => res?.user);
   const player = await fetchPlayerByEmail(user?.email || '');
 
@@ -20,12 +25,12 @@ export default async function Page({ params }: { params: { id: string } }) {
   // convert draftId to number
   const draftId = parseInt(draftIdString, 10);
   if (isNaN(draftId)) {
-    notFound();
+    notFound(leagueId);
   }
 
   const draft = await fetchDraft(draftId);
   if (!draft) {
-    notFound();
+    notFound(leagueId);
   }
 
   const picks = await fetchPicks(draftId);
@@ -74,6 +79,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           activeDrafter={activeDrafter == player.player_id}
           draftId={draft.draft_id}
           set={draft.set}
+          leagueId={leagueId}
         />
       </div>
     </main>

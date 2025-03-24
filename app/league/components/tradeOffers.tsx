@@ -121,13 +121,13 @@ function Trade({
             <div className="text-center">
               <button
                 onClick={() => acceptTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
+                className="m-2 rounded-md border border-gray-50 bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
               >
                 Accept Trade
               </button>
               <button
                 onClick={() => declineTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1 text-sm text-gray-50 hover:border-red-400"
+                className="m-2 rounded-md border border-gray-50 bg-red-800 px-1 py-1 text-sm text-gray-50 hover:border-red-400"
               >
                 Decline Trade
               </button>
@@ -136,7 +136,7 @@ function Trade({
             <div className="text-center">
               <button
                 onClick={() => revokeTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
+                className="m-2 rounded-md border border-gray-50 bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
               >
                 Revoke
               </button>

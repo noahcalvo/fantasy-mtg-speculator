@@ -12,7 +12,7 @@ export function DarkNavTab({
   return (
     <Link
       href={path}
-      className={`flex h-10 items-center rounded-t-lg border border-white px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white 
+      className={`flex h-10 items-center rounded-t-lg border border-gray-50 px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-950 
       ${active ? 'bg-gray-50 text-gray-950' : 'bg-gray-950 text-gray-50'}
         `}
     >
@@ -37,7 +37,7 @@ export function LightNavTab({
       href={path}
       className={`flex h-10 items-center  border-black px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black 
       ${active ? 'bg-gray-950 text-gray-50 ' : 'border-x border-t bg-gray-50 text-gray-950'}
-      ${stackVertically ? 'rounded-l-lg border sm:rounded-t-lg sm:rounded-bl-none' : 'rounded-t-lg'}
+      ${stackVertically ? 'rounded-l-lg border border-r-0 sm:rounded-t-lg sm:rounded-bl-none' : 'rounded-t-lg'}
       }
         `}
     >

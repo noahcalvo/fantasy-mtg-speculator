@@ -23,15 +23,11 @@ export const authConfig: NextAuthConfig = {
       const leagueIds = joinedLeagues.map((league) => league.league_id);
 
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-      const isOnDraft = nextUrl.pathname.startsWith('/draft');
       const isOnLeague = nextUrl.pathname.startsWith('/league');
       // Extract the leagueId from the path if it's on a league page
       const leagueIdMatch = nextUrl.pathname.match(/^\/league\/(\d+)/);
       const leagueId = leagueIdMatch ? parseInt(leagueIdMatch[1]) : null;
       if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isOnDraft) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isOnLeague) {

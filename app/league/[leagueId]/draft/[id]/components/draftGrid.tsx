@@ -62,14 +62,14 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   }, [draftId]);
 
   return (
-    <div className="overflow-auto rounded-lg border-2 border-white">
-      <table className="table-fixed divide-y divide-white rounded-lg">
+    <div className="overflow-auto border-2 border-gray-950">
+      <table className="table-fixed divide-y divide-gray-950 border-2 border-gray-950">
         <thead>
           <tr>
             {participants.map((participant, index) => (
               <th
                 key={index}
-                className="no-scrollbar text-responsive overflow-auto rounded-lg border-2 border-white bg-gray-950 px-1 py-2 text-center text-xs capitalize text-gray-50"
+                className="no-scrollbar text-responsive overflow-auto border-4 border-gray-950 bg-gray-950 px-1 py-2 text-center text-xs capitalize text-gray-50"
               >
                 <div className="w-24">{participant.name}</div>
               </th>
@@ -78,7 +78,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
         </thead>
         <tbody>
           {Array.from({ length: rounds }, (_, roundIndex) => (
-            <tr key={roundIndex} className="space-y-2 border-2">
+            <tr key={roundIndex} className="space-y-2">
               {participants.map((participant, participantIndex) => {
                 const pick = picks.find(
                   (pick) =>

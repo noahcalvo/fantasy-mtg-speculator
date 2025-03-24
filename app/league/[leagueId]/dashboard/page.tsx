@@ -4,7 +4,6 @@ import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '@/app/lib/player';
-import { fetchLeagues } from '@/app/lib/leagues';
 import {
   fetchCardPerformanceByWeek,
   fetchPlayerCollectionWithDetails,
@@ -13,14 +12,16 @@ import { CardDetails } from '@/app/lib/definitions';
 import { getCurrentWeek } from '@/app/lib/utils';
 import Collection from '@/app/ui/roster/collection';
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: { leagueId: string };
+}) {
+  const leagueId = parseInt(params.leagueId);
   const user = await auth().then((res) => res?.user);
-  const userName = user?.name || '';
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
-  const league = await fetchLeagues(playerId);
-  const leagueId = league[0]?.league_id ?? 0;
   const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
 
   const collectionIds = collection.map((card: CardDetails) => card.card_id);
@@ -49,7 +50,11 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="row-span-2 rounded-xl bg-gray-950 lg:col-span-2 lg:col-start-2 lg:row-start-1">
-          <Roster playerId={player.player_id} name={userName} owner={true} />
+          <Roster
+            playerId={player.player_id}
+            owner={true}
+            leagueId={leagueId}
+          />
         </div>
         <div className="col-start-1 row-span-2 rounded-xl bg-gray-950">
           <Collection

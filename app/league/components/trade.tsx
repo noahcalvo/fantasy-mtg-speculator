@@ -134,7 +134,7 @@ export default function Trade({
                 <div key={index} className="flex items-center">
                   <div
                     onClick={(e) => handleCardClicked(e, card.card_id, true)}
-                    className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-white'} mx-2 mb-2 rounded-xl border-4`}
+                    className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-gray-950'} mx-2 mb-2 rounded-xl border-4`}
                   >
                     <SmallCard
                       availablePosition={position}
@@ -149,7 +149,7 @@ export default function Trade({
           </div>
           <div className="flex justify-center">
             <button
-              className={`h-10 rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-white bg-red-800 hover:border-red-400'}`}
+              className={`h-10 rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-gray-950 bg-red-800 hover:border-red-400'}`}
               onClick={() => makeOffer()}
               disabled={
                 ownedSelectedCards.length === 0 ||
@@ -169,7 +169,7 @@ export default function Trade({
                   <div key={index} className="flex items-center">
                     <div
                       onClick={(e) => handleCardClicked(e, card.card_id, false)}
-                      className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-white'} mx-2 mb-2 rounded-xl border-4`}
+                      className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-gray-950'} mx-2 mb-2 rounded-xl border-4`}
                     >
                       <SmallCard
                         availablePosition={position}

@@ -19,12 +19,14 @@ export default function AvailableCards({
   activeDrafter,
   draftId,
   set,
+  leagueId,
 }: {
   undraftedCards: CardDetailsWithPoints[];
   playerId: number;
   activeDrafter: boolean;
   draftId: number;
   set: string;
+  leagueId: number;
 }) {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,13 +86,15 @@ export default function AvailableCards({
               }}
             />
             <button
-              className={`mx-2 mt-2 rounded-md border border-white p-2 text-gray-950 ${
+              className={`mx-2 mt-2 rounded-md border border-gray-950 p-2 text-gray-950 ${
                 activeDrafter
                   ? 'bg-gray-50 hover:bg-red-800 hover:text-gray-50'
                   : 'bg-gray-500 text-gray-50'
               }`}
               disabled={!activeDrafter}
-              onClick={() => makePick(draftId, playerId, card.name, set)}
+              onClick={() =>
+                makePick(draftId, playerId, card.name, set, leagueId)
+              }
             >
               Draft
             </button>
@@ -117,8 +121,8 @@ export default function AvailableCards({
   }
 
   return (
-    <div className="h-full items-center justify-center overflow-auto border-2 border-white">
-      <div className="h-full w-full overflow-auto rounded-lg p-5 text-gray-50 shadow-md">
+    <div className="h-full items-center justify-center overflow-auto bg-gray-950 p-2 text-gray-50">
+      <div className="h-full w-full overflow-auto shadow-md">
         <div className="mb-1 grid grid-cols-2">
           <h1 className="text-2xl font-bold lg:text-3xl">Available Cards</h1>
           <input
@@ -126,7 +130,7 @@ export default function AvailableCards({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search cards"
-            className="border-white px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
+            className="border-gray-950 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-wrap">
@@ -137,7 +141,7 @@ export default function AvailableCards({
                   <button
                     id={type}
                     className={`m-1 rounded-md border px-1 py-1  text-sm
-                  ${filteredTypes.includes(type) ? 'border-white bg-red-800 text-gray-50' : 'border-white bg-gray-50 text-gray-950'}
+                  ${filteredTypes.includes(type) ? 'border-gray-950 bg-red-800 text-gray-50' : 'border-gray-950 bg-gray-50 text-gray-950'}
                 `}
                     onClick={() => {
                       if (filteredTypes.includes(type)) {
@@ -156,7 +160,7 @@ export default function AvailableCards({
           )}
           <div className="inline">
             <button
-              className="m-1 rounded-md border border-white bg-red-800  px-1 py-1 text-sm text-gray-50"
+              className="m-1 rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50"
               onClick={() =>
                 setSortedBy(sortedBy === 'price' ? 'points' : 'price')
               }
@@ -165,7 +169,7 @@ export default function AvailableCards({
             </button>
           </div>
         </div>
-        <hr className="my-2 border-white" />
+        <hr className="my-2 border-gray-50" />
         <div className="grid grid-cols-2">
           <div>
             <div className="max-h-[25vh] overflow-auto xl:max-h-[60vh]">
@@ -206,21 +210,21 @@ export default function AvailableCards({
                       )}
                     </div>
                   </div>
-                  <hr className="my-2 border-white" />
+                  <hr className="my-2 border-gray-950" />
                 </div>
               ))}
             </div>
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 0}
-              className="mx-2 mt-2 rounded-md border border-white px-2"
+              className="mx-2 mt-2 rounded-md border border-gray-50 px-2"
             >
               Previous
             </button>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages - 1}
-              className="mx-2 rounded-md border border-white px-2"
+              className="mx-2 rounded-md border border-gray-50 px-2"
             >
               Next
             </button>

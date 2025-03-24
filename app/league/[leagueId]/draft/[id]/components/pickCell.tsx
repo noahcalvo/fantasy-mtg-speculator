@@ -19,7 +19,7 @@ export default function PickCell({
   return (
     (!pick?.card_id && (
       <td
-        className={`w-24 overflow-auto rounded-md border-2 border-white p-4 px-1 py-2 text-center text-xs capitalize
+        className={`w-24 overflow-auto border-2 border-gray-950 p-4 px-1 py-2 text-center text-xs capitalize
     ${
       picksTilActive == 0
         ? 'bg-gray-50 bg-clip-padding text-gray-950 shadow-inner-shadow'
@@ -41,7 +41,7 @@ export default function PickCell({
       </td>
     )) || (
       <td
-        className="h-40 w-24 cursor-pointer overflow-auto rounded-md border-4 border-white bg-gray-50 bg-clip-padding px-1 py-2 text-center text-xs text-gray-950 shadow-inner-shadow hover:underline"
+        className="h-40 w-24 cursor-pointer overflow-auto border-4 border-gray-950 bg-gray-50 bg-clip-padding px-1 py-2 text-center text-xs text-gray-950 shadow-inner-shadow hover:underline"
         onClick={() => routeToCardPageById(cardData?.card_id ?? -1)}
       >
         <div className="inline-block hover:no-underline">
