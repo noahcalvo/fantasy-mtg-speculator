@@ -193,7 +193,6 @@ const snakePicks = async (draftId: number) => {
 }
 
 export const fetchPicks = async (draftId: number) => {
-  console.log("checking picks for draft", draftId);
   try {
     const res = await pool.query<DraftPick>(`SELECT * FROM picksV3 WHERE draft_id = $1;`, [draftId]);
     revalidatePath(`/draft/${draftId}/live`);

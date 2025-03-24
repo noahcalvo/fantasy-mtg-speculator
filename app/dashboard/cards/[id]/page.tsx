@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         <BackButton />
         <CardSearchBar />
       </div>
-      <div className="flex flex-col items-center p-2 text-white">
+      <div className="flex flex-col items-center p-2 text-gray-50">
         <GeneralCardDetails cardDetails={cardDetails} />
         <OwnerShipDetails cardId={cardId} />
         <CardPerformanceChart cardId={cardId} />

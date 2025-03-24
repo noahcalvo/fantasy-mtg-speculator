@@ -36,7 +36,7 @@ export default function JoinLeague({
             setShowJoin(true);
             setShowCreate(false);
           }}
-          className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-black hover:bg-red-800 hover:text-white"
+          className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50"
         >
           Join League
         </button>
@@ -45,7 +45,7 @@ export default function JoinLeague({
             setShowCreate(true);
             setShowJoin(false);
           }}
-          className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-black hover:bg-red-800 hover:text-white"
+          className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50"
         >
           Create League
         </button>
@@ -66,7 +66,7 @@ export default function JoinLeague({
               </select>
               <button
                 type="submit"
-                className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-black hover:bg-red-800 hover:text-white"
+                className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50"
               >
                 Join
               </button>
@@ -79,7 +79,7 @@ export default function JoinLeague({
               <input type="text" placeholder="League Name" name="leagueName" />
               <button
                 type="submit"
-                className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-black hover:bg-red-800 hover:text-white"
+                className="m-2 rounded-md border border-black bg-gray-50  px-2 py-1 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50"
               >
                 Create
               </button>

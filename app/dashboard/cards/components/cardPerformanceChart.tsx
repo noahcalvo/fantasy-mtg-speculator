@@ -15,11 +15,16 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
   const [weeks, setWeeks] = useState(10);
+  const [format, setFormat] = useState('modern'); // Assuming 'modern' is the default format
 
   useEffect(() => {
     setCardDataLoading(true);
     const fetchData = async () => {
-      const result = await fetchLastNWeeksCardPerformance(cardId, weeks);
+      const result = await fetchLastNWeeksCardPerformance(
+        cardId,
+        weeks,
+        format,
+      );
 
       setCardData(result);
       setCardDataLoading(false);
@@ -27,7 +32,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
     fetchData().catch((error) =>
       console.error('Failed to fetch card data:', error),
     );
-  }, [cardId, weeks]);
+  }, [cardId, weeks, format]); // Fetch data when cardId, weeks, or format changes
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -59,7 +64,33 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
     <ThemeProvider theme={darkTheme}>
       {/* offer selection of 5 weeks, 10 weeks, 20 weeks */}
       <div className="flex justify-center space-x-4">
-        <label className="text-white">
+        <label className="text-gray-50">
+          <input
+            type="radio"
+            name="format"
+            value="modern"
+            checked={format === 'modern'}
+            onChange={() => setFormat('modern')}
+            disabled={cardDataLoading}
+            className="mr-1"
+          />
+          Modern
+        </label>
+        <label className="text-gray-50">
+          <input
+            type="radio"
+            name="format"
+            value="standard"
+            checked={format === 'standard'}
+            onChange={() => setFormat('standard')}
+            disabled={cardDataLoading}
+            className="mr-1"
+          />
+          Standard
+        </label>
+      </div>
+      <div className="flex justify-center space-x-4">
+        <label className="text-gray-50">
           <input
             type="radio"
             name="weeks"
@@ -71,7 +102,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
           />
           5 weeks
         </label>
-        <label className="text-white">
+        <label className="text-gray-50">
           <input
             type="radio"
             name="weeks"
@@ -83,7 +114,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
           />
           10 weeks
         </label>
-        <label className="text-white">
+        <label className="text-gray-50">
           <input
             type="radio"
             name="weeks"
@@ -96,7 +127,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
           20 weeks
         </label>
       </div>{' '}
-      <div className="-mx-4 block w-full rounded-md text-white">
+      <div className="-mx-4 block w-full rounded-md text-gray-50">
         <div ref={containerRef} className="">
           {hasMounted && cardData?.length > 0 ? (
             <LineChart

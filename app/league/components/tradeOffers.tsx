@@ -31,7 +31,7 @@ export default function TradeOffers({
       <div className="mb-4 flex justify-center">
         <button
           onClick={() => setShowOffers(!showOffers)}
-          className={`m-2 rounded-md border border-black px-2  py-1 text-sm text-black ${showOffers ? 'bg-gray-50 text-black' : 'bg-red-800 text-white'}`}
+          className={`m-2 h-10 rounded-md border px-2  py-1 text-gray-50 ${showOffers ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'bg-red-800 text-gray-50 hover:border-red-400'}`}
         >
           {!showOffers ? 'Show offers' : 'Hide offers'}
         </button>
@@ -98,7 +98,7 @@ function Trade({
   const getting = outgoing ? trade.requestedCards : trade.offeredCards;
   return (
     <div className="border border-black">
-      <div className="w-full bg-black text-center text-white">
+      <div className="w-full bg-gray-950 text-center text-gray-50">
         {outgoing ? trade.recipient.name : trade.offerer.name}
       </div>
       <div className="flex place-content-around items-center border-b">
@@ -121,13 +121,13 @@ function Trade({
             <div className="text-center">
               <button
                 onClick={() => acceptTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-white hover:border-red-400"
+                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
               >
                 Accept Trade
               </button>
               <button
                 onClick={() => declineTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1 text-sm text-white hover:border-red-400"
+                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1 text-sm text-gray-50 hover:border-red-400"
               >
                 Decline Trade
               </button>
@@ -136,7 +136,7 @@ function Trade({
             <div className="text-center">
               <button
                 onClick={() => revokeTrade(tradeNoDetails, playerId, leagueId)}
-                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-white hover:border-red-400"
+                className="m-2 rounded-md border border-white bg-red-800 px-1 py-1  text-sm text-gray-50 hover:border-red-400"
               >
                 Revoke
               </button>

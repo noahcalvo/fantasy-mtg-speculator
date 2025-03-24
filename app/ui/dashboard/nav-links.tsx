@@ -1,49 +1,133 @@
 'use client';
 
-import {
-  BeakerIcon,
-  HomeIcon,
-  BoltIcon,
-} from '@heroicons/react/24/outline';
+import { League } from '@/app/lib/definitions';
+import { BeakerIcon, HomeIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, PlusIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
-const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
-  {
-    name: 'League',
-    href: '/league',
-    icon: BeakerIcon,
-  },
-  { name: 'Draft', href: '/draft', icon: BoltIcon },
-];
-
-export default function NavLinks({leagueId, playerId}: {leagueId: number | undefined, playerId: number | null}) {
+export default function NavLinks({
+  joinedLeagues,
+  playerId,
+}: {
+  joinedLeagues: League[];
+  playerId: number | null;
+}) {
   const pathname = usePathname();
+  const leagueIdMatch = pathname.match(/\/league\/(\d+)/);
+  const leagueId = leagueIdMatch ? parseInt(leagueIdMatch[1]) : null;
+  const leagueMatchObj = joinedLeagues.find(
+    (league) => league.league_id === leagueId,
+  );
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+  const closeDropdown = () => setIsDropdownOpen(false);
+
+  const handleLeagueClick = () => {
+    closeDropdown();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        closeDropdown();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <>
-      {links.map((link) => {
-        link.href = link.href === '/league' && leagueId ? `/league/${leagueId}/teams/${playerId}` : link.href;
-        const LinkIcon = link.icon;
-        return (
-          <Link
-            key={link.name}
-            href={link.href}
-            className={clsx(
-              'hover:border-white border border-black flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-red-800 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3',
-              {
-                'white text-black': pathname === link.href,
-              },
-            )}
-          >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
-          </Link>
-        );
-      })}
+      <Link
+        key={'Home'}
+        href={'/dashboard'}
+        className={clsx(
+          'flex h-[48px] grow items-center justify-center gap-2 rounded-md border p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+          {
+            'border-white bg-gray-950 text-gray-50': pathname === '/dashboard',
+            'border-black bg-gray-50 text-gray-950': pathname !== '/dashboard',
+          },
+        )}
+      >
+        <HomeIcon className="w-6" />
+        <p className="hidden md:block">Home</p>
+      </Link>
+      <div className="relative w-full" ref={dropdownRef}>
+        <button
+          onClick={toggleDropdown}
+          className={clsx(
+            'flex h-[48px] w-full items-center justify-center gap-2 rounded-md border p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+            {
+              'border-white bg-gray-950 text-gray-50':
+                pathname.includes('/league'),
+              'border-black bg-gray-50 text-gray-950':
+                !pathname.includes('/league'),
+            },
+          )}
+        >
+          <BoltIcon className="w-6" />
+          <p className="md:block">
+            {leagueMatchObj
+              ? leagueMatchObj.name
+              : pathname === '/league/new'
+                ? 'New League'
+                : 'Select League'}
+          </p>
+          <ChevronRightIcon
+            className={clsx('ml-auto w-5 transition-transform', {
+              'rotate-90': isDropdownOpen,
+            })}
+          />
+        </button>
+        {isDropdownOpen && (
+          <div className="absolute mt-1 w-full md:space-y-1">
+            {joinedLeagues.map((league) => (
+              <Link
+                key={league.league_id}
+                href={`/league/${league.league_id}/standings`}
+                onClick={handleLeagueClick}
+                className={clsx(
+                  'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                  {
+                    'border-white bg-gray-950 text-gray-50':
+                      leagueId === league.league_id,
+                    'border-black bg-gray-50 text-gray-950':
+                      leagueId !== league.league_id,
+                  },
+                )}
+              >
+                {league.name}
+              </Link>
+            ))}
+            <Link
+              key={'NewLeague'}
+              href={`/league/new`}
+              onClick={handleLeagueClick}
+              className={clsx(
+                'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-white hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                {
+                  'border-white bg-gray-950 text-gray-50':
+                    pathname === '/league/new',
+                  'border-black bg-gray-50 text-gray-950':
+                    pathname !== '/league/new',
+                },
+              )}
+            >
+              <PlusIcon className="w-6" />
+              New League
+            </Link>
+          </div>
+        )}
+      </div>
     </>
   );
 }

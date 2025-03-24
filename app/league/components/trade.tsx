@@ -149,7 +149,7 @@ export default function Trade({
           </div>
           <div className="flex justify-center">
             <button
-              className={`h-10 rounded-md border px-2 py-1 text-white ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400' : 'border-white bg-red-800 hover:border-red-400'}`}
+              className={`h-10 rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-white bg-red-800 hover:border-red-400'}`}
               onClick={() => makeOffer()}
               disabled={
                 ownedSelectedCards.length === 0 ||

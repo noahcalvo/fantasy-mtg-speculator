@@ -10,7 +10,7 @@ import {
   fetchPlayerCollectionWithDetails,
 } from '@/app/lib/collection';
 import { getCurrentWeek } from '@/app/lib/utils';
-import { fetchLeague } from '@/app/lib/leagues';
+import { fetchLeagues } from '@/app/lib/leagues';
 
 export default async function Roster({
   playerId,
@@ -23,10 +23,10 @@ export default async function Roster({
   owner?: boolean;
   multiColumn?: boolean;
 }) {
-  const league = await fetchLeague(playerId);
+  const league = await fetchLeagues(playerId);
   const roster = await fetchPlayerRosterWithDetails(
     playerId,
-    league?.league_id ?? 0,
+    league[0]?.league_id ?? 0,
   );
   const cardIds = getCardIdsFromMap(roster);
   const week = getCurrentWeek();
@@ -39,15 +39,13 @@ export default async function Roster({
 
   const collection = await fetchPlayerCollectionWithDetails(
     playerId,
-    league?.league_id ?? 0,
+    league[0]?.league_id ?? 0,
   );
 
   return (
-    <div className="p-2">
+    <div className="p-2 text-gray-50">
       <div className="flex flex-wrap justify-around">
-        <p className="m-2 w-full text-xl">
-          <span className="font-bold text-red-900">{name}&apos;s</span> Roster
-        </p>
+        <p className="m-2 w-full text-xl">My roster</p>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(
             (element) =>
@@ -86,7 +84,7 @@ export default async function Roster({
                 scoreTwo={secondPoints}
                 replacements={replacements}
                 playerId={playerId}
-                leagueId={league?.league_id ?? 0}
+                leagueId={league[0]?.league_id ?? 0}
                 owner={owner ?? false}
               />
             </div>

@@ -1,5 +1,5 @@
 import { fetchOwnership } from '@/app/lib/collection';
-import { fetchLeague } from '@/app/lib/leagues';
+import { fetchLeagues } from '@/app/lib/leagues';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { auth } from '@/auth';
 
@@ -8,24 +8,35 @@ export default async function OwnerShipDetails({ cardId }: { cardId: number }) {
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
-  const league = await fetchLeague(playerId);
-  const leagueId = league?.league_id ?? 0;
+  const leagues = await fetchLeagues(playerId);
 
-  const ownedBy = await fetchOwnership(leagueId, cardId);
+  let ownershipMap: { [key: string]: string } = {};
+
+  for (const l of leagues) {
+    const ownership = await fetchOwnership(l.league_id, cardId);
+    if (ownership) {
+      ownershipMap[l.name] = ownership.name;
+    }
+  }
 
   return (
     <div className="text-md">
-      {ownedBy ? (
-        <span>
-          owned by{' '}
-          <span className="font-bold text-red-900">{ownedBy?.name}</span>
-        </span>
-      ) : (
-        <span>
-          <span className="font-bold text-red-900">unowned</span> in{' '}
-          {league?.name}
-        </span>
-      )}
+      {Object.entries(ownershipMap).map(([leagueName, ownerName]) => (
+        <div key={leagueName}>
+          {ownerName ? (
+            <span>
+              owned by{' '}
+              <span className="font-bold text-red-900">{ownerName}</span> in{' '}
+              <span className="font-bold">{leagueName}</span>
+            </span>
+          ) : (
+            <span>
+              <span className="font-bold text-red-900">unowned</span> in{' '}
+              <span className="font-bold">{leagueName}</span>
+            </span>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

@@ -8,7 +8,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   );
 
   return (
-    <div>
+    <div className="bg-gray-950">
       <Roster playerId={playerId} name={playerData.name} multiColumn={true} />
     </div>
   );
