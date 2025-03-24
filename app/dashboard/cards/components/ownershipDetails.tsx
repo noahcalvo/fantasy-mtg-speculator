@@ -6,6 +6,9 @@ import { auth } from '@/auth';
 export default async function OwnerShipDetails({ cardId }: { cardId: number }) {
   const user = await auth().then((res) => res?.user);
   const userEmail = user?.email || '';
+  if (!userEmail) {
+    return;
+  }
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
   const leagues = await fetchLeagues(playerId);
