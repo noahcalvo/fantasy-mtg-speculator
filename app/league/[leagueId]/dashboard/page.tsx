@@ -37,7 +37,7 @@ export default async function Page({
 
   return (
     <main className="p-2">
-      <div className="mb-4 text-2xl text-gray-50 md:text-3xl">Dashboard</div>
+      <div className="mb-4 text-2xl text-gray-950 md:text-3xl">Dashboard</div>
       <div className="grid gap-6 xl:grid-cols-2">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1">
           <TotalCardsBadge playerId={player.player_id} leagueId={leagueId} />
