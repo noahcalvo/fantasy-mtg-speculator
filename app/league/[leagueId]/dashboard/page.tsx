@@ -48,17 +48,6 @@ export default async function Page() {
         <MoreAboutScoring />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* <div>
-          <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <WeekPicker
-              placeholder="This week"
-              availableWeeks={await fetchUniqueWeekNumbers()}
-            />
-            <SetPicker placeholder="All Sets" />
-            <FormatPicker placeholder="Modern" />
-          </div>
-          <PointChart />
-        </div> */}
         <div className="row-span-2 rounded-xl bg-gray-950 lg:col-span-2 lg:col-start-2 lg:row-start-1">
           <Roster playerId={player.player_id} name={userName} owner={true} />
         </div>

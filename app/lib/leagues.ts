@@ -24,6 +24,22 @@ export async function fetchLeagues(userId: number): Promise<League[]> {
   }
 }
 
+export async function fetchLeague(leagueId: number): Promise<League> {
+  try {
+    const data = await sql<League>`
+      SELECT * FROM leaguesV3
+      WHERE league_id = ${leagueId};
+      `;
+    if (data.rows.length === 0) {
+      throw new Error(`No league for ID ${leagueId}`);
+    }
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch league ${leagueId}`);
+  }
+}
+
 export async function fetchAllLeagues() {
   try {
     const data = await sql<League>`

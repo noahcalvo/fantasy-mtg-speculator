@@ -31,7 +31,7 @@ export function Card({
   paragraphSize ? 'text-2xl' : '';
   headerSize ? 'text-3xl' : '';
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-red-500 bg-gray-950 p-2 text-gray-50 shadow-sm">
+    <div className="flex flex-col justify-between rounded-xl border bg-gray-950 p-2 text-gray-50 shadow-sm">
       <div className="flex p-2">
         {Icon ? <Icon className="h-5 w-5 text-gray-50" /> : null}
         <h3 className="ml-2 font-medium" style={{ fontSize: headerSize }}>

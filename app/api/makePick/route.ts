@@ -29,7 +29,6 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const data = await req.json();
     const { draftId, playerId, cardName, set } = data;
-    console.log(data)
     if (timerMap.has(draftId)) {
       clearTimeout(timerMap.get(draftId));
     }

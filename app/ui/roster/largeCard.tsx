@@ -63,7 +63,7 @@ export default function LargeCard({
         <div className="relative flex p-2">
           <div className="w-2/3">
             <p className="relative line-clamp-2 text-ellipsis text-center font-bold underline sm:text-lg">
-              {selectedCard ? selectedCard.name : 'empty'}
+              {selectedCard?.name ? selectedCard.name : 'empty'}
             </p>
             {card ? (
               <>
@@ -98,7 +98,7 @@ export default function LargeCard({
             )}
           </div>
           <div className="flex w-1/3 items-center justify-center p-1">
-            {card ? (
+            {selectedCard?.image ? (
               <Image
                 src={selectedCard?.image[0] || '/card-back.jpg'}
                 alt={selectedCard?.name || 'card'}
@@ -133,16 +133,122 @@ export default function LargeCard({
             {replacements.map((replacement) => (
               <div
                 key={replacement.card_id}
-                className={`flex items-center justify-between border p-2 ${
-                  replacement.card_id === selectedCard?.card_id
-                    ? 'border-red-900'
-                    : 'border-gray-300'
-                }`}
+                className="flex items-center justify-between border border-gray-300 p-2"
                 onClick={() => handleCardSelect(replacement)}
               >
                 <p className="p-1">{replacement.name}</p>
                 {replacement.card_id === selectedCard?.card_id && (
-                  <div className="rounded-full bg-red-900 p-1 text-gray-950">
+                  <div className="rounded-full bg-gray-50 p-1 text-gray-950">
+                    Selected
+                  </div>
+                )}
+              </div>
+            ))}
+            <div className="flex justify-between">
+              <button
+                onClick={cancel}
+                className="mt-4 rounded border border-gray-50 bg-gray-950 p-2 text-gray-50"
+              >
+                Close
+              </button>
+              <button
+                onClick={saveChange}
+                className="mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function EmptyPositionPlaceholder({
+  position,
+  owner,
+  playerId,
+  leagueId,
+  replacements,
+}: {
+  position: string;
+  owner: boolean;
+  playerId: number;
+  leagueId: number;
+  replacements: CardDetails[];
+}) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<CardDetails | null>(null);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const cancel = () => {
+    setSelectedCard(null);
+    setIsModalVisible(false);
+  };
+
+  const saveChange = async () => {
+    if (selectedCard?.card_id) {
+      await playPositionSlot(
+        selectedCard.card_id,
+        playerId,
+        position,
+        leagueId,
+      );
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleCardSelect = (replacement: CardDetails) => {
+    setSelectedCard(replacement);
+  };
+  return (
+    <div>
+      <div className="h-full w-full">
+        <div className="flex justify-center">
+          <div className="bg-gray-50 px-4 text-gray-950">{position}</div>
+        </div>
+        <div className="relative flex p-2">
+          <div className="w-2/3">
+            <p className="relative line-clamp-2 text-ellipsis text-center font-bold underline sm:text-lg">
+              empty
+            </p>
+            <div />
+          </div>
+          <div className="flex w-1/3 items-center justify-center p-1">
+            <div className="flex h-full min-h-[50px] w-full items-center justify-center rounded-sm border border-gray-50 bg-gray-300">
+              ?
+            </div>
+          </div>
+          {owner && (
+            <div className="md:z-5 flex items-center justify-center transition-opacity md:absolute md:inset-0 md:bg-gray-50 md:bg-opacity-50 md:p-0 md:opacity-0 md:hover:opacity-100">
+              <ArrowsUpDownIcon
+                className="h-10 w-10 cursor-pointer rounded-full bg-gray-50 p-2 text-gray-950"
+                onClick={showModal}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      {isModalVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+          <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
+            <h2 className="text-lg font-bold">
+              Select a card to swap to your {position} slot
+            </h2>
+            {/* Add card selection options here */}
+            {replacements.map((replacement) => (
+              <div
+                key={replacement.card_id}
+                className="flex items-center justify-between border border-gray-300 p-2"
+                onClick={() => handleCardSelect(replacement)}
+              >
+                <p className="p-1">{replacement.name}</p>
+                {replacement.card_id === selectedCard?.card_id && (
+                  <div className="rounded-full bg-gray-50 p-1 text-gray-950">
                     Selected
                   </div>
                 )}

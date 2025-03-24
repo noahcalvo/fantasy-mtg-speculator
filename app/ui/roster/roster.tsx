@@ -11,6 +11,7 @@ import {
 } from '@/app/lib/collection';
 import { getCurrentWeek } from '@/app/lib/utils';
 import { fetchLeagues } from '@/app/lib/leagues';
+import { EmptyPositionPlaceholder } from './largeCard';
 
 export default async function Roster({
   playerId,
@@ -77,16 +78,26 @@ export default async function Roster({
               className={`h-22 relative mx-2 mb-2 w-full text-sm ${multiColumn ? 'sm:w-80' : ''}`}
               key={index}
             >
-              <LargeCard
-                position={position}
-                card={roster[position.toLowerCase()]}
-                scoreOne={points}
-                scoreTwo={secondPoints}
-                replacements={replacements}
-                playerId={playerId}
-                leagueId={league[0]?.league_id ?? 0}
-                owner={owner ?? false}
-              />
+              {roster[position.toLowerCase()] ? (
+                <LargeCard
+                  position={position}
+                  card={roster[position.toLowerCase()]}
+                  scoreOne={points}
+                  scoreTwo={secondPoints}
+                  replacements={replacements}
+                  playerId={playerId}
+                  leagueId={league[0]?.league_id ?? 0}
+                  owner={owner ?? false}
+                />
+              ) : (
+                <EmptyPositionPlaceholder
+                  position={position}
+                  owner={owner ?? false}
+                  playerId={playerId}
+                  leagueId={league[0]?.league_id ?? 0}
+                  replacements={replacements}
+                />
+              )}
             </div>
           );
         })}
