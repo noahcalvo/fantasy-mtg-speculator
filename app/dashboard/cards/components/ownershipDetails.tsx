@@ -14,9 +14,7 @@ export default async function OwnerShipDetails({ cardId }: { cardId: number }) {
 
   for (const l of leagues) {
     const ownership = await fetchOwnership(l.league_id, cardId);
-    if (ownership) {
-      ownershipMap[l.name] = ownership.name;
-    }
+    ownershipMap[l.name] = ownership?.name ?? '';
   }
 
   return (
