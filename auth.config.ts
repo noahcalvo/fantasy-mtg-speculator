@@ -27,9 +27,7 @@ export const authConfig: NextAuthConfig = {
       const isOnLeague = nextUrl.pathname.startsWith('/league');
       // Extract the leagueId from the path if it's on a league page
       const leagueIdMatch = nextUrl.pathname.match(/^\/league\/(\d+)/);
-      console.log("match", leagueIdMatch)
       const leagueId = leagueIdMatch ? parseInt(leagueIdMatch[1]) : null;
-      console.log("isOnDashboard", isOnDashboard, "isOnDraft", isOnDraft, "isOnLeague", isOnLeague, "isLoggedIn", isLoggedIn, "leagueId", leagueId, "leagueIds", leagueIds)
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
@@ -42,7 +40,6 @@ export const authConfig: NextAuthConfig = {
           if ((leagueId && leagueIds.includes(leagueId)) || leagueId == null) {
             return true; // The user is authorized to access this league page
           } else {
-            console.log("leagueId", leagueId, "leagueIds", leagueIds, "leagueIdMatch", leagueIdMatch)
             // Redirect to the "new league" page if the user does not belong to the league
             return Response.redirect(new URL('/league/new', nextUrl));
           }
