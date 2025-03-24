@@ -67,7 +67,7 @@ export async function createAccount(prevState: string | undefined, formData: For
   const encrpatedPassword = await bcrypt.hash(password, 10);
 
   try {
-      await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${encrpatedPassword})`;
+    await sql`INSERT INTO users (name, email, password) VALUES (${name}, ${email}, ${encrpatedPassword})`;
   } catch (error) {
     console.error('Database Error:', error);
     return `Failed to create account for ${name}`;

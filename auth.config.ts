@@ -13,38 +13,43 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const player = await fetchPlayerByEmail(auth?.user?.email || '');
-      const playerId = player.player_id;
+      let player = null;
+      let playerId = null;
+      if (auth?.user?.email) {
+        player = await fetchPlayerByEmail(auth?.user?.email);
+        playerId = player.player_id;
+      }
       let joinedLeagues: League[] = [];
       if (playerId) {
         joinedLeagues = await fetchLeagues(playerId);
       }
-      // Extract the league IDs from the leagueBelongings array
       const leagueIds = joinedLeagues.map((league) => league.league_id);
 
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
       const isOnLeague = nextUrl.pathname.startsWith('/league');
-      // Extract the leagueId from the path if it's on a league page
+      const isOnLogin = nextUrl.pathname.startsWith('/login');
       const leagueIdMatch = nextUrl.pathname.match(/^\/league\/(\d+)/);
       const leagueId = leagueIdMatch ? parseInt(leagueIdMatch[1]) : null;
-      if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isOnLeague) {
-        // Check if the user is logged in and if they belong to the league they're trying to access
-        if (isLoggedIn) {
-          if ((leagueId && leagueIds.includes(leagueId)) || leagueId == null) {
-            return true; // The user is authorized to access this league page
-          } else {
-            // Redirect to the "new league" page if the user does not belong to the league
-            return Response.redirect(new URL('/league/new', nextUrl));
-          }
+
+      if (isOnLeague) {
+        if (!isLoggedIn) {
+          const redirectUrl = new URL('/login', nextUrl);
+          redirectUrl.searchParams.set('redirect', nextUrl.pathname);
+          return Response.redirect(redirectUrl.toString(), 302); // Ensure proper redirect
         }
-        return false; // Redirect unauthenticated users to login page
+        if ((leagueId && leagueIds.includes(leagueId)) || leagueId == null) {
+          return true;
+        }
+        return Response.redirect(new URL('/league/new', nextUrl).toString(), 302);
       }
-      else if (isLoggedIn) {
-        return Response.redirect(new URL('/dashboard', nextUrl));
+
+      if (isOnLogin) {
+        if (isLoggedIn) {
+          const redirectPath = nextUrl.searchParams.get('redirect') || '/dashboard';
+          return Response.redirect(new URL(redirectPath, nextUrl).toString(), 302); // Ensure proper redirect
+        }
+        return true; // Allow access to login page if not logged in
       }
+
       return true;
     },
   },

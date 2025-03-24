@@ -6,12 +6,17 @@ import SpecLogo from '../spec-logo';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { fetchLeagues } from '@/app/lib/leagues';
 import { League } from '@/app/lib/definitions';
+import { redirect } from 'next/navigation';
 
 export default async function SideNav() {
   const user = await auth().then((res) => res?.user);
-  const userEmail = user?.email || '';
-  const player = await fetchPlayerByEmail(userEmail);
-  const playerId = player.player_id;
+  const userEmail = user?.email;
+  let player = null;
+  let playerId = null;
+  if (userEmail) {
+    player = await fetchPlayerByEmail(userEmail);
+    playerId = player.player_id;
+  }
   let joinedLeagues: League[] = [];
   if (playerId) {
     joinedLeagues = await fetchLeagues(playerId);
@@ -29,17 +34,27 @@ export default async function SideNav() {
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
         <NavLinks joinedLeagues={joinedLeagues} playerId={playerId} />
         <div className="hidden h-auto w-full grow rounded-md bg-gray-950 md:block"></div>
-        <form
-          action={async () => {
-            'use server';
-            await signOut();
-          }}
-        >
-          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
-            <PowerIcon className="w-6" />
-            <div className="hidden md:block">Sign Out</div>
-          </button>
-        </form>
+        {player !== null ? (
+          <form
+            action={async () => {
+              'use server';
+              await signOut({ redirectTo: '/login' });
+            }}
+          >
+            <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
+              <PowerIcon className="w-6" />
+              <div className="hidden md:block">Sign Out</div>
+            </button>
+          </form>
+        ) : (
+          // sign in button appears if player == null
+          <Link href="/login">
+            <div className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-gray-50 hover:bg-gray-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
+              <PowerIcon className="w-6" />
+              <div className="hidden md:block">Sign In</div>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

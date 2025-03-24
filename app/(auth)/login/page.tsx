@@ -19,11 +19,7 @@ function LoginPageContent() {
 
   return (
     <div>
-      {success && (
-        <p className="mb-2 ml-1 text-gray-50">
-          Account successfully created for {success}!
-        </p>
-      )}
+      {success && <p className='text-white mb-2 ml-1'>Account successfully created for {success}!</p>}
       <LoginForm />
     </div>
   );

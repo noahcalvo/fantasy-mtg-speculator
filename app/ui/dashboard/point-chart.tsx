@@ -66,7 +66,7 @@ export default function PointChart() {
       }
 
       // change each cardName to be only 18 characters
-      result.forEach((card) => {
+      result?.forEach((card) => {
         if (card.name.length > 18) {
           card.name = card.name.substring(0, 18) + '...';
         }
