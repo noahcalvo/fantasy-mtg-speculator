@@ -25,7 +25,7 @@ export const DraftList = async ({ leagueId }: { leagueId: number }) => {
           <DraftPill key={key} draft={draft} leagueId={leagueId} />
         ))}
         {previousDrafts.length == 0 && (
-          <p className="pl-2">Your league hasn't hosted any drafts.</p>
+          <p className="pl-2">Your league hasn&apos;t hosted any drafts.</p>
         )}
       </ul>
     </div>
