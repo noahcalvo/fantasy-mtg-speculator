@@ -7,10 +7,12 @@ const standingsUrlRegex = /^\/league\/\d+\/standings(?:\/\d+)?$/;
 export default function LeagueMenu({
   leagueId,
   playerId,
+  isCommissioner,
   children,
 }: {
   leagueId: number;
   playerId: number;
+  isCommissioner: boolean;
   children?: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -20,6 +22,13 @@ export default function LeagueMenu({
   return (
     <div>
       <div className="flex max-w-full overflow-x-auto">
+        {isCommissioner && (
+          <DarkNavTab
+            name="League"
+            path={`/league/${leagueId}/league`}
+            active={pathname === `/league/${leagueId}/league`}
+          />
+        )}
         <DarkNavTab
           name="My Team"
           path={`/league/${leagueId}/dashboard`}

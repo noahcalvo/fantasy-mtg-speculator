@@ -8,16 +8,23 @@ def migrateTables(conn):
     try:
         with conn.cursor() as cur:
             # Migrate performance tables to the modern tables
-            migrate_performance_table_query = """
-            INSERT INTO ModernChallengePerformance (performance_id, champs, decks, copies)
-            SELECT performance_id, champs, decks, copies FROM ChallengePerformance;
+            # migrate_performance_table_query = """
+            # INSERT INTO ModernChallengePerformance (performance_id, champs, decks, copies)
+            # SELECT performance_id, champs, decks, copies FROM ChallengePerformance;
 
 
-            INSERT INTO ModernLeaguePerformance (performance_id, decks, copies)
-            SELECT performance_id, decks, copies FROM LeaguePerformance;
+            # INSERT INTO ModernLeaguePerformance (performance_id, decks, copies)
+            # SELECT performance_id, decks, copies FROM LeaguePerformance;
+            # """
+            # cur.execute(migrate_performance_table_query)
+            # print("Migrated performance tables")
+
+            migrate_leagues_table = """
+            INSERT INTO LeaguesV4 (league_id, name, participants, commissioners, open, formats)
+            SELECT league_id, name, participants, commissioners, open, ARRAY['modern']::varchar[] FROM LeaguesV3;
             """
-            cur.execute(migrate_performance_table_query)
-            print("Migrated performance tables")
+            cur.execute(migrate_leagues_table)
+            print("Migrated leagues tables")
 
             # # Migrate Ownership table
             # migrate_ownership_table_query = """
@@ -28,12 +35,12 @@ def migrateTables(conn):
             # print("Migrated 'ownership' table")
 
             # Migrate Drafts table
-            # migrate_drafts_table_query = """
-            # INSERT INTO DraftsV2 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, last_pick_timestamp)
-            # SELECT draft_id, league_id, participants, active, set, name, rounds, false, NOW() FROM DraftsV2;
-            # """
-            # cur.execute(migrate_drafts_table_query)
-            # print("Migrated 'drafts' table")
+            migrate_drafts_table_query = """
+            INSERT INTO DraftsV5 (draft_id, league_id, participants, active, set, name, rounds, auto_draft, pick_time_seconds, last_pick_timestamp)
+            SELECT draft_id, league_id, participants, active, set, name, rounds, auto_draft, pick_time_seconds, last_pick_timestamp FROM Draftsv4;
+            """
+            cur.execute(migrate_drafts_table_query)
+            print("Migrated 'drafts' table")
 
             # Migrate Picks table
             # migrate_picks_table_query = """
@@ -58,14 +65,6 @@ def migrateTables(conn):
             # """
             # cur.execute(migrate_trades_table_query)
             # print("Migrated 'trades' table")
-
-            # # Migrate Picks table
-            # migrate_leagues_table_query = """
-            # INSERT INTO LeaguesV3 (league_id, name, participants, commissioners, open)
-            # SELECT league_id, name, participants, comissioners, open FROM LeaguesV2;
-            # """
-            # cur.execute(migrate_leagues_table_query)
-            # print("Migrated 'leagues' table")
 
             # # Migrate TeamPerformances table
             # migrate_team_performances_table_query = """ 

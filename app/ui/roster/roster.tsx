@@ -1,15 +1,11 @@
 import {
-  getCardIdsFromMap,
+  CardPerformances,
   getCardTypes,
   getRosterPositions,
 } from '@/app/lib/definitions';
 import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
 import LargeCard from './largeCard';
-import {
-  fetchCardPerformanceByWeek,
-  fetchPlayerCollectionWithDetails,
-} from '@/app/lib/collection';
-import { getCurrentWeek } from '@/app/lib/utils';
+import { fetchPlayerCollectionWithDetails } from '@/app/lib/collection';
 import { EmptyPositionPlaceholder } from './largeCard';
 
 export default async function Roster({
@@ -18,21 +14,20 @@ export default async function Roster({
   multiColumn,
   leagueId,
   name,
+  mostRecentPoints,
+  secondMostRecentPoints,
+  week,
 }: {
   playerId: number;
   owner?: boolean;
   multiColumn?: boolean;
   leagueId: number;
   name?: string;
+  mostRecentPoints: CardPerformances;
+  secondMostRecentPoints: CardPerformances;
+  week: number;
 }) {
   const roster = await fetchPlayerRosterWithDetails(playerId, leagueId);
-  const cardIds = getCardIdsFromMap(roster);
-  const week = getCurrentWeek();
-  const mostRecentPoints = await fetchCardPerformanceByWeek(cardIds, week);
-  const secondMostRecentPoints = await fetchCardPerformanceByWeek(
-    cardIds,
-    week - 1,
-  );
   const positions = getRosterPositions();
 
   const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
@@ -41,7 +36,7 @@ export default async function Roster({
     <div className="p-2 text-gray-50">
       <div className="flex flex-wrap justify-around">
         <p className="m-2 w-full text-xl">
-          {owner ? 'My' : name ? name + "'s" : "Somebody's"} roster
+          {owner ? 'My' : name ? name + "'s" : "Somebody's"} Roster
         </p>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(

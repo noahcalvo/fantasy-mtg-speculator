@@ -1,35 +1,9 @@
 'use server';
 import { sql } from '@vercel/postgres';
-import { Card, CardDetails, CardPerformances, CardPoint, Collection, Player } from './definitions';
+import { Card, CardDetails, CardPoint, Collection, Player } from './definitions';
 import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
-
-export async function fetchCardPerformanceByWeek(
-  collectionIDs: number[],
-  week: number,
-): Promise<CardPerformances> {
-  const queryString = `SELECT C.card_id, C.name, SUM(CP.champs * 5 + CP.copies * 0.5 + LP.copies * 0.25) AS total_points, PF.week
-  FROM Cards C
-  JOIN Performance PF ON C.card_id = PF.card_id
-  LEFT JOIN ModernChallengePerformance CP ON PF.performance_id = CP.performance_id
-  LEFT JOIN ModernLeaguePerformance LP ON PF.performance_id = LP.performance_id
-  WHERE PF.week = $1 AND C.card_id = ANY($2)
-  GROUP BY C.card_id, C.name, PF.week`;
-  let params = [week, collectionIDs];
-  try {
-    const result = await sql.query(queryString, params);
-    // Convert points to numbers
-    const convertedData = result.rows.map((row) => ({
-      ...row,
-      total_points: Number(row.total_points),
-    }));
-    return { cards: convertedData };
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card point data for week');
-  }
-}
 
 export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {
   try {

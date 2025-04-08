@@ -1,14 +1,9 @@
 'use client';
-import { CardPoint } from '@/app/lib/definitions';
+import { CardPerformances, CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import {
-  fetchTopCards,
-  fetchTopCardsFromSet,
-  fetchTopWeeklyCards,
-  fetchTopWeeklyCardsFromSet,
-} from '@/app/lib/performance';
+import { fetchTopCards } from '@/app/lib/performance';
 import { RevenueChartSkeleton } from '../skeletons';
 import { capitalize, getCurrentWeek } from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
@@ -55,24 +50,27 @@ export default function PointChart() {
     setCardDataLoading(true);
     const fetchData = async () => {
       let result;
+      result = await fetchTopCards();
       if (typeof week === 'undefined' && set === '') {
-        result = await fetchTopCards(format);
-      } else if (typeof week === 'undefined') {
-        result = await fetchTopCardsFromSet(set, format);
-      } else if (set === '') {
-        result = await fetchTopWeeklyCards(week, format);
-      } else {
-        result = await fetchTopWeeklyCardsFromSet(week, set, format);
+        result = await fetchTopCards();
+        // } else if (typeof week === 'undefined') {
+        //   result = await fetchTopCardsFromSet(set, format);
+        // } else if (set === '') {
+        //   result = await fetchTopWeeklyCards(week, format);
+        // } else {
+        //   result = await fetchTopWeeklyCardsFromSet(week, set, format);
+        // }
       }
 
       // change each cardName to be only 18 characters
-      result?.forEach((card) => {
+      const topCards = result?.cards;
+      topCards?.forEach((card: CardPoint) => {
         if (card.name.length > 18) {
           card.name = card.name.substring(0, 18) + '...';
         }
       });
 
-      setCardData(result);
+      setCardData(topCards ?? []);
       setCardDataLoading(false);
     };
     fetchData().catch((error) =>
