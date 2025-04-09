@@ -626,7 +626,21 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
       const pointsFromFormat = calculatePointsFromPerformances(data.rows, scoringOptions);
       addPointsFromFormat(weeksOfPoints, pointsFromFormat);
     }
-    console.log(weeksOfPoints);
+    // Fill in missing weeks with zeros
+    const filledData = [];
+    for (let i = 0; i < weeks; i++) {
+      const weekData = weeksOfPoints.find((row) => row.week === getCurrentWeek() - i);
+      if (weekData) {
+        filledData.push(weekData);
+      } else {
+        filledData.push({
+          card_id: cardId,
+          name: '',
+          total_points: 0,
+          week: getCurrentWeek() - i,
+        });
+      }
+    }
     return weeksOfPoints.sort((a, b) => b.total_points - a.total_points);
   } catch (error) {
     console.error('Database Error:', error);
