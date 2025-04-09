@@ -31,8 +31,6 @@ export default async function Page({
     getCurrentWeek() - 1,
   );
 
-  console.log('secondMostRecentPoints', secondMostRecentPoints);
-
   return (
     <div className="bg-gray-950">
       <Roster

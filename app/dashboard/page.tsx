@@ -13,7 +13,7 @@ export default async function Page() {
               placeholder="This week"
               availableWeeks={await fetchUniqueWeekNumbers()}
             />
-            <SetPicker placeholder="All Sets" />
+            <SetPicker placeholder="All sets" />
             <FormatPicker placeholder="Modern" />
           </div>
           <PointChart />

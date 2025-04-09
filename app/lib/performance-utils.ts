@@ -56,7 +56,6 @@ export function calculatePointsFromPerformances(
     scoringOptions.forEach(scoringRule => {
       totalPoints += calculatePointsForPerformance(performance, scoringRule);
     });
-    console.log("totalPoints", totalPoints, "name", performance.name);
     return {
       card_id: performance.card_id,
       name: performance.name,
@@ -76,6 +75,7 @@ function calculatePointsForPerformance(
   if (typeKey in performance) {
     return parseInt(performance[typeKey as keyof RawPerformanceData] as string) * scoringRule.points || 0;
   } else {
+    console.log(`No data for typeKey: ${typeKey}, performanceData: ${JSON.stringify(performance)}`);
     throw new Error(`Invalid typeKey: ${typeKey}`);
   }
 }

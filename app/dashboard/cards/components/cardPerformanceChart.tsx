@@ -1,6 +1,10 @@
 'use client';
 import { CardPoint } from '@/app/lib/definitions';
 import { fetchLastNWeeksCardPerformance } from '@/app/lib/performance';
+import {
+  defaultModernScoringOptions,
+  defaultStandardScoringOptions,
+} from '@/app/lib/utils';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -17,13 +21,18 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
   const [weeks, setWeeks] = useState(10);
   const [format, setFormat] = useState('modern'); // Assuming 'modern' is the default format
 
+  let scoringOption = defaultModernScoringOptions;
+  if (format === 'standard') {
+    scoringOption = defaultStandardScoringOptions;
+  }
+
   useEffect(() => {
     setCardDataLoading(true);
     const fetchData = async () => {
       const result = await fetchLastNWeeksCardPerformance(
         cardId,
         weeks,
-        format,
+        scoringOption,
       );
 
       setCardData(result);
@@ -32,7 +41,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
     fetchData().catch((error) =>
       console.error('Failed to fetch card data:', error),
     );
-  }, [cardId, weeks, format]); // Fetch data when cardId, weeks, or format changes
+  }, [cardId, weeks, scoringOption]); // Fetch data when cardId, weeks, or format changes
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);

@@ -6,10 +6,10 @@ export async function GET(req: Request) {
 
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.log('Unauthorized');
+    console.debug('Unauthorized');
     return new Response("hellow child");
   }
-  console.log("Processing rosters");
+  console.debug("Processing rosters");
   await runMondayTask();
   return new Response(`Rosters were processed`);
 }

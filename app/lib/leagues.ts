@@ -92,12 +92,12 @@ export async function joinLeague(userId: number, leagueId: number) {
       throw new Error('League not found');
     }
     if (leagueResult.rows[0].open === false) {
-      console.log('League is closed');
+      console.debug('League is closed');
       return;
     }
     const participants = leagueResult.rows[0].participants;
     if (participants.includes(userId)) {
-      console.log('Player is already a participant');
+      console.debug('Player is already a participant');
       return;
     } else {
       await sql`UPDATE leaguesV3 SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
@@ -147,7 +147,7 @@ export async function fetchPlayersInLeague(
       WHERE l.league_id = ${leagueId}
     );`;
     if (data.rows.length === 0) {
-      console.log(`no league with id ${leagueId}`);
+      console.debug(`no league with id ${leagueId}`);
       return [];
     }
     return data.rows;
@@ -206,7 +206,7 @@ export async function fetchScoringOptions(leagueId: number): Promise<ScoringOpti
 
 export async function addScoringSetting(leagueId: number, scoringOption: ScoringOption) {
   if (scoringOption.scoring_id) {
-    console.log("should not provide scoring_id when adding a scoring setting", scoringOption.scoring_id);
+    console.debug("should not provide scoring_id when adding a scoring setting", scoringOption.scoring_id);
     throw new Error(`Failed to add scoring setting due to inproper parameters`);
   }
   try {

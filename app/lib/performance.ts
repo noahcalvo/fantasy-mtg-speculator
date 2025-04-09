@@ -37,7 +37,7 @@ function getFormatsFromScoringOptions(scoringOptions: ScoringOption[]): string[]
 
 function addPointsFromFormat(cardsWithPoints: CardPoint[], pointsFromFormat: CardPoint[]) {
   pointsFromFormat.forEach(point => {
-    const existingCard = cardsWithPoints.find(card => card.card_id === point.card_id);
+    const existingCard = cardsWithPoints.find(card => card.card_id === point.card_id && card.week === point.week);
     if (existingCard) {
       existingCard.total_points += point.total_points;
     } else {
@@ -46,16 +46,13 @@ function addPointsFromFormat(cardsWithPoints: CardPoint[], pointsFromFormat: Car
   })
 }
 
-const defaultModernScoringOptions = [
-  { format: 'modern', tournament_type: '', type: 'champs', points: 1, is_per_copy: false, league_id: -1 },
-  { format: 'modern', tournament_type: '', type: 'copies', points: 0.5, is_per_copy: true, league_id: -1 },
-  { format: 'modern', tournament_type: '', type: 'league', points: 0.25, is_per_copy: true, league_id: -1 },
-];
-
-export async function fetchTopCards(): Promise<CardPerformances> {
-  const cardPerformances = await fetchCardPerformanceByScoringOptWeekSet(defaultModernScoringOptions, getCurrentWeek(), '');
+export async function fetchTopCards(scoringOptions: ScoringOption[], week: number, set: string): Promise<CardPerformances> {
+  let weekToFetch = week
+  if (week == -1) {
+    weekToFetch = getCurrentWeek()
+  }
+  const cardPerformances = await fetchCardPerformanceByScoringOptWeekSet(scoringOptions, weekToFetch, set);
   // return the top 20 performers
-  console.log("performances", cardPerformances)
   cardPerformances.cards.sort((a, b) => b.total_points - a.total_points);
   return { cards: cardPerformances.cards.slice(0, 20) };
 }
@@ -72,14 +69,14 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
         throw new Error(`Invalid format: ${format}`);
       }
       const { challengeTable, leagueTable } = getPerformanceTableNames(format);
-      const data = await pool.query(`
+      const query = `
         SELECT 
             C.card_id, 
             C.name,
             PF.week,
-            ${challengeTable}.champs AS challenge_champs,
-            ${challengeTable}.copies AS challenge_copies,
-            ${leagueTable}.copies AS league_copies
+            ${challengeTable}.champs AS ${format}_challenge_champs,
+            ${challengeTable}.copies AS ${format}_challenge_copies,
+            ${leagueTable}.copies AS ${format}_league_copies
         FROM
             Cards C
         JOIN 
@@ -90,7 +87,7 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
             ${leagueTable} ON PF.performance_id = ${leagueTable}.performance_id
         WHERE
             PF.week = $1
-            AND C.set = $2
+            ${set ? 'AND C.set = $2' : ''}
         GROUP BY 
             C.card_id,
             C.name,
@@ -100,7 +97,10 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
             ${leagueTable}.copies
         ORDER BY
             C.name;
-      `, [week, set]);
+      `;
+
+      const params = set ? [week, set] : [week];
+      const data = await pool.query(query, params);
 
       const pointsFromFormat = calculatePointsFromPerformances(data.rows, scoringOptions);
       addPointsFromFormat(cardsWithPoints, pointsFromFormat);
@@ -499,7 +499,6 @@ async function fetchRawPerformanceData(cardIds: number[]): Promise<RawPerformanc
 
 // Helper function for fetching raw performance data
 export async function fetchRawPerformanceDataByWeek(cardIds: number[], week: number): Promise<any[]> {
-  console.log("fetching data for", cardIds, week);
   const data = await pool.query(
     `SELECT 
       C.card_id, 
@@ -567,7 +566,6 @@ export async function fetchCardPerformanceByWeek(collectionIDs: number[], league
     // Calculate points and format the response
     const cardsWithPoints = calculatePointsFromPerformances(rawPerformanceData, scoringOptions);
 
-    console.log("cardsWithPoints", cardsWithPoints)
 
     // Sort by points after calculation
     const sortedPerformances = cardsWithPoints.sort((a, b) => b.total_points - a.total_points);
@@ -575,5 +573,63 @@ export async function fetchCardPerformanceByWeek(collectionIDs: number[], league
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card point data for week');
+  }
+}
+
+export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: number, scoringOptions: ScoringOption[]): Promise<CardPoint[]> {
+  try {
+    const formats = getFormatsFromScoringOptions(scoringOptions);
+    if (formats.length === 0) {
+      throw new Error('No formats found in scoring options');
+    }
+    let weeksOfPoints: CardPoint[] = [];
+    for (const format of formats) {
+      if (!['modern', 'standard'].includes(format)) {
+        throw new Error(`Invalid format: ${format}`);
+      }
+      const { challengeTable, leagueTable } = getPerformanceTableNames(format);
+      const query = `
+      SELECT 
+          C.card_id, 
+          C.name,
+          PF.week,
+          ${challengeTable}.champs AS ${format}_challenge_champs,
+          ${challengeTable}.copies AS ${format}_challenge_copies,
+          ${leagueTable}.copies AS ${format}_league_copies
+      FROM
+          Cards C
+      JOIN 
+          Performance PF ON C.card_id = PF.card_id
+      LEFT JOIN 
+          ${challengeTable} ON PF.performance_id = ${challengeTable}.performance_id
+      LEFT JOIN 
+          ${leagueTable} ON PF.performance_id = ${leagueTable}.performance_id
+      WHERE
+          C.card_id = $1
+          AND PF.week >= (
+              SELECT MAX(week) - $2 FROM Performance WHERE card_id = $1
+          )
+      GROUP BY 
+          C.card_id,
+          C.name,
+          PF.week,
+          ${challengeTable}.champs,
+          ${challengeTable}.copies,
+          ${leagueTable}.copies
+      ORDER BY
+          PF.week DESC;
+    `;
+
+
+      const data = await pool.query(query, [cardId, weeks - 1]);
+
+      const pointsFromFormat = calculatePointsFromPerformances(data.rows, scoringOptions);
+      addPointsFromFormat(weeksOfPoints, pointsFromFormat);
+    }
+    console.log(weeksOfPoints);
+    return weeksOfPoints.sort((a, b) => b.total_points - a.total_points);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch last N weeks card performance');
   }
 }

@@ -1,5 +1,5 @@
 import { EPOCH } from '../consts';
-import { CardPoint } from './definitions';
+import { CardPoint, ScoringOption } from './definitions';
 
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
@@ -82,3 +82,15 @@ export function getCurrentWeek() {
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const defaultModernScoringOptions: ScoringOption[] = [
+  { scoring_id: -1, format: 'modern', tournament_type: 'Challenge Top 8', is_per_copy: true, points: 0.50, league_id: -1 },
+  { scoring_id: -1, format: 'modern', tournament_type: 'Challenge Champion', is_per_copy: false, points: 5.00, league_id: -1 },
+  { scoring_id: -1, format: 'modern', tournament_type: 'League 5-0', is_per_copy: true, points: 0.25, league_id: -1 }
+];
+
+export const defaultStandardScoringOptions: ScoringOption[] = [
+  { scoring_id: -1, format: 'standard', tournament_type: 'Challenge Top 8', is_per_copy: true, points: 0.50, league_id: -1 },
+  { scoring_id: -1, format: 'standard', tournament_type: 'Challenge Champion', is_per_copy: false, points: 5.00, league_id: -1 },
+  { scoring_id: -1, format: 'standard', tournament_type: 'League 5-0', is_per_copy: true, points: 0.25, league_id: -1 }
+];

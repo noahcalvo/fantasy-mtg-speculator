@@ -3,12 +3,17 @@ import { CardPerformances, CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { fetchTopCards } from '@/app/lib/performance';
 import { RevenueChartSkeleton } from '../skeletons';
-import { capitalize, getCurrentWeek } from '@/app/lib/utils';
+import {
+  capitalize,
+  defaultModernScoringOptions,
+  defaultStandardScoringOptions,
+  getCurrentWeek,
+} from '@/app/lib/utils';
 import { EPOCH } from '@/app/consts';
 import { Paper, ThemeProvider, colors, createTheme } from '@mui/material';
 import { routeToCardPageById } from '@/app/lib/routing';
+import { fetchTopCards } from '@/app/lib/performance';
 
 const darkTheme = createTheme({
   palette: {
@@ -46,20 +51,23 @@ export default function PointChart() {
   const [cardData, setCardData] = useState<CardPoint[]>([]);
   const [cardDataLoading, setCardDataLoading] = useState(true);
 
+  let scoringOpt = defaultModernScoringOptions;
+  if (format == 'standard') {
+    scoringOpt = defaultStandardScoringOptions;
+  }
+
   useEffect(() => {
     setCardDataLoading(true);
     const fetchData = async () => {
       let result;
-      result = await fetchTopCards();
       if (typeof week === 'undefined' && set === '') {
-        result = await fetchTopCards();
-        // } else if (typeof week === 'undefined') {
-        //   result = await fetchTopCardsFromSet(set, format);
-        // } else if (set === '') {
-        //   result = await fetchTopWeeklyCards(week, format);
-        // } else {
-        //   result = await fetchTopWeeklyCardsFromSet(week, set, format);
-        // }
+        result = await fetchTopCards(scoringOpt, -1, '');
+      } else if (typeof week === 'undefined') {
+        result = await fetchTopCards(scoringOpt, -1, set);
+      } else if (set === '') {
+        result = await fetchTopCards(scoringOpt, week, '');
+      } else {
+        result = await fetchTopCards(scoringOpt, week, set);
       }
 
       // change each cardName to be only 18 characters
@@ -76,7 +84,7 @@ export default function PointChart() {
     fetchData().catch((error) =>
       console.error('Failed to fetch card data:', error),
     );
-  }, [week, set, format]); // The effect depends on week, set, and format
+  }, [week, set, format, scoringOpt]); // The effect depends on week, set, and format
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
