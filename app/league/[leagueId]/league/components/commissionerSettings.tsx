@@ -114,9 +114,8 @@ export function CommissionerSettings({
             </div>
             <div className="w-full border-y border-solid border-gray-100"></div>
             {scoringOptions.map((option, index) => (
-              <div>
+              <div key={index}>
                 <div
-                  key={index}
                   className={`relative p-4 p${
                     selectedForDeletion === index ? 'shadow-lg' : ''
                   }`}
