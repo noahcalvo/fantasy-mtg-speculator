@@ -641,7 +641,7 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
         });
       }
     }
-    return weeksOfPoints.sort((a, b) => b.total_points - a.total_points);
+    return weeksOfPoints
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch last N weeks card performance');
