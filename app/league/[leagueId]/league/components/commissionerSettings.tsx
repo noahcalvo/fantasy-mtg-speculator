@@ -105,99 +105,113 @@ export function CommissionerSettings({
             No scoring options found. Please add scoring rules to your league.
           </p>
         ) : (
-          <div className="space-y-4">
+          <div>
             <div className="grid grid-cols-3 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-4">
               <div>Format</div>
               <div>Type</div>
               <div>Points</div>
               <div></div>
             </div>
+            <div className="w-full border-y border-solid border-gray-100"></div>
             {scoringOptions.map((option, index) => (
-              <div
-                key={index}
-                className={`relative ${
-                  selectedForDeletion === index ? 'shadow-lg' : ''
-                }`}
-                onClick={(e) => {
-                  if (window.innerWidth < 768) {
-                    setSelectedForDeletion(index);
-                    e.stopPropagation();
-                  }
-                }}
-              >
-                <div className="grid grid-cols-3 items-center gap-4 border-b pb-4 md:grid-cols-4">
-                  <div>{option.format}</div>
-                  <div>{option.tournament_type}</div>
-                  <div>
-                    {option.points}{' '}
-                    {option.is_per_copy ? (
-                      <FontAwesomeIcon icon={faClone} className="w-8" />
-                    ) : (
-                      ''
-                    )}
-                  </div>
-                  <button
-                    className="mt-4 hidden bg-gray-950 px-2 py-1 text-gray-50 md:block"
-                    onClick={(e) => {
+              <div>
+                <div
+                  key={index}
+                  className={`relative p-4 p${
+                    selectedForDeletion === index ? 'shadow-lg' : ''
+                  }`}
+                  onClick={(e) => {
+                    if (window.innerWidth < 768) {
+                      setSelectedForDeletion(index);
                       e.stopPropagation();
-                      handleDeleteScoringOption(option);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-                {selectedForDeletion === index && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    }
+                  }}
+                >
+                  <div className="grid grid-cols-3 items-center gap-4 py-2 md:grid-cols-4">
+                    <div>{option.format}</div>
+                    <div>{option.tournament_type}</div>
+                    <div>
+                      {option.points}{' '}
+                      {option.is_per_copy ? (
+                        <FontAwesomeIcon icon={faClone} className="w-8" />
+                      ) : (
+                        ''
+                      )}
+                    </div>
                     <button
-                      className="bg-red-600 px-4 py-2 text-white"
+                      className="mt-4 hidden bg-gray-950 px-2 py-1 text-gray-50 md:block"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteScoringOption(option);
-                        setSelectedForDeletion(null);
                       }}
                     >
                       Delete
                     </button>
                   </div>
-                )}
+                  {selectedForDeletion === index && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                      <button
+                        className="bg-red-600 px-4 py-2 text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteScoringOption(option);
+                          setSelectedForDeletion(null);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full border-y border-solid border-gray-100"></div>
               </div>
             ))}
           </div>
         )}
       </section>
-      <section className="rounded border p-4 shadow">
+      <section className="w-full rounded border p-4 shadow">
         <h2 className="mb-4 text-xl font-semibold">Add rules</h2>
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4 rounded bg-gray-100 p-2 text-sm font-medium">
-            <div>Format</div>
-            <div>Type</div>
-            <div>Points</div>
+        <div className="flex w-full md:block">
+          <div className="grid grid-cols-1 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-3">
+            <div className="flex h-full items-center justify-center text-center">
+              Format
+            </div>
+            <div className="flex h-full items-center justify-center text-center">
+              Type
+            </div>
+            <div className="flex h-full items-center justify-center text-center">
+              Points
+            </div>
           </div>
           {/* Example scoring option */}
-          <div className="grid grid-cols-3 items-center gap-4 border-b pb-4">
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value)}
-              className="select"
-            >
-              {formatOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <select
-              value={tournamentType}
-              onChange={(e) => setTournamentType(e.target.value)}
-              className="select"
-            >
-              {tournamentTypeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <div>
+          <div className="grid w-full grid-cols-1 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-3">
+            <div className="flex h-full items-center justify-center">
+              <select
+                value={format}
+                onChange={(e) => setFormat(e.target.value)}
+                className="select w-full text-center"
+              >
+                {formatOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex h-full items-center justify-center">
+              <select
+                value={tournamentType}
+                onChange={(e) => setTournamentType(e.target.value)}
+                className="select w-full text-center"
+              >
+                {tournamentTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex h-full items-center justify-center text-center">
               {tournamentType != 'Challenge Champion' && (
                 <FontAwesomeIcon icon={faClone} className="w-8" />
               )}
@@ -210,20 +224,20 @@ export function CommissionerSettings({
                     e.target.value === '' ? '' : parseFloat(e.target.value),
                   )
                 }
-                className="input"
+                className="input w-full  text-center"
               />
             </div>
           </div>
-          <button
-            onClick={handleAddScoringOption}
-            className="mt-4 flex bg-gray-950 px-2 py-1 text-gray-50"
-          >
-            <span>
-              <PlusIcon className="w-6" />
-            </span>
-            Add Scoring Option
-          </button>
         </div>
+        <button
+          onClick={handleAddScoringOption}
+          className="mt-4 flex bg-gray-950 px-2 py-1 text-gray-50"
+        >
+          <span>
+            <PlusIcon className="w-6" />
+          </span>
+          Add Scoring Option
+        </button>
       </section>
     </div>
   );
