@@ -27,18 +27,10 @@ export default function Collection({
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell
-              align="right"
-              className="text-gray-50"
-              style={{ color: 'rgb(249 250 251)' }}
-            >
+            <TableCell align="right" className="text-gray-50">
               This week
             </TableCell>
-            <TableCell
-              align="right"
-              className="text-gray-50"
-              style={{ color: 'rgb(249 250 251)' }}
-            >
+            <TableCell align="right" className="text-gray-50">
               Last week
             </TableCell>
           </TableRow>
@@ -54,24 +46,15 @@ export default function Collection({
                 component="th"
                 scope="row"
                 className="line-clamp-1 overflow-hidden text-gray-50"
-                style={{ color: 'rgb(249 250 251)' }}
               >
                 {card.name}
               </TableCell>
-              <TableCell
-                align="right"
-                className="text-gray-50"
-                style={{ color: 'rgb(249 250 251)' }}
-              >
+              <TableCell align="right" className="text-gray-50">
                 {mostRecentPoints.cards.find(
                   (element) => element.card_id === card?.card_id,
                 )?.total_points ?? '0'}
               </TableCell>
-              <TableCell
-                align="right"
-                className="text-gray-50"
-                style={{ color: 'rgb(249 250 251)' }}
-              >
+              <TableCell align="right" className="text-gray-50">
                 {secondMostRecentPoints.cards.find(
                   (element) => element.card_id === card?.card_id,
                 )?.total_points ?? '0'}

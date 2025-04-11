@@ -24,10 +24,10 @@ export default async function SideNav() {
   return (
     <div className="flex h-full flex-col p-6 pb-0 md:p-2">
       <Link
-        className="mb-2 hidden h-28 items-end justify-start rounded-md bg-gray-50 md:flex md:h-40"
+        className="mb-2 hidden h-28 items-end justify-start rounded-md bg-white text-gray-950 hover:text-red-900 md:flex md:h-40"
         href="/"
       >
-        <div className="mb-2 ml-4 h-28 w-28 p-0 text-gray-50 md:mb-8 md:ml-0 md:w-40">
+        <div className="mb-2 ml-4 h-28 w-28 p-0 md:mb-8 md:ml-0 md:w-40">
           <SpecLogo />
         </div>
       </Link>

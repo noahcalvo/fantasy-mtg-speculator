@@ -1,4 +1,8 @@
+import { fetchPlayerCollectionWithDetails } from '@/app/lib/collection';
+import { CardDetails } from '@/app/lib/definitions';
+import { fetchCardPerformanceByWeek } from '@/app/lib/performance';
 import { fetchParticipantData } from '@/app/lib/player';
+import { getCurrentWeek } from '@/app/lib/utils';
 import Roster from '@/app/ui/roster/roster';
 
 export default async function Page({
@@ -12,6 +16,21 @@ export default async function Page({
     isNaN(playerId) ? -1 : playerId,
   );
 
+  const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
+
+  const collectionIds = collection.map((card: CardDetails) => card.card_id);
+
+  const mostRecentPoints = await fetchCardPerformanceByWeek(
+    collectionIds,
+    leagueId,
+    getCurrentWeek(),
+  );
+  const secondMostRecentPoints = await fetchCardPerformanceByWeek(
+    collectionIds,
+    leagueId,
+    getCurrentWeek() - 1,
+  );
+
   return (
     <div className="bg-gray-950">
       <Roster
@@ -19,6 +38,9 @@ export default async function Page({
         leagueId={leagueId}
         multiColumn={true}
         name={playerData?.name}
+        mostRecentPoints={mostRecentPoints}
+        secondMostRecentPoints={secondMostRecentPoints}
+        week={getCurrentWeek()}
       />
     </div>
   );

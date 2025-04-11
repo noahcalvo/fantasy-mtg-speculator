@@ -4,7 +4,7 @@ import { sql } from '@vercel/postgres';
 import { CardDetails, CardPerformances, RosterCardDetailsMap, RosterIdMap } from './definitions';
 import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
-import { fetchCardPerformanceByWeek } from './collection';
+import { fetchCardPerformanceByWeek } from './performance';
 
 export type RosterSlotToId = {
   [key: string]: number;
@@ -93,7 +93,7 @@ export async function fetchPlayerRosterScore(
     if (cardIds.length === 0) {
       return { cards: [] } as CardPerformances
     }
-    const performances = await fetchCardPerformanceByWeek(cardIds, week);
+    const performances = await fetchCardPerformanceByWeek(cardIds, leagueId, week);
     return performances;
   } catch (error) {
     console.error('Error fetching player roster scores:', error);

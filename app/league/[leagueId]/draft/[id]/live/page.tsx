@@ -42,7 +42,10 @@ export default async function Page({
     )
     .map((card: CardDetails) => card.card_id);
 
-  const undraftedCardPoints = await fetchCardPerformances(undraftedCardIds);
+  const undraftedCardPoints = await fetchCardPerformances(
+    undraftedCardIds,
+    leagueId,
+  );
 
   const undraftedCardsWithPoints: CardDetailsWithPoints[] = undraftedCards.map(
     (card: CardDetails) => {

@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function SpecLogo() {
   return (
-    <div className="flex flex-row items-center p-0 leading-none text-gray-950">
+    <div className="flex flex-row items-center p-0 leading-none">
       <Image
         src="/spec.png"
         width="100"

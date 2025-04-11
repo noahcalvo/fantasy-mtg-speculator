@@ -1,9 +1,22 @@
 'use client';
+import { ScoringOption } from '@/app/lib/definitions';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
-export default function MoreAboutScoring() {
+export default function MoreAboutScoring({
+  scoringInfo,
+}: {
+  scoringInfo: ScoringOption[];
+}) {
   const [showInfo, setShowInfo] = useState(false);
+
+  // sort scoring info by most points, and the by format
+  scoringInfo.sort((a, b) => {
+    if (a.points === b.points) {
+      return a.format.localeCompare(b.format);
+    }
+    return b.points - a.points;
+  });
 
   return (
     <div className="flex-col justify-between rounded-xl bg-gray-950 p-2 text-gray-50">
@@ -22,22 +35,17 @@ export default function MoreAboutScoring() {
             </tr>
           </thead>
           <tbody className="rounded-lg">
-            <tr className="rounded-lg">
-              <td className="rounded-tl-lg border px-4 py-2">
-                Appears in Challenge champion&apos;s deck
-              </td>
-              <td className="border px-4 py-2">5 pts</td>
-            </tr>
-            <tr>
-              <td className="border px-4 py-2">
-                Appears in Challenge top 8 deck
-              </td>
-              <td className="border px-4 py-2">0.5 pts/copy</td>
-            </tr>
-            <tr>
-              <td className="border px-4 py-2">Appears in League 5-0 Deck</td>
-              <td className="border px-4 py-2">0.25 pts/copy</td>
-            </tr>
+            {scoringInfo.map((info, index) => (
+              <tr key={index} className="rounded-lg">
+                <td className="border px-4 py-2">
+                  {info.format} {info.tournament_type}
+                </td>
+                <td className="border px-4 py-2">
+                  {info.points}
+                  {info.is_per_copy && ' per copy'}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

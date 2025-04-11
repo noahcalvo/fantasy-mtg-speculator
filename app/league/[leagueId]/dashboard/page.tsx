@@ -5,12 +5,13 @@ import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import {
-  fetchCardPerformanceByWeek,
   fetchPlayerCollectionWithDetails,
 } from '@/app/lib/collection';
 import { CardDetails } from '@/app/lib/definitions';
 import { getCurrentWeek } from '@/app/lib/utils';
 import Collection from '@/app/ui/roster/collection';
+import { fetchScoringOptions } from '@/app/lib/leagues';
+import { fetchCardPerformanceByWeek } from '@/app/lib/performance';
 
 export default async function Page({
   params,
@@ -23,15 +24,18 @@ export default async function Page({
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
   const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
+  const scoringRules = await fetchScoringOptions(leagueId);
 
   const collectionIds = collection.map((card: CardDetails) => card.card_id);
 
   const mostRecentPoints = await fetchCardPerformanceByWeek(
     collectionIds,
+    leagueId,
     getCurrentWeek(),
   );
   const secondMostRecentPoints = await fetchCardPerformanceByWeek(
     collectionIds,
+    leagueId,
     getCurrentWeek() - 1,
   );
 
@@ -46,7 +50,7 @@ export default async function Page({
             leagueId={leagueId}
           />
         </div>
-        <MoreAboutScoring />
+        <MoreAboutScoring scoringInfo={scoringRules} />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="row-span-2 rounded-xl bg-gray-950 lg:col-span-2 lg:col-start-2 lg:row-start-1">
@@ -54,6 +58,9 @@ export default async function Page({
             playerId={player.player_id}
             owner={true}
             leagueId={leagueId}
+            mostRecentPoints={mostRecentPoints}
+            secondMostRecentPoints={secondMostRecentPoints}
+            week={getCurrentWeek()}
           />
         </div>
         <div className="col-start-1 row-span-2 rounded-xl bg-gray-950">

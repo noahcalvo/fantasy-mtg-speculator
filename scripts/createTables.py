@@ -164,6 +164,20 @@ def createTables(conn):
             cur.execute(create_league_table_query)
             print("Created 'leagues' table")
 
+            create_scoring_types_table_query = """
+            CREATE TABLE ScoringOptions (
+            scoring_id SERIAL PRIMARY KEY,
+            format VARCHAR(50) NOT NULL,
+            tournament_type VARCHAR(100) NOT NULL,
+            is_per_copy BOOLEAN NOT NULL,
+            points DECIMAL(10,2) NOT NULL,
+            league_id INT NOT NULL,
+            FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id)
+            );
+            """
+            cur.execute(create_scoring_types_table_query)
+            print("Created 'scoring types' table")
+
             create_trade_table_query = """
             CREATE TABLE IF NOT EXISTS TradesV2 (
             trade_id SERIAL PRIMARY KEY,

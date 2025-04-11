@@ -4,6 +4,7 @@ import { sql } from '@vercel/postgres';
 import {
   League,
   Player,
+  ScoringOption,
 } from './definitions';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -55,13 +56,13 @@ export async function fetchAllLeagues() {
   }
 }
 
-export async function fetchAllOpenLeagues() {
+export async function fetchAllOpenLeagues(): Promise<League[]> {
   try {
     const data = await sql<League>`
         SELECT * FROM leaguesV3 WHERE open = true;
           `;
     if (data.rows.length === 0) {
-      return null;
+      return [];
     }
     return data.rows;
   } catch (error) {
@@ -91,12 +92,12 @@ export async function joinLeague(userId: number, leagueId: number) {
       throw new Error('League not found');
     }
     if (leagueResult.rows[0].open === false) {
-      console.log('League is closed');
+      console.debug('League is closed');
       return;
     }
     const participants = leagueResult.rows[0].participants;
     if (participants.includes(userId)) {
-      console.log('Player is already a participant');
+      console.debug('Player is already a participant');
       return;
     } else {
       await sql`UPDATE leaguesV3 SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
@@ -146,7 +147,7 @@ export async function fetchPlayersInLeague(
       WHERE l.league_id = ${leagueId}
     );`;
     if (data.rows.length === 0) {
-      console.log(`no league with id ${leagueId}`);
+      console.debug(`no league with id ${leagueId}`);
       return [];
     }
     return data.rows;
@@ -181,7 +182,7 @@ export async function isPlayerInLeague(playerId: number, leagueId: number) {
   }
 }
 
-export async function isCommissioner(playerId: number, leagueId: number) {
+export async function isCommissioner(playerId: number, leagueId: number): Promise<boolean> {
   try {
     const data = await sql`
     SELECT commissioners FROM leaguesV3 WHERE league_id=${leagueId};`;
@@ -189,5 +190,49 @@ export async function isCommissioner(playerId: number, leagueId: number) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
+  }
+}
+
+export async function fetchScoringOptions(leagueId: number): Promise<ScoringOption[]> {
+  try {
+    const data = await sql<ScoringOption>`
+    SELECT * FROM ScoringOptions WHERE league_id=${leagueId};`;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to fetch players for leagueId ${leagueId}`);
+  }
+}
+
+export async function addScoringSetting(leagueId: number, scoringOption: ScoringOption) {
+  if (scoringOption.scoring_id) {
+    console.debug("should not provide scoring_id when adding a scoring setting", scoringOption.scoring_id);
+    throw new Error(`Failed to add scoring setting due to inproper parameters`);
+  }
+  try {
+    await sql`
+    INSERT INTO ScoringOptions (league_id, format, tournament_type, is_per_copy, points)
+    VALUES (${leagueId}, ${scoringOption.format}, ${scoringOption.tournament_type}, ${scoringOption.is_per_copy}, ${scoringOption.points});`;
+    revalidatePath(`/league/${leagueId}/settings`);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to add scoring option for leagueId ${leagueId}`);
+  }
+}
+
+export async function deleteScoringSetting(scoringOption: ScoringOption, playerId: number) {
+  // authenticate that the user is the commissioner of the league
+  // if not, throw an error
+  const commissioner = await isCommissioner(playerId, scoringOption.league_id);
+  if (!commissioner) {
+    throw new Error(`Player ${playerId} is not a commissioner of league ${scoringOption.league_id}`);
+  }
+  try {
+    await sql`
+    DELETE FROM ScoringOptions WHERE scoring_id=${scoringOption.scoring_id};`;
+    revalidatePath(`/league/${scoringOption.league_id}/settings`);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to delete scoring option ${scoringOption}`);
   }
 }

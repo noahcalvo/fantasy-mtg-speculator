@@ -22,6 +22,18 @@ export type CardPoint = {
   card_id: number;
 };
 
+export type RawPerformanceData = {
+  card_id: number,
+  name: string,
+  week: number,
+  modern_challenge_champs: number | null,
+  modern_challenge_copies: number | null,
+  modern_league_copies: number | null,
+  standard_challenge_champs: number | null,
+  standard_challenge_copies: number | null,
+  standard_league_copies: number | null
+}
+
 export type CardPerformances = {
   cards: CardPoint[];
 }
@@ -348,4 +360,13 @@ export type ScryfallSearchResponse = {
   has_more: boolean;
   next_page: string;
   data: ScryfallSearchResult[];
+};
+
+export type ScoringOption = {
+  scoring_id?: number;
+  format: string;
+  tournament_type: string;
+  is_per_copy: boolean;
+  points: number;
+  league_id: number;
 };

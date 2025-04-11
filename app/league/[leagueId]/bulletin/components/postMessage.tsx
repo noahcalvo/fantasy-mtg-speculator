@@ -13,7 +13,7 @@ export default function PostMessage({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(message);
+    console.debug(message);
     await postBulletinItem(leagueId, message, playerId);
     setMessage('');
   };
@@ -25,7 +25,7 @@ export default function PostMessage({
         value={message}
         onChange={(e) => {
           setMessage(e.target.value);
-          console.log(message);
+          console.debug(message);
         }}
         className="mr-2 rounded p-2"
         placeholder="Type your message here..."

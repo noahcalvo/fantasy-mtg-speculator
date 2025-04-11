@@ -125,7 +125,7 @@ export const joinDraft = async (draftId: number, playerId: number, leagueId: num
     }
     const participants = draftResult.rows[0].participants;
     if (participants.includes(playerId)) {
-      console.log('Player is already a participant');
+      console.debug('Player is already a participant');
       return
     }
     // Check if player belongs to the league
@@ -228,7 +228,7 @@ export async function makePick(draftId: number, playerId: number, cardName: stri
     }
     const activePick = await getActivePick(draftId);
     if (activePick?.player_id !== playerId) {
-      console.log('Not your turn', activePick, playerId)
+      console.debug('Not your turn', activePick, playerId)
       throw new Error('Not your turn');
     }
     await pool.query(`UPDATE picksV3 SET card_id = $1 WHERE draft_id = $2 AND player_id = $3 AND round = $4 AND pick_number = $5;`, [cardId, draftId, playerId, activePick.round, activePick.pick_number]);
@@ -262,7 +262,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     }
     if (frontSideName === cardName) {
       const newCard = await pool.query<Card>(`INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`, [cardName, set]);
-      console.log('New card created:', newCard)
+      console.debug('New card created:', newCard)
       return newCard.rows[0].card_id;
     }
     const existingDoubleFaceCard = await pool.query<Card>(`SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`, [cardName]);
@@ -270,7 +270,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
       return existingDoubleFaceCard.rows[0].card_id;
     }
     const newCard = await pool.query<Card>(`INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`, [cardName, set]);
-    console.log('New card created:', newCard)
+    console.debug('New card created:', newCard)
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to get or create card: ${error}`);

@@ -7,13 +7,13 @@ async function startDraftWorker(draftId: number, set: string, playerId?: number,
   return new Promise<void>((resolve, reject) => {
     const worker = new Worker('/workers/worker.ts', { workerData: { draftId, set, playerId, cardName } });
     worker.on('message', (message: any) => {
-      console.log('Worker sent message:', message);
+      console.debug('Worker sent message:', message);
       if (message === 'done') {
         resolve();
       }
     });
     worker.on('error', (error: Error) => {
-      console.log("worker error:", error)
+      console.debug("worker error:", error)
       reject(error);
     });
     worker.on('exit', (code: number) => {
