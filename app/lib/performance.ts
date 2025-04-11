@@ -87,7 +87,7 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
             ${leagueTable} ON PF.performance_id = ${leagueTable}.performance_id
         WHERE
             PF.week = $1
-            ${set ? 'AND C.set = $2' : ''}
+            ${set ? 'AND C.origin = $2' : ''}
         GROUP BY 
             C.card_id,
             C.name,

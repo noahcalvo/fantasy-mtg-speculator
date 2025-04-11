@@ -18,15 +18,16 @@ export default async function OwnerShipDetails({ cardId }: { cardId: number }) {
   let ownerIdToName: { [key: number]: string } = {};
   let leagueIdToName: { [key: number]: string } = {};
 
-  for (const l of leagues) {
+  const ownershipPromises = leagues.map(async (l) => {
     const ownership = await fetchOwnership(l.league_id, cardId);
     ownershipMap[l.league_id] = ownership?.player_id ?? -1;
     if (ownership) {
       ownerIdToName[ownership?.player_id] = ownership?.name;
     }
     leagueIdToName[l.league_id] = l.name;
-  }
+  });
 
+  await Promise.all(ownershipPromises);
   return (
     <div className="text-md">
       {Object.entries(ownershipMap).map(([leagueId, ownerId]) => {
