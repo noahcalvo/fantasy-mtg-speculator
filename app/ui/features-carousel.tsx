@@ -30,60 +30,88 @@ type FeatureKey =
   | 'chat'
   | 'trade'
   | 'performance';
+
+type FeatureButtonProps = {
+  featureKey: FeatureKey;
+  currentFeature: FeatureKey;
+  onClick: (feature: FeatureKey) => void;
+  children: React.ReactNode;
+};
+
+function FeatureButton({
+  featureKey,
+  currentFeature,
+  onClick,
+  children,
+}: FeatureButtonProps) {
+  return (
+    <li
+      className={`my-1 cursor-pointer rounded-md border border-gray-600 px-1 ${
+        currentFeature === featureKey ? 'bg-gray-950 text-gray-50' : ''
+      }`}
+      onClick={() => onClick(featureKey)}
+    >
+      {children}
+    </li>
+  );
+}
+
 export function FeaturesCarousel() {
   const [currentFeature, setCurrentFeature] = useState<FeatureKey>('draft');
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-gray-50 px-6 py-4 sm:px-20 md:w-1/3 md:px-6 lg:px-12 xl:px-16">
+    <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
+      <p className="mb-4 w-full text-xl text-gray-800 md:text-3xl">
+        <strong>Spec Features</strong>
+      </p>
       <div>
-        <p
-          className={`w-full text-xl text-gray-800 md:text-3xl md:leading-normal`}
-        >
-          <strong>Spec Features</strong>
-        </p>
-        <div>
-          <div className="grid list-none grid-cols-2 gap-4 text-gray-600">
-            <ul className="list-inside">
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('draft')}
-              >
-                Draft by set
-              </li>
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('lineup')}
-              >
-                Manage your lineup
-              </li>
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('standings')}
-              >
-                League standings
-              </li>
-            </ul>
-            <ul className="list-inside">
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('chat')}
-              >
-                League chat
-              </li>
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('trade')}
-              >
-                Trade
-              </li>
-              <li
-                className="my-1 rounded-md border border-gray-600 px-1"
-                onClick={() => setCurrentFeature('performance')}
-              >
-                View card performance
-              </li>
-            </ul>
-          </div>
+        <div className="grid list-none grid-cols-2 gap-4 text-gray-600">
+          <ul className="list-inside">
+            <FeatureButton
+              featureKey="draft"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              Draft by set
+            </FeatureButton>
+            <FeatureButton
+              featureKey="lineup"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              Manage your lineup
+            </FeatureButton>
+            <FeatureButton
+              featureKey="standings"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              League standings
+            </FeatureButton>
+          </ul>
+          <ul className="list-inside">
+            <FeatureButton
+              featureKey="chat"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              League chat
+            </FeatureButton>
+            <FeatureButton
+              featureKey="trade"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              Trade
+            </FeatureButton>
+            <FeatureButton
+              featureKey="performance"
+              currentFeature={currentFeature}
+              onClick={setCurrentFeature}
+            >
+              View card performance
+            </FeatureButton>
+          </ul>
         </div>
       </div>
       <div className="aspect-square w-full overflow-hidden">

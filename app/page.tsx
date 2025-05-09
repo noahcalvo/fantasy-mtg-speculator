@@ -15,12 +15,10 @@ export default function Page() {
       <div className="flex shrink-0 items-end rounded-lg bg-gray-50 px-2">
         <SpecLogo />
       </div>
-      <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col justify-center gap-4 rounded-lg bg-gray-50 px-6 py-8 sm:px-20 md:w-1/3 md:px-6 lg:px-12 xl:px-16">
+      <div className="mt-4 flex grow flex-col gap-4 xl:flex-row">
+        <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
           <div>
-            <p
-              className={`text-xl text-gray-800 md:text-3xl md:leading-normal`}
-            >
+            <p className="mb-4 text-xl text-gray-800 md:text-3xl">
               <strong>Welcome to Spec.</strong>
             </p>
             <p className="text-gray-600">
@@ -38,20 +36,15 @@ export default function Page() {
             <ArrowRightIcon className="w-5 md:w-6" />
           </Link>
         </div>
-        <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-gray-50 px-6 py-8 sm:px-20 md:w-1/3 md:px-6 lg:px-12 xl:px-16">
+        <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
           <div>
-            <p
-              className={`w-full text-xl text-gray-800 md:text-3xl md:leading-normal`}
-            >
+            <p className="mb-4 w-full text-xl text-gray-800 md:text-3xl">
               <strong>Fantasy Magic</strong>
             </p>
             <p className="text-gray-600">
               Spec&apos;s mission is to spark connection and community, and
               renew interest in competitive MTG through card performance
               speculation. <br />
-              <br />
-              Join us and experience the excitement of{' '}
-              <b>fantasy Magic the Gathering!</b>
             </p>
           </div>
           <div>

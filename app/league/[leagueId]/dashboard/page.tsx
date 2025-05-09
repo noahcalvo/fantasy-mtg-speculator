@@ -4,14 +4,13 @@ import TotalCardsBadge from './components/total-cards';
 import BestPerformingBadge from './components/best-performer';
 import MoreAboutScoring from './components/more-about-scoring';
 import { fetchPlayerByEmail } from '@/app/lib/player';
-import {
-  fetchPlayerCollectionWithDetails,
-} from '@/app/lib/collection';
-import { CardDetails } from '@/app/lib/definitions';
+import { fetchPlayerCollectionWithDetails } from '@/app/lib/collection';
+import { CardDetails, getRosterPositions } from '@/app/lib/definitions';
 import { getCurrentWeek } from '@/app/lib/utils';
 import Collection from '@/app/ui/roster/collection';
 import { fetchScoringOptions } from '@/app/lib/leagues';
 import { fetchCardPerformanceByWeek } from '@/app/lib/performance';
+import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
 
 export default async function Page({
   params,
@@ -25,6 +24,21 @@ export default async function Page({
   const playerId = player.player_id;
   const collection = await fetchPlayerCollectionWithDetails(playerId, leagueId);
   const scoringRules = await fetchScoringOptions(leagueId);
+  const roster = await fetchPlayerRosterWithDetails(playerId, leagueId);
+  // make a cardID list of the cards on the roster
+  let cardsOnRoster = [];
+  const positions = getRosterPositions();
+  for (const position of positions) {
+    const cardId = roster[position.toLowerCase()]?.card_id;
+    if (cardId) {
+      cardsOnRoster.push(cardId);
+    }
+  }
+  const benchCollection = collection.filter((card: CardDetails) => {
+    return !cardsOnRoster.some((cardID: number) => {
+      return cardID === card.card_id;
+    });
+  });
 
   const collectionIds = collection.map((card: CardDetails) => card.card_id);
 
@@ -53,7 +67,7 @@ export default async function Page({
         <MoreAboutScoring scoringInfo={scoringRules} />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="row-span-2 rounded-xl bg-gray-950 lg:col-span-2 lg:col-start-2 lg:row-start-1">
+        <div className="row-span-2 rounded-xl bg-gray-950 lg:row-start-1">
           <Roster
             playerId={player.player_id}
             owner={true}
@@ -63,11 +77,11 @@ export default async function Page({
             week={getCurrentWeek()}
           />
         </div>
-        <div className="col-start-1 row-span-2 rounded-xl bg-gray-950">
+        <div className="row-span-2 rounded-xl bg-gray-950 text-gray-50">
           <Collection
             playerId={player.player_id}
             leagueId={leagueId}
-            collection={collection}
+            benchCollection={benchCollection}
             mostRecentPoints={mostRecentPoints}
             secondMostRecentPoints={secondMostRecentPoints}
           />
