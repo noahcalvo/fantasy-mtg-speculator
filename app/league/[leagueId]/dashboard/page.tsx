@@ -11,6 +11,7 @@ import Collection from '@/app/ui/roster/collection';
 import { fetchScoringOptions } from '@/app/lib/leagues';
 import { fetchCardPerformanceByWeek } from '@/app/lib/performance';
 import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
+import { LightLoading } from '@/app/ui/loadingSpinner';
 
 export default async function Page({
   params,
@@ -57,9 +58,10 @@ export default async function Page({
     <main className="p-2">
       <div className="mb-4 text-2xl text-gray-950 md:text-3xl">
         Your Collection at a Glance
+        <LightLoading />
       </div>
-      <div className="grid gap-6 xl:grid-cols-2">
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1">
+      <div className="grid gap-2 xl:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
           <TotalCardsBadge playerId={player.player_id} leagueId={leagueId} />
           <BestPerformingBadge
             playerId={player.player_id}
@@ -68,7 +70,7 @@ export default async function Page({
         </div>
         <MoreAboutScoring scoringInfo={scoringRules} />
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="row-span-2 rounded-xl bg-gray-950 lg:row-start-1">
           <Roster
             playerId={player.player_id}

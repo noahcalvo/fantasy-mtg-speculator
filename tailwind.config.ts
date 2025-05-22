@@ -1,4 +1,3 @@
-import { transform } from 'next/dist/build/swc';
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -32,20 +31,13 @@ const config: Config = {
     },
     animation: {
       'fly': 'fly 10s linear infinite',
+      'spin': 'spin 1s linear infinite',
     },
     keyframes: {
       shimmer: {
         '100%': {
           transform: 'translateX(100%)',
         },
-      },
-      spin: {
-        from: {
-          transform: 'rotate(0deg)',
-        },
-        to: {
-          transform: 'rotate(360deg)',
-        }
       },
       fly: {
         '0%': { transform: 'translateX(0) rotate(0deg)' },
@@ -56,6 +48,14 @@ const config: Config = {
         '43%': { transform: 'translateX(0) rotate(0deg)' },
         '100%': { transform: 'translateX(0) rotate(0deg)' },
       },
+      spin: {
+        from: {
+          transform: 'rotate(0deg)',
+        },
+        to: {
+          transform: 'rotate(360deg)',
+        }
+      }
     },
   },
   plugins: [require('@tailwindcss/forms')],
