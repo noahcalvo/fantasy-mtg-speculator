@@ -17,11 +17,11 @@ export default function LoginForm() {
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
       <form action={dispatch} className="space-y-3">
         <div>
-          <h1 className="mb-3 text-2xl">Please log in to continue.</h1>
+          <h1 className="mb-4 text-2xl">Please log in to continue.</h1>
           <div className="w-full">
             <div>
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-black"
+                className="mb-4 mt-6 block text-xs font-medium text-black"
                 htmlFor="email"
               >
                 Email
@@ -40,7 +40,7 @@ export default function LoginForm() {
             </div>
             <div className="mt-4">
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-black"
+                className="mb-4 mt-6 block text-xs font-medium text-black"
                 htmlFor="password"
               >
                 Password

@@ -22,7 +22,7 @@ export default function Bench({
 }) {
   return (
     <div className="p-4 text-gray-50">
-      <h2 className="text-xl">Bench</h2>
+      <h2 className="text-xl">Unrostered Collection</h2>
       <div className="grid w-full grid-cols-4 text-gray-50">
         <div />
         <div />

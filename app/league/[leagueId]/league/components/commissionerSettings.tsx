@@ -92,10 +92,9 @@ export function CommissionerSettings({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="mb-4 text-xl font-semibold">Scoring Configuration</h2>
-        <div className="text-small mb-1 inline-block bg-gray-200 px-2 py-1">
-          <FontAwesomeIcon icon={faClone} className="w-4" /> = points recieved
-          per copy in deck
+        <h2 className="mb-4 text-xl font-semibold">Scoring Setup</h2>
+        <div className="text-small mb-2 inline-block bg-gray-200 px-2 py-1">
+          <FontAwesomeIcon icon={faClone} className="w-4" /> = points per copy
         </div>
       </div>
       <section className="rounded border p-4 shadow">
@@ -169,7 +168,7 @@ export function CommissionerSettings({
         )}
       </section>
       <section className="w-full rounded border p-4 shadow">
-        <h2 className="mb-4 text-xl font-semibold">Add rules</h2>
+        <h2 className="mb-4 text-xl font-semibold">Add New Rule</h2>
         <div className="flex w-full md:block">
           <div className="grid grid-cols-1 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-3">
             <div className="flex h-full items-center justify-center text-center">

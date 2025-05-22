@@ -22,18 +22,12 @@ export default function MoreAboutScoring({
     <div className="flex-col justify-between rounded-xl bg-gray-950 p-2 text-gray-50">
       <div className="flex p-2" onClick={() => setShowInfo(!showInfo)}>
         <InformationCircleIcon className="h-5 w-5" />
-        <h3 className="font-xl ml-2">Scoring Info</h3>
+        <h3 className="font-xl ml-2">Scoring Events</h3>
       </div>
       <div className="text-center">
         <table
           className={`inline-block rounded-lg ${showInfo ? 'block' : 'hidden md:inline-block'} place-content-center`}
         >
-          <thead className="rounded-lg">
-            <tr>
-              <th className="rounded-tl-lg px-4 py-2">Event</th>
-              <th className="px-4 py-2">Points</th>
-            </tr>
-          </thead>
           <tbody className="rounded-lg">
             {scoringInfo.map((info, index) => (
               <tr key={index} className="rounded-lg">
@@ -41,7 +35,7 @@ export default function MoreAboutScoring({
                   {info.format} {info.tournament_type}
                 </td>
                 <td className="border px-4 py-2">
-                  {info.points}
+                  {info.points} pts
                   {info.is_per_copy && ' per copy'}
                 </td>
               </tr>

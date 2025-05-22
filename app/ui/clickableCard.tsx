@@ -18,7 +18,7 @@ export default function ClickableCard({
         alt={name}
         width={100}
         height={100}
-        className="mx-2 mt-1"
+        className="mx-2 mt-2"
       />
     </button>
   );

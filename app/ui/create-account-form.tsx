@@ -26,13 +26,13 @@ export default function CreateAccountForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-        <h1 className="mb-3 text-2xl">
+        <h1 className="mb-4 text-2xl">
           Create a new account.
         </h1>
         <div className="w-full">
           <div>
             <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
               htmlFor="email"
             >
               Email
@@ -53,7 +53,7 @@ export default function CreateAccountForm() {
           </div>
           <div className="mt-4">
             <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
               htmlFor="password"
             >
               Password
@@ -75,7 +75,7 @@ export default function CreateAccountForm() {
           </div>
           <div className="mt-4">
             <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
               htmlFor="confirm-password"
             >
               Confirm Password

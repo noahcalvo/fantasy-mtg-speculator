@@ -123,7 +123,7 @@ export default function AvailableCards({
   return (
     <div className="h-full items-center justify-center overflow-auto bg-gray-950 p-2 text-gray-50">
       <div className="h-full w-full overflow-auto shadow-md">
-        <div className="mb-1 grid grid-cols-2">
+        <div className="mb-2 grid grid-cols-2">
           <h1 className="text-2xl font-bold lg:text-3xl">Available Cards</h1>
           <input
             type="text"
@@ -140,7 +140,7 @@ export default function AvailableCards({
                 <div key={type} className="inline">
                   <button
                     id={type}
-                    className={`m-1 rounded-md border px-1 py-1  text-sm
+                    className={`m-2 rounded-md border px-1 py-1  text-sm
                   ${filteredTypes.includes(type) ? 'border-gray-950 bg-red-800 text-gray-50' : 'border-gray-950 bg-gray-50 text-gray-950'}
                 `}
                     onClick={() => {
@@ -160,7 +160,7 @@ export default function AvailableCards({
           )}
           <div className="inline">
             <button
-              className="m-1 rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50"
+              className="m-2 rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50"
               onClick={() =>
                 setSortedBy(sortedBy === 'price' ? 'points' : 'price')
               }

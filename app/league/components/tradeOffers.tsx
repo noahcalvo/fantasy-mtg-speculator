@@ -53,7 +53,7 @@ export default function TradeOffers({
                 );
               })}
               {offersReceivedByPlayer.length === 0 && (
-                <div className="text-center">No incoming trades</div>
+                <div className="text-center">No incoming offers</div>
               )}
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function TradeOffers({
                 );
               })}
               {offersMadeByPlayer.length === 0 && (
-                <div className="text-center">No outgoing trades</div>
+                <div className="text-center">No active proposals</div>
               )}
             </div>
           </div>
@@ -102,15 +102,15 @@ function Trade({
         {outgoing ? trade.recipient.name : trade.offerer.name}
       </div>
       <div className="flex place-content-around items-center border-b">
-        <div className="text-center">giving</div>
-        <div>getting</div>
+        <div className="text-center">You give</div>
+        <div>You get</div>
       </div>
-      <div className="m-1 flex place-content-around">
+      <div className="m-2 flex place-content-around">
         <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
           {giving.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine);
             return (
-              <div key={index} className="m-1">
+              <div key={index} className="m-2">
                 <SmallCard availablePosition={position} card={card} score={0} />
               </div>
             );
@@ -147,7 +147,7 @@ function Trade({
           {getting.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine);
             return (
-              <div key={index} className="m-1">
+              <div key={index} className="m-2">
                 <SmallCard availablePosition={position} card={card} score={0} />
               </div>
             );

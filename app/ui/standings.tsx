@@ -36,13 +36,11 @@ export default async function Standings({
   return (
     <div className="text-gray-50">
       <div className="ml-4 text-xl font-bold">
-        {week > 0
-          ? `Week ${week} League Standings`
-          : 'Total Points League Standings'}
+        {week > 0 ? `Week ${week} Standings` : 'Total Historical Standings'}
       </div>
       {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
         let className =
-          'grid grid-cols-12 items-center p-2 rounded-md my-1 hover:border-gray-500 border border-gray-950';
+          'grid grid-cols-12 items-center p-2 rounded-md my-2 hover:border-gray-500 border border-gray-950';
         let emojiText = '   ';
         if (sortedPointsArray[0][1].thisWeek == 0) emojiText = ' ';
         else if (

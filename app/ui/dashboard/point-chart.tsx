@@ -341,7 +341,7 @@ export default function PointChart() {
         {(cardDataLoading && <RevenueChartSkeleton />) || (
           <div className="text-xl">
             <h1 className="mb-2 text-center text-xl">
-              Top Performing Cards{set ? ` from ${set}` : ''} for week {week} in{' '}
+              Top Cards{set ? ` from ${set}` : ''} for week {week} in{' '}
               {capitalize(format)}
             </h1>
 

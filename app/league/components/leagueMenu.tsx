@@ -2,7 +2,7 @@
 import { DarkNavTab } from '@/app/ui/nav-tab';
 import { usePathname } from 'next/navigation';
 
-const standingsUrlRegex = /^\/league\/\d+\/standings(?:\/\d+)?$/;
+const standingsUrlRegex = /^\/league\/\d+\/standings(\/(alltime|\d+))?\/?$/;
 
 export default function LeagueMenu({
   leagueId,

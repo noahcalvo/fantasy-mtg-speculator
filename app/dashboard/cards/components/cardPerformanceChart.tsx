@@ -81,7 +81,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
             checked={format === 'modern'}
             onChange={() => setFormat('modern')}
             disabled={cardDataLoading}
-            className="mr-1"
+            className="mr-2"
           />
           Modern
         </label>
@@ -93,7 +93,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
             checked={format === 'standard'}
             onChange={() => setFormat('standard')}
             disabled={cardDataLoading}
-            className="mr-1"
+            className="mr-2"
           />
           Standard
         </label>
@@ -107,7 +107,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
             checked={weeks === 5}
             onChange={() => setWeeks(5)}
             disabled={cardDataLoading}
-            className="mr-1"
+            className="mr-2"
           />
           5 weeks
         </label>
@@ -119,7 +119,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
             checked={weeks === 10}
             onChange={() => setWeeks(10)}
             disabled={cardDataLoading}
-            className="mr-1"
+            className="mr-2"
           />
           10 weeks
         </label>
@@ -131,7 +131,7 @@ export default function CardPerformanceChart({ cardId }: { cardId: number }) {
             checked={weeks === 20}
             onChange={() => setWeeks(20)}
             disabled={cardDataLoading}
-            className="mr-1"
+            className="mr-2"
           />
           20 weeks
         </label>

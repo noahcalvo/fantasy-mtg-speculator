@@ -46,7 +46,7 @@ function FeatureButton({
 }: FeatureButtonProps) {
   return (
     <li
-      className={`my-1 cursor-pointer rounded-md border border-gray-600 px-1 ${
+      className={`my-2 cursor-pointer rounded-md border border-gray-600 px-1 ${
         currentFeature === featureKey ? 'bg-gray-950 text-gray-50' : ''
       }`}
       onClick={() => onClick(featureKey)}
@@ -95,7 +95,7 @@ export function FeaturesCarousel() {
               currentFeature={currentFeature}
               onClick={setCurrentFeature}
             >
-              League chat
+              Chat with your league
             </FeatureButton>
             <FeatureButton
               featureKey="trade"
@@ -109,7 +109,7 @@ export function FeaturesCarousel() {
               currentFeature={currentFeature}
               onClick={setCurrentFeature}
             >
-              View card performance
+              Track card performance
             </FeatureButton>
           </ul>
         </div>

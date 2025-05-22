@@ -24,7 +24,7 @@ const JoinDraft: React.FC<JoinDraftProps> = ({
       >
         Join Draft
       </button>
-      <span className="ml-4 mr-1 rounded-full border border-gray-950 bg-gray-50 py-1 pl-1 pr-[3px] text-gray-950">
+      <span className="ml-4 mr-2 rounded-full border border-gray-950 bg-gray-50 py-1 pl-1 pr-[3px] text-gray-950">
         {' '}
         {participants.length}{' '}
       </span>

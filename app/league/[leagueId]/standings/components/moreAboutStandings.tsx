@@ -31,41 +31,31 @@ export default function MoreAboutStandings() {
               <td className="rounded-tl-lg px-4 py-2">
                 <span className="font-bold text-lime-600">↑</span>
               </td>
-              <td className="px-4 py-2 text-xs">
-                Significant increase in player&apos;s portion of points
-              </td>
+              <td className="px-4 py-2 text-xs">Big points boost</td>
             </tr>
             <tr>
               <td className="px-4 py-2">
                 <span className="font-bold text-lime-300">↑</span>
               </td>
-              <td className="px-4 py-2 text-xs">
-                Slight increase in player&apos;s portion of points
-              </td>
+              <td className="px-4 py-2 text-xs">Small points boost</td>
             </tr>
             <tr>
               <td className="px-4 py-2">
                 <span className="font-bold text-gray-500">--</span>
               </td>
-              <td className="px-4 py-2 text-xs">
-                No change in player&apos;s portion of points
-              </td>
+              <td className="px-4 py-2 text-xs">No change</td>
             </tr>
             <tr>
               <td className="px-4 py-2">
                 <span className="font-bold text-red-300">↓</span>
               </td>
-              <td className="px-4 py-2 text-xs">
-                Slight decrease in player&apos;s portion of points
-              </td>
+              <td className="px-4 py-2 text-xs">Small drop</td>
             </tr>
             <tr>
               <td className="px-4 py-2">
                 <span className="font-bold text-red-600">↓</span>
               </td>
-              <td className="px-4 py-2 text-xs">
-                Significant decrease in player&apos;s portion of points
-              </td>
+              <td className="px-4 py-2 text-xs">Big drop</td>
             </tr>
             <tr>
               <td className="rounded-bl-lg px-4 py-2">

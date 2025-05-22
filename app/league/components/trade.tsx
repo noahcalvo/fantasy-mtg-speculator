@@ -104,7 +104,7 @@ export default function Trade({
       </div>
       <form>
         <div className="mb-2 flex place-content-between px-2 md:place-content-around">
-          <div className="text-md mt-0.5 text-center font-bold">
+          <div className="text-md mt-2 text-center font-bold">
             {player.name}
           </div>
           <select

@@ -18,11 +18,11 @@ export default function SignupForm() {
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
       <form action={dispatch} className="space-y-3">
         <div>
-          <h1 className="mb-3 text-2xl">Welcome.</h1>
+          <h1 className="mb-4 text-2xl">Welcome.</h1>
           <div className="w-full">
             <div>
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
+                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
                 htmlFor="name"
               >
                 Name
@@ -42,7 +42,7 @@ export default function SignupForm() {
 
             <div>
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
+                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
                 htmlFor="email"
               >
                 Email
@@ -61,7 +61,7 @@ export default function SignupForm() {
             </div>
             <div className="mt-4">
               <label
-                className="mb-3 mt-5 block text-xs font-medium text-gray-950"
+                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
                 htmlFor="password"
               >
                 Password

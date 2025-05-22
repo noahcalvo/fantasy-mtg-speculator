@@ -1,4 +1,3 @@
-import SpecLogo from '@/app/ui/spec-logo';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,8 +11,15 @@ import {
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col bg-gray-950 p-6">
-      <div className="flex shrink-0 items-end rounded-lg bg-gray-50 px-2">
-        <SpecLogo />
+      <div className="flex shrink-0 flex-row items-center rounded-lg bg-white p-0 px-2 leading-none md:items-end">
+        <Image
+          src="/spec.png"
+          width="100"
+          height="200"
+          className="md:animate-fly h-32 w-28 duration-[4s] md:h-[125px] md:p-4"
+          alt="spec logo of creepy guy"
+        />{' '}
+        <p className="mx-4 text-[44px] md:hidden">Spec</p>
       </div>
       <div className="mt-4 flex grow flex-col gap-4 xl:flex-row">
         <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
@@ -22,10 +28,8 @@ export default function Page() {
               <strong>Welcome to Spec.</strong>
             </p>
             <p className="text-gray-600">
-              A fantasy magic the gathering platform where you can draft cards
-              and set your lineup of creatures, instants, enchantments,
-              artifacts, and lands. Earn points based on how many copies of your
-              cards show up in MTGO tournaments.
+              Build your fantasy MTG lineup. Draft cards, set your roster, and
+              score points based on real MTGO results.
             </p>
           </div>
           <Link
@@ -39,12 +43,11 @@ export default function Page() {
         <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
           <div>
             <p className="mb-4 w-full text-xl text-gray-800 md:text-3xl">
-              <strong>Fantasy Magic</strong>
+              <strong>Why Spec?</strong>
             </p>
             <p className="text-gray-600">
-              Spec&apos;s mission is to spark connection and community, and
-              renew interest in competitive MTG through card performance
-              speculation. <br />
+              We bring MTG fans together through speculation, competition, and
+              community.
             </p>
           </div>
           <div>

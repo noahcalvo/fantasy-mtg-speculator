@@ -45,7 +45,7 @@ const CardSearchBar = () => {
         onChange={(e) => setQuery(e.target.value)}
       />
       {results && results.data.length > 0 && (
-        <ul className="absolute top-full z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border-2 border-black bg-gray-50">
+        <ul className="absolute top-full z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border-2 border-black bg-gray-50">
           {results.data.map((card) => (
             <li
               key={card.id}

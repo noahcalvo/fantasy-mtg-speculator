@@ -35,9 +35,7 @@ export default async function Roster({
   return (
     <div className="p-2 text-gray-50">
       <div className="flex flex-wrap justify-around">
-        <p className="m-2 w-full text-xl">
-          {owner ? 'My' : name ? name + "'s" : "Somebody's"} Roster
-        </p>
+        <p className="m-2 w-full text-xl">Roster</p>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(
             (element) =>
