@@ -26,7 +26,7 @@ export default async function Page({
   const scoringRules = await fetchScoringOptions(leagueId);
   const roster = await fetchPlayerRosterWithDetails(playerId, leagueId);
   // make a cardID list of the cards on the roster
-  let cardsOnRoster = [];
+  let cardsOnRoster: number[] = [];
   const positions = getRosterPositions();
   for (const position of positions) {
     const cardId = roster[position.toLowerCase()]?.card_id;
