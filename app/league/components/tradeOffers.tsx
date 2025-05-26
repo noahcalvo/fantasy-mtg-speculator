@@ -7,6 +7,7 @@ import {
 import { acceptTrade, declineTrade, revokeTrade } from '@/app/lib/trade';
 import SmallCard from '@/app/ui/roster/smallCard';
 import { useState } from 'react';
+import { FaceFrownIcon } from '@heroicons/react/24/outline';
 
 export default function TradeOffers({
   offers,
@@ -39,42 +40,61 @@ export default function TradeOffers({
       {showOffers && (
         <div>
           <div>
-            <div className="m-2 text-xl font-bold">INCOMING TRADES:</div>
-            <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
-              {offersReceivedByPlayer.map((trade, index) => {
-                return (
-                  <Trade
-                    outgoing={false}
-                    trade={trade}
-                    key={index}
-                    playerId={playerId}
-                    leagueId={leagueId}
-                  />
-                );
-              })}
-              {offersReceivedByPlayer.length === 0 && (
-                <div className="text-center">No incoming offers</div>
-              )}
-            </div>
+            {offersReceivedByPlayer.length === 0 && (
+              <div className="flex p-2">
+                <FaceFrownIcon className="h-5 w-5" />
+                <p className="ml-2">No incoming offers</p>
+              </div>
+            )}
+            {offersReceivedByPlayer.length > 0 && (
+              <div>
+                <div className="text-md m-2 font-semibold">
+                  Incoming offers:
+                </div>
+                <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
+                  {offersReceivedByPlayer.map((trade, index) => {
+                    return (
+                      <Trade
+                        outgoing={false}
+                        trade={trade}
+                        key={index}
+                        playerId={playerId}
+                        leagueId={leagueId}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
           <div>
-            <div className="m-2 text-xl font-bold">OUTGOING TRADES:</div>
-            <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
-              {offersMadeByPlayer.map((trade, index) => {
-                return (
-                  <Trade
-                    outgoing={true}
-                    trade={trade}
-                    key={index}
-                    playerId={playerId}
-                    leagueId={leagueId}
-                  />
-                );
-              })}
-              {offersMadeByPlayer.length === 0 && (
-                <div className="text-center">No active proposals</div>
-              )}
-            </div>
+            {offersMadeByPlayer.length === 0 && (
+              <div className="flex p-2">
+                <FaceFrownIcon className="h-5 w-5" />
+                <p className="ml-2">No outgoing offers</p>
+              </div>
+            )}
+
+            {offersMadeByPlayer.length > 0 && (
+              <div>
+                <div className="text-md m-2 font-semibold">
+                  Outgoing offers:
+                </div>
+                <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
+                  {offersMadeByPlayer.map((trade, index) => {
+                    return (
+                      <Trade
+                        outgoing={true}
+                        trade={trade}
+                        key={index}
+                        playerId={playerId}
+                        leagueId={leagueId}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

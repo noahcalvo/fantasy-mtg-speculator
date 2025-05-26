@@ -60,10 +60,8 @@ export function FeaturesCarousel() {
   const [currentFeature, setCurrentFeature] = useState<FeatureKey>('draft');
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
-      <p className="mb-4 w-full text-xl text-gray-800 md:text-3xl">
-        <strong>Spec Features</strong>
-      </p>
+    <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 font-mono xl:w-1/3">
+      <p className="mb-4 w-full text-lg text-gray-800">Spec Features:</p>
       <div>
         <div className="grid list-none grid-cols-2 gap-4 text-gray-600">
           <ul className="list-inside">

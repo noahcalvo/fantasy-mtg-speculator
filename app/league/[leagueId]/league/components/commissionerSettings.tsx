@@ -1,11 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ScoringOption } from '@/app/lib/definitions';
+import { ScoringOption, supportedFormats } from '@/app/lib/definitions';
 import { addScoringSetting, deleteScoringSetting } from '@/app/lib/leagues';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClone } from '@fortawesome/free-regular-svg-icons';
+import {
+  capitalize,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  OutlinedInput,
+} from '@mui/material';
 
 const formatOptions = ['Standard', 'Modern'];
 const tournamentTypeOptions = [
@@ -90,22 +98,21 @@ export function CommissionerSettings({
   };
 
   return (
-    <div className="space-y-6">
+    <div>
       <div>
-        <h2 className="mb-4 text-xl font-semibold">Scoring Setup</h2>
-        <div className="text-small mb-2 inline-block bg-gray-200 px-2 py-1">
+        <h2 className="text-md mx-2 mb-4 mt-4 inline-block">Scoring Setup</h2>
+        <div className="mb-2 inline-block bg-gray-200 px-2 py-1 text-sm">
           <FontAwesomeIcon icon={faClone} className="w-4" /> = points per copy
         </div>
       </div>
-      <section className="rounded border p-4 shadow">
-        <h2 className="mb-4 text-xl font-semibold">Current rules</h2>
+      <section className="rounded border p-2 shadow">
         {scoringOptions.length == 0 ? (
           <p>
             No scoring options found. Please add scoring rules to your league.
           </p>
         ) : (
           <div>
-            <div className="grid grid-cols-3 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-4">
+            <div className="grid grid-cols-3 gap-x-2 rounded bg-gray-200 p-2 text-sm md:grid-cols-4">
               <div>Format</div>
               <div>Type</div>
               <div>Points</div>
@@ -125,7 +132,7 @@ export function CommissionerSettings({
                     }
                   }}
                 >
-                  <div className="grid grid-cols-3 items-center gap-4 py-2 md:grid-cols-4">
+                  <div className="grid grid-cols-3 items-center gap-x-2 py-2 text-sm md:grid-cols-4">
                     <div>{option.format}</div>
                     <div>{option.tournament_type}</div>
                     <div>
@@ -147,7 +154,7 @@ export function CommissionerSettings({
                     </button>
                   </div>
                   {selectedForDeletion === index && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-950 bg-opacity-50">
                       <button
                         className="bg-red-600 px-4 py-2 text-white"
                         onClick={(e) => {
@@ -167,69 +174,155 @@ export function CommissionerSettings({
           </div>
         )}
       </section>
-      <section className="w-full rounded border p-4 shadow">
-        <h2 className="mb-4 text-xl font-semibold">Add New Rule</h2>
+      <section className="mt-2 w-full rounded border p-2 shadow">
+        <p className="text-md mb-4 rounded-sm bg-red-900 px-2 py-1 text-gray-50">
+          Add New Rule
+        </p>
         <div className="flex w-full md:block">
-          <div className="grid grid-cols-1 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-3">
-            <div className="flex h-full items-center justify-center text-center">
-              Format
-            </div>
-            <div className="flex h-full items-center justify-center text-center">
-              Type
-            </div>
-            <div className="flex h-full items-center justify-center text-center">
-              Points
-            </div>
-          </div>
-          {/* Example scoring option */}
-          <div className="grid w-full grid-cols-1 gap-4 rounded bg-gray-100 p-2 text-sm font-medium md:grid-cols-3">
+          <div className="grid w-full grid-cols-1 gap-4 rounded p-2 text-sm md:grid-cols-3">
             <div className="flex h-full items-center justify-center">
-              <select
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
-                className="select w-full text-center"
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{
+                  flex: 1,
+                  '& .MuiInputLabel-root': {
+                    color: 'rgb(3 7 18)',
+                    '&.Mui-focused': {
+                      color: 'rgb(153 29 29)',
+                    },
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgb(3 7 18)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgb(127 29 29)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgb(127 29 29)',
+                    },
+                  },
+                }}
               >
-                {formatOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                <InputLabel id="format-select-label">Format</InputLabel>
+                <Select
+                  labelId="format-select-label"
+                  id="format-select"
+                  value={format}
+                  onChange={(e) => setFormat(e.target.value)}
+                  label="Format"
+                >
+                  {/* for each item in formats, create a MenuItem */}
+                  {supportedFormats.map((format) => (
+                    <MenuItem key={format} value={format}>
+                      {capitalize(format)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
             <div className="flex h-full items-center justify-center">
-              <select
-                value={tournamentType}
-                onChange={(e) => setTournamentType(e.target.value)}
-                className="select w-full text-center"
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{
+                  flex: 1,
+                  '& .MuiInputLabel-root': {
+                    color: 'rgb(3 7 18)',
+                    '&.Mui-focused': {
+                      color: 'rgb(153 29 29)',
+                    },
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgb(3 7 18)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgb(127 29 29)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgb(127 29 29)',
+                    },
+                  },
+                }}
               >
-                {tournamentTypeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                <InputLabel id="event-type-select-label">Event Type</InputLabel>
+                <Select
+                  labelId="event-type-select-label"
+                  id="event-type-select"
+                  value={tournamentType}
+                  onChange={(e) => setTournamentType(e.target.value)}
+                  label="Event Type"
+                >
+                  {/* for each item in formats, create a MenuItem */}
+                  {tournamentTypeOptions.map((format) => (
+                    <MenuItem key={format} value={format}>
+                      {capitalize(format)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
             <div className="flex h-full items-center justify-center text-center">
+              <FormControl
+                size="small"
+                sx={{
+                  flex: 1,
+                  '& .MuiInputLabel-root': {
+                    color: 'rgb(3 7 18)',
+                    '&.Mui-focused': {
+                      color: 'rgb(153 29 29)',
+                    },
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgb(3 7 18)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgb(153 27 27)', // Darker red border when focused
+                    },
+                    '&:focus-visible': {
+                      outline: 'none', // Remove black outline when clicked
+                    },
+                    // Target the input element directly to remove focus ring
+                    '& .MuiInputBase-input': {
+                      outline: 'none', // Remove the default outline
+                      backgroundColor: 'transparent', // Remove background color
+                      '&:focus': {
+                        outline: 'none', // Remove outline on focus
+                        boxShadow: 'none', // Remove any box shadow
+                        backgroundColor: 'transparent', // Keep transparent on focus
+                      },
+                      '&:focus-visible': {
+                        outline: 'none', // Remove outline on focus-visible
+                      },
+                    },
+                  },
+                }}
+              >
+                <InputLabel id="points-label">Points</InputLabel>
+                <OutlinedInput
+                  id="points"
+                  type="number"
+                  value={points}
+                  onChange={(e) =>
+                    setPoints(
+                      e.target.value === '' ? '' : parseFloat(e.target.value),
+                    )
+                  }
+                  label="Points"
+                />
+              </FormControl>
               {tournamentType != 'Challenge Champion' && (
                 <FontAwesomeIcon icon={faClone} className="w-8" />
               )}
-              <input
-                type="number"
-                step="0.1"
-                value={points}
-                onChange={(e) =>
-                  setPoints(
-                    e.target.value === '' ? '' : parseFloat(e.target.value),
-                  )
-                }
-                className="input w-full  text-center"
-              />
             </div>
           </div>
         </div>
         <button
           onClick={handleAddScoringOption}
-          className="mt-4 flex bg-gray-950 px-2 py-1 text-gray-50"
+          className="mx-auto mt-4 flex bg-gray-950 px-2 py-1 text-gray-50"
         >
           <span>
             <PlusIcon className="w-6" />

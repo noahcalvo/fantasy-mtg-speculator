@@ -94,3 +94,11 @@ export const defaultStandardScoringOptions: ScoringOption[] = [
   { scoring_id: -1, format: 'standard', tournament_type: 'Challenge Champion', is_per_copy: false, points: 5.00, league_id: -1 },
   { scoring_id: -1, format: 'standard', tournament_type: 'League 5-0', is_per_copy: true, points: 0.25, league_id: -1 }
 ];
+
+export function getAllWeeks() {
+  const weeks = [];
+  for (let i = 0; i <= getCurrentWeek(); i++) {
+    weeks.push(i);
+  }
+  return weeks;
+}

@@ -2,6 +2,17 @@
 
 import { sql } from "@vercel/postgres";
 import { Card, CardDetails } from "./definitions";
+import fs from 'fs';
+import path from 'path';
+
+// Add cache directory - will store in the app directory
+const CACHE_DIR = path.join(process.cwd(), 'cache');
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+// Ensure cache directory exists
+if (!fs.existsSync(CACHE_DIR)) {
+  fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
 
 export async function fetchCard(cardId: number): Promise<CardDetails> {
     let data;
@@ -28,19 +39,37 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
         console.error('Database Error:', error);
         throw new Error(`Failed to fetch card for card_id:${cardId}`);
     }
+    
     try {
-        const encodedName = encodeURIComponent(data.rows[0].name);
-        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`, { cache: 'force-cache' });
+        const cardName = data.rows[0].name;
+        const cacheFilePath = path.join(CACHE_DIR, `card_${cardId}.json`);
+        
+        // Check if we have a valid cache
+        if (fs.existsSync(cacheFilePath)) {
+            const fileStats = fs.statSync(cacheFilePath);
+            const now = new Date();
+            
+            // If cache is less than 24 hours old
+            if (now.getTime() - fileStats.mtime.getTime() < CACHE_DURATION_MS) {
+                const cachedData = JSON.parse(fs.readFileSync(cacheFilePath, 'utf8'));
+                console.log(`Using cached data for card: ${cardName}`);
+                return cachedData;
+            }
+        }
+        
+        // If no valid cache, fetch from API
+        const encodedName = encodeURIComponent(cardName);
+        const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const cardData = await response.json();
         if (cardData.object === "error") {
-            throw new Error(`Card not found: ${data.rows[0].name}`);
+            throw new Error(`Card not found: ${cardName}`);
         }
 
-        return {
+        const cardDetails: CardDetails = {
             name: cardData.name,
             image: cardData.image_uris?.png ? [cardData.image_uris.png] : [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png],
             price: {
@@ -53,6 +82,12 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
             card_id: cardId,
             set: cardData.set_name
         };
+        
+        // Save to cache
+        fs.writeFileSync(cacheFilePath, JSON.stringify(cardDetails), 'utf8');
+        console.log(`Cached data for card: ${cardName}`);
+        
+        return cardDetails;
     } catch (error) {
         console.error('scryfall error:', error);
         throw new Error(`Failed to fetch card for cardName:${data.rows[0].name}`);

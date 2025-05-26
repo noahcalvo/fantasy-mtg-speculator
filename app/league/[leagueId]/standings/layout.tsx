@@ -4,9 +4,7 @@ import { auth } from '@/auth';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { redirect } from 'next/navigation';
 import { WeekPickerRouter } from '@/app/ui/picker';
-import {
-  fetchLeagueWeeks,
-} from '@/app/lib/performance';
+import { fetchLeagueWeeks } from '@/app/lib/performance';
 
 export default async function Layout({
   children,
@@ -28,8 +26,8 @@ export default async function Layout({
   }
 
   return (
-    <main className="mb-4 p-2 max-w-full">
-      <div className="grid gap-2 md:grid-cols-2 max-w-full overflow-hidden">
+    <main className="mb-4 max-w-full p-2">
+      <div className="grid max-w-full gap-2 overflow-hidden md:grid-cols-2">
         <div className="md:order-last">
           <MoreAboutStandings />
         </div>

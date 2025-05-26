@@ -4,7 +4,6 @@ import { Card, CardDetails, CardPoint, Collection, Player } from './definitions'
 import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
-import { fetchScoringOptions } from './leagues';
 import { fetchCardPerformances } from './performance';
 
 export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {

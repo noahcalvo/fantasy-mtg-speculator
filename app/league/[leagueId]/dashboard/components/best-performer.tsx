@@ -27,7 +27,7 @@ export default async function BestPerformerBadge({
         <div className="w-5">
           <StarIcon className="h-5 w-5" />
         </div>
-        <p className="ml-2 text-sm font-medium">Top Card This Week</p>
+        <p className="text-md ml-2">Top Card This Week</p>
       </div>
       <div className="flex h-full flex-row items-center justify-center rounded-xl shadow-sm">
         {cardData?.image.length > 0 && (
@@ -38,7 +38,12 @@ export default async function BestPerformerBadge({
           />
         )}
         {cardData?.name ? (
-          <p className="mx-2">{cardValue}pts</p>
+          <div className="mx-2">
+            <p>{collectionPerformance[0]?.name}</p>
+            <p className="text-sm">
+              {cardValue}pts, week {collectionPerformance[0]?.week}
+            </p>
+          </div>
         ) : (
           <p className="">your cards scored no points :(</p>
         )}

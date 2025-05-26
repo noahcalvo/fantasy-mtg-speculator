@@ -7,13 +7,13 @@ import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
 import LargeCard from './largeCard';
 import { fetchPlayerCollectionWithDetails } from '@/app/lib/collection';
 import { EmptyPositionPlaceholder } from './largeCard';
+import { NumberedListIcon } from '@heroicons/react/24/outline';
 
 export default async function Roster({
   playerId,
   owner,
   multiColumn,
   leagueId,
-  name,
   mostRecentPoints,
   secondMostRecentPoints,
   week,
@@ -22,7 +22,6 @@ export default async function Roster({
   owner?: boolean;
   multiColumn?: boolean;
   leagueId: number;
-  name?: string;
   mostRecentPoints: CardPerformances;
   secondMostRecentPoints: CardPerformances;
   week: number;
@@ -35,7 +34,10 @@ export default async function Roster({
   return (
     <div className="p-2 text-gray-50">
       <div className="flex flex-wrap justify-around">
-        <p className="m-2 w-full text-xl">Roster</p>
+        <div className="flex w-full p-2">
+          <NumberedListIcon className="h-5 w-5 text-gray-50" />
+          <p className="text-md ml-2">Roster</p>
+        </div>
         {positions.map((position, index) => {
           const points = mostRecentPoints.cards.find(
             (element) =>

@@ -9,6 +9,7 @@ import { routeToCardPageById } from '@/app/lib/routing';
 import { makeTradeOffer } from '@/app/lib/trade';
 import SmallCard from '@/app/ui/roster/smallCard';
 import { useState } from 'react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 export default function Trade({
   teamsInLeague,
@@ -99,19 +100,21 @@ export default function Trade({
 
   return (
     <div className="w-full">
-      <div className="m-2 w-full border border-x-0 border-black p-1 text-xl font-bold">
-        SEND A TRADE
+      <div className="text-md m-2 w-full border border-x-0 bg-gray-950 p-2 font-bold text-gray-50">
+        Send a Trade Offer
       </div>
       <form>
         <div className="mb-2 flex place-content-between px-2 md:place-content-around">
-          <div className="text-md mt-2 text-center font-bold">
+          <div className="text-md mt-2 text-center font-semibold">
             {player.name}
           </div>
           <select
             name="leagueId"
             onChange={handleTeamChange}
-            className="text-md appearance-none bg-none px-1 py-0 text-center font-bold focus:border-red-800 focus:ring-red-800"
+            className="text-md appearance-none bg-none px-1 py-0 text-center font-semibold focus:border-red-800 focus:ring-red-800"
           >
+            <ChevronDownIcon className="h-5 w-5" />
+
             <option value="" disabled>
               Select a team
             </option>

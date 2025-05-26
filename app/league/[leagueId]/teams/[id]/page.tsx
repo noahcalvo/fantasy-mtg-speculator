@@ -37,7 +37,6 @@ export default async function Page({
         playerId={playerId}
         leagueId={leagueId}
         multiColumn={true}
-        name={playerData?.name}
         mostRecentPoints={mostRecentPoints}
         secondMostRecentPoints={secondMostRecentPoints}
         week={getCurrentWeek()}

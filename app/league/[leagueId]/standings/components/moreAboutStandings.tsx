@@ -11,9 +11,9 @@ export default function MoreAboutStandings() {
       onClick={() => setShowInfo(!showInfo)}
     >
       <div className="w-full">
-        <div className="font-xl flex p-2">
+        <div className="text-md flex p-2">
           <InformationCircleIcon className="mr-2 h-5 w-5 text-gray-50" />
-          Icon Key
+          Key
         </div>
       </div>
       <div

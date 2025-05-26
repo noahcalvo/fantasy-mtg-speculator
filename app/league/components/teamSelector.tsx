@@ -1,6 +1,7 @@
 'use client';
 import { Player } from '@/app/lib/definitions';
 import { LightNavTab } from '@/app/ui/nav-tab';
+import { TeamPicker } from '@/app/ui/picker';
 import { usePathname } from 'next/navigation';
 
 export default function TeamSelector({
@@ -13,7 +14,7 @@ export default function TeamSelector({
   const pathname = usePathname();
   return (
     <div>
-      <div className="flex flex-col sm:flex-row">
+      <div className="hidden flex-row sm:flex">
         {teams.map((element: Player, index: number) => (
           <LightNavTab
             key={index}
@@ -22,9 +23,11 @@ export default function TeamSelector({
             active={
               pathname === `/league/${leagueId}/teams/${element.player_id}`
             }
-            stackVertically
           />
         ))}
+      </div>
+      <div className="mb-2 flex w-full flex-row sm:hidden">
+        <TeamPicker teams={teams} leagueId={leagueId} />
       </div>
     </div>
   );

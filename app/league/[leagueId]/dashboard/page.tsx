@@ -11,7 +11,6 @@ import Collection from '@/app/ui/roster/collection';
 import { fetchScoringOptions } from '@/app/lib/leagues';
 import { fetchCardPerformanceByWeek } from '@/app/lib/performance';
 import { fetchPlayerRosterWithDetails } from '@/app/lib/rosters';
-import { LightLoading } from '@/app/ui/loadingSpinner';
 
 export default async function Page({
   params,
@@ -55,10 +54,10 @@ export default async function Page({
   );
 
   return (
-    <main className="p-2">
-      <div className="mb-4 text-2xl text-gray-950 md:text-3xl">
-        Your Collection at a Glance
-        <LightLoading />
+    <main className="p-4">
+      <div className="text-md mb-4 font-semibold text-gray-950">
+        <span className="md:text-lg">Your Collection</span>{' '}
+        <span className="text-md font-semibold">at a Glance</span>
       </div>
       <div className="grid gap-2 xl:grid-cols-2">
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">

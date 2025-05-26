@@ -10,55 +10,50 @@ import {
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col bg-gray-950 p-6">
-      <div className="flex shrink-0 flex-row items-center rounded-lg bg-white p-0 px-2 leading-none md:items-end">
-        <Image
-          src="/spec.png"
-          width="100"
-          height="200"
-          className="md:animate-fly h-32 w-28 duration-[4s] md:h-[125px] md:p-4"
-          alt="spec logo of creepy guy"
-        />{' '}
-        <p className="mx-4 text-[44px] md:hidden">Spec</p>
-      </div>
-      <div className="mt-4 flex grow flex-col gap-4 xl:flex-row">
+    <main className="flex h-full flex-col justify-between bg-gray-950 font-mono">
+      <div className="flex flex-col gap-4 xl:flex-row">
+        <div className="grid grid-cols-4 flex-col gap-5 rounded-lg bg-white px-8 py-8 sm:grid-cols-3 md:flex md:bg-gray-50 xl:w-1/3">
+          <div className="col-span-3 grid gap-4 sm:col-span-2">
+            <div>
+              <p className="mb-4 text-lg text-gray-800">Welcome to Spec.</p>
+              <p className="text-gray-600">
+                Build your fantasy MTG lineup. Draft cards, set your roster, and
+                score points based on real MTGO results.
+              </p>
+            </div>
+            <Link
+              href="/login"
+              className="flex max-w-xs items-center gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-sm text-gray-50 transition-colors hover:bg-red-800 md:text-base"
+            >
+              <span>Sign up (or log in)</span>
+              <ArrowRightIcon className="w-5 md:w-6" />
+            </Link>
+          </div>
+          <Image
+            src="/spec.png"
+            width="100"
+            height="200"
+            className="sm:animate-grow mx-auto w-28 animate-fly duration-[4s] sm:my-auto md:hidden md:p-4"
+            alt="spec logo of creepy guy"
+          />
+        </div>
         <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
           <div>
-            <p className="mb-4 text-xl text-gray-800 md:text-3xl">
-              <strong>Welcome to Spec.</strong>
-            </p>
-            <p className="text-gray-600">
-              Build your fantasy MTG lineup. Draft cards, set your roster, and
-              score points based on real MTGO results.
-            </p>
-          </div>
-          <Link
-            href="/login"
-            className="flex items-center gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-sm font-medium text-gray-50 transition-colors hover:bg-red-800 md:text-base"
-          >
-            <span>Sign up (or log in)</span>
-            <ArrowRightIcon className="w-5 md:w-6" />
-          </Link>
-        </div>
-        <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
-          <div>
-            <p className="mb-4 w-full text-xl text-gray-800 md:text-3xl">
-              <strong>Why Spec?</strong>
-            </p>
+            <p className="mb-4 w-full text-lg text-gray-800">Why Spec?</p>
             <p className="text-gray-600">
               We bring MTG fans together through speculation, competition, and
               community.
             </p>
           </div>
-          <div>
+          <div className="flex flex-col items-center lg:flex-row lg:items-start xl:flex-col xl:items-center">
             <Image
               src="/gooners.jpg"
               width="200"
               height="200"
-              className="w-full border-2 border-black"
+              className="border-2 border-black"
               alt="spec beta testers: complete goons"
             />
-            <p className="text-xs text-gray-600">
+            <p className="p-4 text-sm text-gray-600">
               Gooners - the inspiration and motivation behind Spec.
             </p>
           </div>

@@ -1,13 +1,7 @@
 'use client';
 import { CardDetails, CardPerformances } from '@/app/lib/definitions';
 import { routeToCardPageById } from '@/app/lib/routing';
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-} from '@mui/material';
+import { RectangleStackIcon } from '@heroicons/react/24/outline';
 
 export default function Bench({
   benchCollection,
@@ -21,15 +15,20 @@ export default function Bench({
   secondMostRecentPoints: CardPerformances;
 }) {
   return (
-    <div className="p-4 text-gray-50">
-      <h2 className="text-xl">Unrostered Collection</h2>
-      <div className="grid w-full grid-cols-4 text-gray-50">
+    <div className="flex flex-col rounded-xl bg-gray-950 p-2 text-gray-50 shadow-sm">
+      <div className="flex p-2">
+        <RectangleStackIcon className="h-5 w-5 text-gray-50" />
+        <p className="text-md ml-2">Bench</p>
+      </div>
+      <div className="grid w-full grid-cols-6 text-sm text-gray-50">
+        <div />
+        <div />
         <div />
         <div />
         <div className="text-gray-50">This week</div>
-        <div className="text-gray-50">Last week</div>
+        <div className="text-gray-50">Last</div>
       </div>
-      <div className="w-full">
+      <div className="w-full p-2">
         {benchCollection.map((card) => (
           <Collection
             key={card.name}
@@ -55,13 +54,13 @@ function Collection({
   card,
 }: FeatureButtonProps) {
   return (
-    <div className="flex w-full">
+    <div className="flex w-full text-sm">
       <li
         key={card.name}
         onClick={() => routeToCardPageById(card.card_id)}
-        className="grid w-full cursor-pointer grid-cols-4 text-gray-50 hover:bg-red-900"
+        className="grid w-full cursor-pointer grid-cols-6 text-gray-50 hover:bg-red-900"
       >
-        <div className="col-span-2 line-clamp-1 overflow-hidden text-gray-50">
+        <div className="col-span-4 line-clamp-1 overflow-hidden text-gray-50">
           {card.name}
         </div>
         <div className="text-gray-50">

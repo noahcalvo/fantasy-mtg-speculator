@@ -35,7 +35,7 @@ export default async function Standings({
 
   return (
     <div className="text-gray-50">
-      <div className="ml-4 text-xl font-bold">
+      <div className="ml-4 text-lg font-semibold">
         {week > 0 ? `Week ${week} Standings` : 'Total Historical Standings'}
       </div>
       {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
@@ -76,8 +76,8 @@ export default async function Standings({
             className={className}
             href={`/league/${leagueId}/teams/${playerId}`}
           >
-            <div className="pr-0.5 text-right text-lg">{emojiText}</div>
-            <div className="text-bold col-span-7 text-lg">{playerName}</div>
+            <div className="text-md pr-0.5 text-right">{emojiText}</div>
+            <div className="text-bold text-md col-span-7">{playerName}</div>
             <div className="col-span-4">
               {arrow} {twoWeekStatus.thisWeek.toFixed(2)}
             </div>

@@ -370,3 +370,7 @@ export type ScoringOption = {
   points: number;
   league_id: number;
 };
+
+export type format = 'modern' | 'standard' | 'pioneer' | 'explorer' | 'legacy' | 'vintage' | 'commander' | 'alchemist' | 'historic' | 'pauper' | 'duel' | 'oldschool' | 'premodern';
+
+export const supportedFormats: format[] = ['modern', 'standard'];

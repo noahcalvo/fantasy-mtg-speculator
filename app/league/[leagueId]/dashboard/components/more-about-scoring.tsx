@@ -22,13 +22,13 @@ export default function MoreAboutScoring({
     <div className="flex-col justify-between rounded-xl bg-gray-950 p-2 text-gray-50">
       <div className="flex p-2" onClick={() => setShowInfo(!showInfo)}>
         <InformationCircleIcon className="h-5 w-5" />
-        <h3 className="font-xl ml-2">Scoring Events</h3>
+        <h3 className="text-md ml-2">Scoring Events</h3>
       </div>
       <div className="text-center">
         <table
           className={`inline-block rounded-lg ${showInfo ? 'block' : 'hidden md:inline-block'} place-content-center`}
         >
-          <tbody className="rounded-lg">
+          <tbody className="rounded-lg text-sm">
             {scoringInfo.map((info, index) => (
               <tr key={index} className="rounded-lg">
                 <td className="border px-4 py-2">

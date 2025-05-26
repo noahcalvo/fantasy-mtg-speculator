@@ -25,19 +25,16 @@ export function LightNavTab({
   name,
   path,
   active,
-  stackVertically = false,
 }: {
   name: string;
   path: string;
   active: boolean;
-  stackVertically?: boolean;
 }) {
   return (
     <Link
       href={path}
-      className={`flex h-10 items-center  border-black px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black 
+      className={`flex h-10 items-center  rounded-t-lg border-black px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black
       ${active ? 'bg-gray-950 text-gray-50 ' : 'border-x border-t bg-gray-50 text-gray-950'}
-      ${stackVertically ? 'rounded-l-lg border border-r-0 sm:rounded-t-lg sm:rounded-bl-none' : 'rounded-t-lg'}
       }
         `}
     >

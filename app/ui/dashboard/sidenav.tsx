@@ -22,7 +22,7 @@ export default async function SideNav() {
     joinedLeagues = await fetchLeagues(playerId);
   }
   return (
-    <div className="flex h-full flex-col p-6 pb-0 md:p-2">
+    <div className="flex h-full flex-col pb-0">
       <Link
         className="mb-2 hidden h-28 items-end justify-start rounded-md bg-white text-gray-950 hover:text-red-900 md:flex md:h-40"
         href="/"
@@ -33,7 +33,6 @@ export default async function SideNav() {
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
         <NavLinks joinedLeagues={joinedLeagues} playerId={playerId} />
-        <div className="hidden h-auto w-full grow rounded-md bg-gray-950 md:block"></div>
         {player !== null ? (
           <form
             action={async () => {
@@ -41,7 +40,7 @@ export default async function SideNav() {
               await signOut({ redirectTo: '/login' });
             }}
           >
-            <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
+            <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
               <PowerIcon className="w-6" />
               <div className="hidden md:block">Sign Out</div>
             </button>
@@ -49,12 +48,13 @@ export default async function SideNav() {
         ) : (
           // sign in button appears if player == null
           <Link href="/login">
-            <div className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-sm font-medium hover:border-gray-50 hover:bg-gray-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
+            <div className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-gray-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
               <PowerIcon className="w-6" />
               <div className="hidden md:block">Sign In</div>
             </div>
           </Link>
         )}
+        <div className="text-md hidden h-auto w-full grow rounded-md bg-gray-950 md:block"></div>
       </div>
     </div>
   );

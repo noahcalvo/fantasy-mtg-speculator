@@ -27,7 +27,10 @@ export default async function Page({
   const scoringOptions = await fetchScoringOptions(leagueId);
   return (
     <main className="p-4">
-      <h1 className="mb-4 text-3xl font-bold">{league.name} League Settings</h1>
+      <p className="text-lg font-bold">League Settings</p>
+      <p className="text-md ml-2 inline-block rounded-sm bg-red-900 px-2 py-1 text-gray-50">
+        {league.name}
+      </p>
       <CommissionerSettings
         leagueId={leagueId}
         scoringOptions={scoringOptions}
