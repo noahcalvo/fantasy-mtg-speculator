@@ -51,11 +51,9 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
         ORDER BY
             C.name DESC;
       `;
-    // Convert cardId to cardDetails
-    const cardDetailsList: CardDetails[] = [];
-    for (var card of data.rows) {
-      cardDetailsList.push(await fetchCard(card.card_id));
-    }
+    // Convert cardId to cardDetails asynchronously
+    const cardPromises = data.rows.map(card => fetchCard(card.card_id));
+    const cardDetailsList = await Promise.all(cardPromises);
     return cardDetailsList;
   } catch (error) {
     console.error('Database Error:', error);

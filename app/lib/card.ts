@@ -1,18 +1,16 @@
 'use server';
 
 import { sql } from "@vercel/postgres";
+import { createClient } from 'redis';
 import { Card, CardDetails } from "./definitions";
-import fs from 'fs';
-import path from 'path';
 
-// Add cache directory - will store in the app directory
-const CACHE_DIR = path.join(process.cwd(), 'cache');
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-// Ensure cache directory exists
-if (!fs.existsSync(CACHE_DIR)) {
-  fs.mkdirSync(CACHE_DIR, { recursive: true });
-}
+// Create Redis client
+const getRedisClient = async () => {
+    const redis = await createClient({ url: process.env.REDIS_URL }).connect();
+    return redis;
+};
 
 export async function fetchCard(cardId: number): Promise<CardDetails> {
     let data;
@@ -42,30 +40,33 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
     
     try {
         const cardName = data.rows[0].name;
-        const cacheFilePath = path.join(CACHE_DIR, `card_${cardId}.json`);
+        const cacheKey = `card_${cardId}`;
         
-        // Check if we have a valid cache
-        if (fs.existsSync(cacheFilePath)) {
-            const fileStats = fs.statSync(cacheFilePath);
-            const now = new Date();
-            
-            // If cache is less than 24 hours old
-            if (now.getTime() - fileStats.mtime.getTime() < CACHE_DURATION_MS) {
-                const cachedData = JSON.parse(fs.readFileSync(cacheFilePath, 'utf8'));
-                console.log(`Using cached data for card: ${cardName}`);
-                return cachedData;
-            }
+        // Initialize Redis client
+        const redis = await getRedisClient();
+        
+        // Check if we have a valid cache in Redis
+        const cachedData = await redis.get(cacheKey);
+        const cachedTimestamp = await redis.get(`${cacheKey}_timestamp`);
+        
+        // If cache exists and is less than 24 hours old
+        if (cachedData && cachedTimestamp && 
+            (Date.now() - Number(cachedTimestamp) < CACHE_DURATION_MS)) {
+            await redis.quit();
+            return JSON.parse(cachedData) as CardDetails;
         }
         
         // If no valid cache, fetch from API
         const encodedName = encodeURIComponent(cardName);
         const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
         if (!response.ok) {
+            await redis.quit();
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const cardData = await response.json();
         if (cardData.object === "error") {
+            await redis.quit();
             throw new Error(`Card not found: ${cardName}`);
         }
 
@@ -83,8 +84,10 @@ export async function fetchCard(cardId: number): Promise<CardDetails> {
             set: cardData.set_name
         };
         
-        // Save to cache
-        fs.writeFileSync(cacheFilePath, JSON.stringify(cardDetails), 'utf8');
+        // Save to Redis cache
+        await redis.set(cacheKey, JSON.stringify(cardDetails));
+        await redis.set(`${cacheKey}_timestamp`, Date.now().toString());
+        await redis.quit();
         console.log(`Cached data for card: ${cardName}`);
         
         return cardDetails;
@@ -125,18 +128,37 @@ export async function fetchCardId(cardName: string): Promise<number> {
 
 export async function fetchScryfallDataByCardName(cardName: string): Promise<CardDetails> {
     try {
+        const cacheKey = `card_name_${cardName.toLowerCase().replace(/\s+/g, '_')}`;
+        
+        // Initialize Redis client
+        const redis = await getRedisClient();
+        
+        // Check if we have a valid cache in Redis
+        const cachedData = await redis.get(cacheKey);
+        const cachedTimestamp = await redis.get(`${cacheKey}_timestamp`);
+        
+        // If cache exists and is less than 24 hours old
+        if (cachedData && cachedTimestamp && 
+            (Date.now() - Number(cachedTimestamp) < CACHE_DURATION_MS)) {
+            await redis.quit();
+            return JSON.parse(cachedData) as CardDetails;
+        }
+        
         const encodedName = encodeURIComponent(cardName);
         const response = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodedName}`);
         if (!response.ok) {
+            await redis.quit();
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const cardData = await response.json();
         if (cardData.object === "error") {
+            await redis.quit();
             throw new Error(`Card not found: ${cardName}`);
         }
+        
         const { name, prices, scryfall_uri, color_identity, type_line } = cardData;
-        return {
+        const cardDetails: CardDetails = {
             name,
             image: cardData.card_faces ? [cardData.card_faces[0].image_uris.png, cardData.card_faces[1].image_uris.png] : [cardData.image_uris.png],
             price: {
@@ -149,6 +171,14 @@ export async function fetchScryfallDataByCardName(cardName: string): Promise<Car
             set: cardData.set_name,
             card_id: -1
         };
+        
+        // Save to Redis cache
+        await redis.set(cacheKey, JSON.stringify(cardDetails));
+        await redis.set(`${cacheKey}_timestamp`, Date.now().toString());
+        await redis.quit();
+        console.log(`Cached data for card name: ${cardName}`);
+        
+        return cardDetails;
     } catch (error) {
         console.error('scryfall error:', error);
         throw new Error(`Failed to fetch card for cardName:${cardName}`);
