@@ -1,5 +1,6 @@
 import '@/app/ui/global.css';
 import SideNav from './ui/dashboard/sidenav';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export default async function RootLayout({
   children,
@@ -8,6 +9,7 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" className="bg-gray-950 font-mono">
+      <SpeedInsights />
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <body>
         <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">

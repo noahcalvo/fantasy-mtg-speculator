@@ -1311,6 +1311,11 @@
     utf-8-validate "6.0.3"
     ws "8.14.2"
 
+"@vercel/speed-insights@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@vercel/speed-insights/-/speed-insights-1.2.0.tgz#1656c3596d4ec02d93d301ca45944c1b9b245186"
+  integrity sha512-y9GVzrUJ2xmgtQlzFP2KhVRoCglwfRQgjyfY607aU0hh0Un6d0OUyrJkjuAlsV18qR4zfoFPs/BiIj9YDS6Wzw==
+
 "@vercel/style-guide@^5.0.1":
   version "5.2.0"
   resolved "https://registry.npmjs.org/@vercel/style-guide/-/style-guide-5.2.0.tgz#8e09fb48065bc6133add67ff2bc7a219d228fb46"
