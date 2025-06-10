@@ -19,7 +19,7 @@ export const DraftPill = ({
           <span className="md:text-normal line-clamp-1 text-clip text-xs uppercase">
             {draft.name}
           </span>
-          <span className="md:text-normal ml-2 line-clamp-1 text-clip text-xs italic xl:text-xl">
+          <span className="md:text-normal ml-2 line-clamp-1 text-clip text-xs italic">
             {draft.set}
           </span>
           <span className="ml-2 rounded-full border-2 px-2">
