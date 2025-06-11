@@ -23,9 +23,9 @@ export default function Page() {
             </div>
             <Link
               href="/login"
-              className="flex max-w-xs items-center gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-sm text-gray-50 transition-colors hover:bg-red-800 md:text-base"
+              className="flex max-w-xs items-center justify-between gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-sm text-gray-50 transition-colors hover:bg-red-800 md:text-base"
             >
-              <span>Sign up (or log in)</span>
+              <span>Sign up</span>
               <ArrowRightIcon className="w-5 md:w-6" />
             </Link>
           </div>
@@ -33,7 +33,7 @@ export default function Page() {
             src="/spec.png"
             width="100"
             height="200"
-            className="sm:animate-grow mx-auto w-28 animate-fly duration-[4s] sm:my-auto md:hidden md:p-4"
+            className="mx-auto w-28 animate-fly duration-[4s] sm:my-auto sm:animate-grow md:hidden md:p-4"
             alt="spec logo of creepy guy"
           />
         </div>
