@@ -27,8 +27,8 @@ export default async function Layout({
 
   return (
     <main className="mb-4 max-w-full p-2">
-      <div className="grid max-w-full gap-2 overflow-hidden md:grid-cols-2">
-        <div className="md:order-last">
+      <div className="grid max-w-full gap-2 overflow-hidden lg:grid-cols-2">
+        <div className="lg:order-last">
           <MoreAboutStandings />
         </div>
         <div className="max-w-full overflow-hidden">

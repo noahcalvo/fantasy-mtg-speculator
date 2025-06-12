@@ -32,7 +32,7 @@ export default function CreateAccountForm() {
         <div className="w-full">
           <div>
             <label
-              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-950"
               htmlFor="email"
             >
               Email
@@ -48,12 +48,12 @@ export default function CreateAccountForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
             </div>
           </div>
           <div className="mt-4">
             <label
-              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-950"
               htmlFor="password"
             >
               Password
@@ -70,12 +70,12 @@ export default function CreateAccountForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
             </div>
           </div>
           <div className="mt-4">
             <label
-              className="mb-4 mt-6 block text-xs font-medium text-gray-900"
+              className="mb-4 mt-6 block text-xs font-medium text-gray-950"
               htmlFor="confirm-password"
             >
               Confirm Password
@@ -92,7 +92,7 @@ export default function CreateAccountForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
             </div>
           </div>
         </div>

@@ -53,7 +53,7 @@ export default function Page() {
               className="border-2 border-black"
               alt="spec beta testers: complete goons"
             />
-            <p className="p-4 text-sm text-gray-600">
+            <p className="p-4 text-center text-sm text-gray-600">
               Gooners - the inspiration and motivation behind Spec.
             </p>
           </div>

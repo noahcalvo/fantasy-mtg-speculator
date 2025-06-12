@@ -32,7 +32,7 @@ export default function TradeOffers({
       <div className="mb-4 flex justify-center">
         <button
           onClick={() => setShowOffers(!showOffers)}
-          className={`m-2 h-10 rounded-md border px-2  py-1 text-gray-50 ${showOffers ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'bg-red-800 text-gray-50 hover:border-red-400'}`}
+          className={`m-2 rounded-md border px-2  py-1 text-gray-50 ${showOffers ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'bg-red-800 text-gray-50 hover:border-red-400'}`}
         >
           {!showOffers ? 'Show offers' : 'Hide offers'}
         </button>
@@ -48,7 +48,7 @@ export default function TradeOffers({
             )}
             {offersReceivedByPlayer.length > 0 && (
               <div>
-                <div className="text-md m-2 font-semibold">
+                <div className="m-2 text-md font-semibold">
                   Incoming offers:
                 </div>
                 <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
@@ -77,7 +77,7 @@ export default function TradeOffers({
 
             {offersMadeByPlayer.length > 0 && (
               <div>
-                <div className="text-md m-2 font-semibold">
+                <div className="m-2 text-md font-semibold">
                   Outgoing offers:
                 </div>
                 <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">

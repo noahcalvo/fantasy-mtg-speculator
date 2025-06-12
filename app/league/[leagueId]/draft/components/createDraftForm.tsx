@@ -25,7 +25,7 @@ export default function CreateDraftForm({
 
   return (
     <form action={dispatch} className="flex flex-col gap-y-2 bg-gray-50">
-      <h2 className="text-xl text-gray-950 md:text-2xl">Create New Draft</h2>
+      <h2 className="text-lg text-gray-950">New Draft</h2>
       <div className="flex flex-col gap-x-2 gap-y-2 lg:flex-row">
         <div className="flex flex-col gap-x-2 gap-y-2 xl:flex-row">
           <select

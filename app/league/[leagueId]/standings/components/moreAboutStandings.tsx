@@ -11,13 +11,13 @@ export default function MoreAboutStandings() {
       onClick={() => setShowInfo(!showInfo)}
     >
       <div className="w-full">
-        <div className="text-md flex p-2">
+        <div className="flex p-2 text-md">
           <InformationCircleIcon className="mr-2 h-5 w-5 text-gray-50" />
           Key
         </div>
       </div>
       <div
-        className={`inline-block ${showInfo ? 'block' : 'hidden md:inline-block'}`}
+        className={`inline-block ${showInfo ? 'block' : 'hidden lg:inline-block'}`}
       >
         <table className={`inline-block place-content-center  rounded-lg`}>
           <thead className="rounded-lg">

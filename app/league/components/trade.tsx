@@ -100,18 +100,18 @@ export default function Trade({
 
   return (
     <div className="w-full">
-      <div className="text-md m-2 w-full border border-x-0 bg-gray-950 p-2 font-bold text-gray-50">
+      <div className="m-2 w-full border border-x-0 bg-gray-950 p-2 text-md font-bold text-gray-50">
         Send a Trade Offer
       </div>
       <form>
         <div className="mb-2 flex place-content-between px-2 md:place-content-around">
-          <div className="text-md mt-2 text-center font-semibold">
+          <div className="mt-2 text-center text-md font-semibold">
             {player.name}
           </div>
           <select
             name="leagueId"
             onChange={handleTeamChange}
-            className="text-md appearance-none bg-none px-1 py-0 text-center font-semibold focus:border-red-800 focus:ring-red-800"
+            className="appearance-none bg-none px-1 py-0 text-center text-md font-semibold focus:border-red-800 focus:ring-red-800"
           >
             <ChevronDownIcon className="h-5 w-5" />
 
@@ -152,7 +152,7 @@ export default function Trade({
           </div>
           <div className="flex justify-center">
             <button
-              className={`h-10 rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-gray-950 bg-red-800 hover:border-red-400'}`}
+              className={`rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-gray-950 bg-red-800 hover:border-red-400'}`}
               onClick={() => makeOffer()}
               disabled={
                 ownedSelectedCards.length === 0 ||

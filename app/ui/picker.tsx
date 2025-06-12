@@ -310,7 +310,7 @@ export function WeekPickerRouter({
   const currentWeek = getCurrentWeek();
   return (
     <div>
-      <div className="mt-4 flex">
+      <div className="flex">
         <LightNavTab
           name="all weeks"
           path={`/league/${leagueId}/standings/alltime`}
