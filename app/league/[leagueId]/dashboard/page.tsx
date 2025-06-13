@@ -55,7 +55,7 @@ export default async function Page({
 
   return (
     <main className="p-4">
-      <div className="text-md mb-4 font-semibold text-gray-950">
+      <div className="mb-4 text-md font-semibold text-gray-950">
         <span className="md:text-lg">Your Collection</span>{' '}
         <span className="text-md font-semibold">at a Glance</span>
       </div>

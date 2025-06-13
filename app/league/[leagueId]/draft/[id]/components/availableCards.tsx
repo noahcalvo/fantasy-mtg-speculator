@@ -172,7 +172,7 @@ export default function AvailableCards({
         <hr className="my-2 border-gray-50" />
         <div className="grid grid-cols-2">
           <div>
-            <div className="scrollbar scrollbar-thumb-gray-50 scrollbar-track-gray-50 scrollbar-visible max-h-[25vh] overflow-auto xl:max-h-[60vh]">
+            <div className="scrollbar-visible max-h-[25vh] overflow-auto scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
               {paginatedCards.map((card: CardDetailsWithPoints) => (
                 <div
                   key={card.name}

@@ -35,7 +35,6 @@ export function SetPicker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const selectedSet = searchParams.get('set') ?? 'all';
-  console.log('selectedSet', selectedSet);
 
   const router = useRouter();
 

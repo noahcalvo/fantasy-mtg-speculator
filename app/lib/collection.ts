@@ -1,12 +1,21 @@
 'use server';
 import { sql } from '@vercel/postgres';
-import { Card, CardDetails, CardPoint, Collection, Player } from './definitions';
+import {
+  Card,
+  CardDetails,
+  CardPoint,
+  Collection,
+  Player,
+} from './definitions';
 import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
 import { fetchCardPerformances } from './performance';
 
-export async function fetchPlayerCollection(playerId: number, leagueId: number): Promise<number[]> {
+export async function fetchPlayerCollection(
+  playerId: number,
+  leagueId: number,
+): Promise<number[]> {
   try {
     const data = await sql<{ card_id: number }>`
         SELECT 
@@ -19,10 +28,8 @@ export async function fetchPlayerCollection(playerId: number, leagueId: number):
           league_id = ${leagueId}
       `;
 
-    console.log("data", data)
-
-    const cardIds: number[] = data.rows.map(row => {
-      console.log(row); return row.card_id
+    const cardIds: number[] = data.rows.map((row) => {
+      return row.card_id;
     });
     return cardIds;
   } catch (error) {
@@ -31,7 +38,10 @@ export async function fetchPlayerCollection(playerId: number, leagueId: number):
   }
 }
 
-export async function fetchPlayerCollectionWithDetails(playerId: number, league_id: number): Promise<CardDetails[]> {
+export async function fetchPlayerCollectionWithDetails(
+  playerId: number,
+  league_id: number,
+): Promise<CardDetails[]> {
   try {
     const data = await sql<Card>`
         SELECT 
@@ -52,7 +62,7 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
             C.name DESC;
       `;
     // Convert cardId to cardDetails asynchronously
-    const cardPromises = data.rows.map(card => fetchCard(card.card_id));
+    const cardPromises = data.rows.map((card) => fetchCard(card.card_id));
     const cardDetailsList = await Promise.all(cardPromises);
     return cardDetailsList;
   } catch (error) {
@@ -63,16 +73,17 @@ export async function fetchPlayerCollectionWithDetails(playerId: number, league_
   }
 }
 
-export async function fetchPlayerCollectionWithPerformance(playerId: number, league_id: number): Promise<CardPoint[]> {
+export async function fetchPlayerCollectionWithPerformance(
+  playerId: number,
+  league_id: number,
+): Promise<CardPoint[]> {
   try {
     const collection = await fetchPlayerCollection(playerId, league_id);
-    console.log("collection", collection)
     if (collection.length === 0) {
       return [];
     }
     const cardScores = await fetchCardPerformances(collection, league_id);
-    console.log("scores", cardScores)
-    return cardScores
+    return cardScores;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(
@@ -82,9 +93,9 @@ export async function fetchPlayerCollectionWithPerformance(playerId: number, lea
 }
 
 export async function updateCollectionWithCompleteDraft(draftId: number) {
-
   try {
-    const leagueIdQuery = await sql`SELECT league_id FROM draftsV2 WHERE draft_id = ${draftId}`;
+    const leagueIdQuery =
+      await sql`SELECT league_id FROM draftsV2 WHERE draft_id = ${draftId}`;
     const leagueId = leagueIdQuery.rows[0].league_id;
     const picks = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id
@@ -98,38 +109,55 @@ export async function updateCollectionWithCompleteDraft(draftId: number) {
   }
 }
 
-export async function fetchPlayerCollectionsWithDetails(playerIds: number[], league_id: number): Promise<Collection[]> {
+export async function fetchPlayerCollectionsWithDetails(
+  playerIds: number[],
+  league_id: number,
+): Promise<Collection[]> {
   const playerCollections: Collection[] = [];
 
   for (const playerId of playerIds) {
     try {
-      const collectionDetails = await fetchPlayerCollectionWithDetails(playerId, league_id);
+      const collectionDetails = await fetchPlayerCollectionWithDetails(
+        playerId,
+        league_id,
+      );
       playerCollections.push({ player_id: playerId, cards: collectionDetails });
     } catch (error) {
-      console.error(`Failed to fetch details for playerId ${playerId}: ${error}`);
+      console.error(
+        `Failed to fetch details for playerId ${playerId}: ${error}`,
+      );
       throw new Error(`Failed to get collection for ${playerId}`);
     }
   }
   return playerCollections;
 }
 
-export async function playerOwnsCards(playerId: number, cardIds: number[], league_id: number): Promise<boolean> {
+export async function playerOwnsCards(
+  playerId: number,
+  cardIds: number[],
+  league_id: number,
+): Promise<boolean> {
   try {
     const collection = await fetchPlayerCollection(playerId, league_id);
     cardIds.forEach((cardId: number) => {
       if (!collection.includes(cardId)) {
-        return false
+        return false;
       }
-    })
-    return true
+    });
+    return true;
   } catch (error) {
-    console.error(`Failed to check if player ${playerId} owns ${cardIds}`, error);
+    console.error(
+      `Failed to check if player ${playerId} owns ${cardIds}`,
+      error,
+    );
     throw new Error(`Failed to check if player ${playerId} owns ${cardIds}`);
   }
 }
 
-export async function fetchOwnership(leagueId: number, cardId: number): Promise<Player | null> {
-
+export async function fetchOwnership(
+  leagueId: number,
+  cardId: number,
+): Promise<Player | null> {
   try {
     const data = await sql`
         SELECT 

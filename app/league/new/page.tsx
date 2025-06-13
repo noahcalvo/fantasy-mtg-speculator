@@ -1,10 +1,7 @@
 import { auth } from '@/auth';
 import { fetchPlayerByEmail } from '../../lib/player';
 import { League } from '../../lib/definitions';
-import {
-  fetchAllOpenLeagues,
-  fetchLeagues,
-} from '../../lib/leagues';
+import { fetchAllOpenLeagues, fetchLeagues } from '../../lib/leagues';
 import JoinLeague from './../components/joinLeague';
 
 export default async function Page() {

@@ -1,11 +1,7 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import {
-  League,
-  Player,
-  ScoringOption,
-} from './definitions';
+import { League, Player, ScoringOption } from './definitions';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -114,7 +110,9 @@ export async function addCommissioner(userId: number, leagueId: number) {
     await sql`UPDATE leaguesV3 SET commissioners = array_append(commissioners, ${userId}) WHERE league_id = ${leagueId};`;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error(`Failed to add commissioner ${userId} to league ${leagueId}`);
+    throw new Error(
+      `Failed to add commissioner ${userId} to league ${leagueId}`,
+    );
   }
 }
 
@@ -136,7 +134,6 @@ export async function createLeague(leagueName: string, userId: number) {
 export async function fetchPlayersInLeague(
   leagueId: number,
 ): Promise<Player[]> {
-
   try {
     const data = await sql<Player>`
     SELECT p.name, p.email, p.player_id
@@ -160,7 +157,6 @@ export async function fetchPlayersInLeague(
 export async function fetchPlayerIdInLeague(
   leagueId: number,
 ): Promise<number[]> {
-
   try {
     const data = await sql`
     SELECT participants FROM leaguesV3 WHERE league_id=${leagueId} LIMIT 1;`;
@@ -182,7 +178,10 @@ export async function isPlayerInLeague(playerId: number, leagueId: number) {
   }
 }
 
-export async function isCommissioner(playerId: number, leagueId: number): Promise<boolean> {
+export async function isCommissioner(
+  playerId: number,
+  leagueId: number,
+): Promise<boolean> {
   try {
     const data = await sql`
     SELECT commissioners FROM leaguesV3 WHERE league_id=${leagueId};`;
@@ -193,7 +192,9 @@ export async function isCommissioner(playerId: number, leagueId: number): Promis
   }
 }
 
-export async function fetchScoringOptions(leagueId: number): Promise<ScoringOption[]> {
+export async function fetchScoringOptions(
+  leagueId: number,
+): Promise<ScoringOption[]> {
   try {
     const data = await sql<ScoringOption>`
     SELECT * FROM ScoringOptions WHERE league_id=${leagueId};`;
@@ -204,9 +205,15 @@ export async function fetchScoringOptions(leagueId: number): Promise<ScoringOpti
   }
 }
 
-export async function addScoringSetting(leagueId: number, scoringOption: ScoringOption) {
+export async function addScoringSetting(
+  leagueId: number,
+  scoringOption: ScoringOption,
+) {
   if (scoringOption.scoring_id) {
-    console.debug("should not provide scoring_id when adding a scoring setting", scoringOption.scoring_id);
+    console.debug(
+      'should not provide scoring_id when adding a scoring setting',
+      scoringOption.scoring_id,
+    );
     throw new Error(`Failed to add scoring setting due to inproper parameters`);
   }
   try {
@@ -220,12 +227,17 @@ export async function addScoringSetting(leagueId: number, scoringOption: Scoring
   }
 }
 
-export async function deleteScoringSetting(scoringOption: ScoringOption, playerId: number) {
+export async function deleteScoringSetting(
+  scoringOption: ScoringOption,
+  playerId: number,
+) {
   // authenticate that the user is the commissioner of the league
   // if not, throw an error
   const commissioner = await isCommissioner(playerId, scoringOption.league_id);
   if (!commissioner) {
-    throw new Error(`Player ${playerId} is not a commissioner of league ${scoringOption.league_id}`);
+    throw new Error(
+      `Player ${playerId} is not a commissioner of league ${scoringOption.league_id}`,
+    );
   }
   try {
     await sql`

@@ -6,9 +6,9 @@
     "dev": "next dev",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "start": "next start",
     "seed-js": "node -r dotenv/config ./scripts/seed.js",
     "seed-py": "python3 ./scripts/scrapur/main.py",
+    "start": "next start",
     "watch:workers": "tsc -p tsconfig.worker.json --watch"
   },
   "dependencies": {

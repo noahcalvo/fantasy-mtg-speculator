@@ -9,6 +9,7 @@ This is the starter template for the Next.js App Router Course. It contains the 
 For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
 
 Here are the db tables constituting my schema
+
 ```
 CREATE TABLE IF NOT EXISTS Cards (
 card_id SERIAL PRIMARY KEY,
@@ -90,6 +91,7 @@ To drop the tables (start from scratch):
 To create seed users
 `python3 scripts/seed_player_data.py`
 This will create a user
+
 ```
 noah.calvo@gmail.com password
 ```

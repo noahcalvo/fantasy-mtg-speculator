@@ -18,7 +18,7 @@ export default function Bench({
     <div className="flex flex-col rounded-xl bg-gray-950 p-2 text-gray-50 shadow-sm">
       <div className="flex p-2">
         <RectangleStackIcon className="h-5 w-5 text-gray-50" />
-        <p className="text-md ml-2">Bench</p>
+        <p className="ml-2 text-md">Bench</p>
       </div>
       <div className="grid w-full grid-cols-6 text-sm text-gray-50">
         <div />

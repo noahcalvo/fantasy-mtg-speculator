@@ -37,3 +37,6 @@ next-env.d.ts
 
 # python pycache
 __pycache__
+
+# cache files
+/cache/

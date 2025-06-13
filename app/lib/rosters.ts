@@ -1,7 +1,12 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { CardDetails, CardPerformances, RosterCardDetailsMap, RosterIdMap } from './definitions';
+import {
+  CardDetails,
+  CardPerformances,
+  RosterCardDetailsMap,
+  RosterIdMap,
+} from './definitions';
 import { revalidatePath } from 'next/cache';
 import { fetchCard } from './card';
 import { fetchCardPerformanceByWeek } from './performance';
@@ -14,7 +19,6 @@ export async function fetchPlayerRosterWithDetails(
   userId: number,
   league_id: number,
 ): Promise<RosterCardDetailsMap> {
-
   try {
     await checkRosterExists(userId, league_id);
     const data = await sql<RosterSlotToId>`
@@ -46,8 +50,10 @@ export async function fetchPlayerRosterWithDetails(
   }
 }
 
-export async function fetchPlayerRoster(userId: number, leagueId: number): Promise<RosterIdMap> {
-
+export async function fetchPlayerRoster(
+  userId: number,
+  leagueId: number,
+): Promise<RosterIdMap> {
   try {
     await checkRosterExists(userId, leagueId);
     const data = await sql<RosterIdMap>`
@@ -91,9 +97,13 @@ export async function fetchPlayerRosterScore(
       return isNaN(parsedId) ? -1 : parsedId;
     });
     if (cardIds.length === 0) {
-      return { cards: [] } as CardPerformances
+      return { cards: [] } as CardPerformances;
     }
-    const performances = await fetchCardPerformanceByWeek(cardIds, leagueId, week);
+    const performances = await fetchCardPerformanceByWeek(
+      cardIds,
+      leagueId,
+      week,
+    );
     return performances;
   } catch (error) {
     console.error('Error fetching player roster scores:', error);
@@ -105,9 +115,8 @@ export async function playPositionSlot(
   cardId: number,
   userId: number,
   position: string,
-  leagueId: number
+  leagueId: number,
 ): Promise<void> {
-
   position = position.toLowerCase();
   try {
     await checkRosterExists(userId, leagueId);
@@ -129,8 +138,10 @@ export async function playPositionSlot(
   }
 }
 
-export async function checkRosterExists(userId: number, leagueId: number): Promise<void> {
-
+export async function checkRosterExists(
+  userId: number,
+  leagueId: number,
+): Promise<void> {
   try {
     // Check if a roster exists for the user
     const rosterExists = await sql`
@@ -163,7 +174,7 @@ const createSqlLineupQuery = (
   userId: number,
   cardId: number,
   position: string,
-  leagueId: number
+  leagueId: number,
 ) => {
   switch (position) {
     case 'creature':
@@ -224,7 +235,11 @@ const createSqlLineupQuery = (
   }
 };
 
-const removeCardSlotQuery = (userId: number, position: string, leagueId: number) => {
+const removeCardSlotQuery = (
+  userId: number,
+  position: string,
+  leagueId: number,
+) => {
   switch (position) {
     case 'creature':
       return sql`

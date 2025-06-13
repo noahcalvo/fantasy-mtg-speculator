@@ -26,7 +26,9 @@ export const generateYAxis = (cardPoints: CardPoint[]) => {
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s
   const yAxisLabels = [];
-  const highestRecord = Math.max(...cardPoints.map((cardName) => cardName.total_points));
+  const highestRecord = Math.max(
+    ...cardPoints.map((cardName) => cardName.total_points),
+  );
   const topLabel = Math.ceil(highestRecord / 10) * 10;
 
   for (let i = topLabel; i >= 0; i -= 10) {
@@ -84,15 +86,57 @@ export function capitalize(str: string) {
 }
 
 export const defaultModernScoringOptions: ScoringOption[] = [
-  { scoring_id: -1, format: 'modern', tournament_type: 'Challenge Top 8', is_per_copy: true, points: 0.50, league_id: -1 },
-  { scoring_id: -1, format: 'modern', tournament_type: 'Challenge Champion', is_per_copy: false, points: 5.00, league_id: -1 },
-  { scoring_id: -1, format: 'modern', tournament_type: 'League 5-0', is_per_copy: true, points: 0.25, league_id: -1 }
+  {
+    scoring_id: -1,
+    format: 'modern',
+    tournament_type: 'Challenge Top 8',
+    is_per_copy: true,
+    points: 0.5,
+    league_id: -1,
+  },
+  {
+    scoring_id: -1,
+    format: 'modern',
+    tournament_type: 'Challenge Champion',
+    is_per_copy: false,
+    points: 5.0,
+    league_id: -1,
+  },
+  {
+    scoring_id: -1,
+    format: 'modern',
+    tournament_type: 'League 5-0',
+    is_per_copy: true,
+    points: 0.25,
+    league_id: -1,
+  },
 ];
 
 export const defaultStandardScoringOptions: ScoringOption[] = [
-  { scoring_id: -1, format: 'standard', tournament_type: 'Challenge Top 8', is_per_copy: true, points: 0.50, league_id: -1 },
-  { scoring_id: -1, format: 'standard', tournament_type: 'Challenge Champion', is_per_copy: false, points: 5.00, league_id: -1 },
-  { scoring_id: -1, format: 'standard', tournament_type: 'League 5-0', is_per_copy: true, points: 0.25, league_id: -1 }
+  {
+    scoring_id: -1,
+    format: 'standard',
+    tournament_type: 'Challenge Top 8',
+    is_per_copy: true,
+    points: 0.5,
+    league_id: -1,
+  },
+  {
+    scoring_id: -1,
+    format: 'standard',
+    tournament_type: 'Challenge Champion',
+    is_per_copy: false,
+    points: 5.0,
+    league_id: -1,
+  },
+  {
+    scoring_id: -1,
+    format: 'standard',
+    tournament_type: 'League 5-0',
+    is_per_copy: true,
+    points: 0.25,
+    league_id: -1,
+  },
 ];
 
 export function getAllWeeks() {
@@ -101,4 +145,20 @@ export function getAllWeeks() {
     weeks.push(i);
   }
   return weeks;
+}
+
+// constants.ts
+export const formatOptions = ['Standard', 'Modern'];
+export const tournamentTypeOptions = [
+  'Challenge Champion',
+  'Challenge Top 8',
+  'League 5-0',
+];
+
+export function validatePoints(points: number | ''): string | null {
+  if (points === '' || isNaN(Number(points))) return 'Points must be a number.';
+  if (Number(points) < 0) return 'Points must be positive.';
+  const decimalPlaces = points.toString().split('.')[1]?.length || 0;
+  if (decimalPlaces > 2) return 'Points can only have two decimal places.';
+  return null;
 }

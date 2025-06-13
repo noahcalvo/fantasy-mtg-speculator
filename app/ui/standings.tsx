@@ -35,9 +35,6 @@ export default async function Standings({
 
   return (
     <div className="text-gray-50">
-      <div className="ml-2 text-md font-semibold sm:text-lg">
-        {week > 0 ? `Week ${week}` : 'All-Time 📜'}
-      </div>
       {sortedPointsArray.map(async ([playerId, twoWeekStatus], index) => {
         let className =
           'grid grid-cols-12 items-center p-2 rounded-md my-2 hover:border-gray-500 border border-gray-950';

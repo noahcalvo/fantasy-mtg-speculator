@@ -23,27 +23,27 @@ export type CardPoint = {
 };
 
 export type RawPerformanceData = {
-  card_id: number,
-  name: string,
-  week: number,
-  modern_challenge_champs: number | null,
-  modern_challenge_copies: number | null,
-  modern_league_copies: number | null,
-  standard_challenge_champs: number | null,
-  standard_challenge_copies: number | null,
-  standard_league_copies: number | null
-}
+  card_id: number;
+  name: string;
+  week: number;
+  modern_challenge_champs: number | null;
+  modern_challenge_copies: number | null;
+  modern_league_copies: number | null;
+  standard_challenge_champs: number | null;
+  standard_challenge_copies: number | null;
+  standard_league_copies: number | null;
+};
 
 export type CardPerformances = {
   cards: CardPoint[];
-}
+};
 
 export type TeamPerformance = {
   points: number;
   roster: RosterIdMap;
   player_id: number;
   week: number;
-}
+};
 
 export type Card = {
   card_id: number;
@@ -65,17 +65,17 @@ export type CardDetails = {
   colorIdentity: string[];
   typeLine: string;
   set: string;
-}
+};
 
 export type CardDetailsWithPoints = CardDetails & {
   points: number;
   week: number;
-}
+};
 
 export type Collection = {
   player_id: number;
   cards: CardDetails[];
-}
+};
 
 export type Draft = {
   draft_id: number;
@@ -110,7 +110,7 @@ export type League = {
 export type WeeklyLeaguePerformances = {
   teams: TeamPerformance[];
   league_id: number;
-}
+};
 
 export type RosterIdMap = {
   [key: string]: string;
@@ -123,14 +123,14 @@ export type RosterCardDetailsMap = {
 export const getCardIdsFromMap = (map: RosterCardDetailsMap) => {
   const cardIds: number[] = [];
 
-  Object.keys(map).forEach(key => {
+  Object.keys(map).forEach((key) => {
     const details = map[key];
     if (details !== null) {
-      cardIds.push(details.card_id)
+      cardIds.push(details.card_id);
     }
   });
-  return cardIds
-}
+  return cardIds;
+};
 
 export const getRosterPositions = () => {
   return [
@@ -138,49 +138,49 @@ export const getRosterPositions = () => {
     'Instant/Sorcery',
     'Artifact/Enchantment',
     'Land',
-    'Flex'
+    'Flex',
   ];
-}
+};
 
 export const getCardTypes = (typeLine: string): string => {
   const allPositions = getRosterPositions();
   let cardApplicablePositions = allPositions.filter((position) => {
     if (position.includes('/')) {
       const splitPositions = position.split('/');
-      return splitPositions.some(
-        (splitPosition) => typeLine.includes(splitPosition),
+      return splitPositions.some((splitPosition) =>
+        typeLine.includes(splitPosition),
       );
     } else {
       return typeLine.includes(position);
     }
   });
-  return cardApplicablePositions.join("/");
-}
+  return cardApplicablePositions.join('/');
+};
 
 export const getCardTypesList = (typeLine: string): string[] => {
   const allPositions = getRosterPositions();
   let cardApplicablePositions = allPositions.filter((position) => {
     if (position.includes('/')) {
       const splitPositions = position.split('/');
-      return splitPositions.some(
-        (splitPosition) => typeLine.includes(splitPosition),
+      return splitPositions.some((splitPosition) =>
+        typeLine.includes(splitPosition),
       );
     } else {
       return typeLine.includes(position);
     }
   });
-  return cardApplicablePositions
-}
+  return cardApplicablePositions;
+};
 
 export const getCardTypesAbbreviation = (typeLine: string) => {
   const cardTypes = getCardTypesList(typeLine);
   return cardTypes.map((type) => getAbbreviation(type));
-}
+};
 
 export const getCardTypesAbbreviationString = (typeLine: string) => {
-  const abbreviations = getCardTypesAbbreviation(typeLine)
-  return abbreviations.join("/")
-}
+  const abbreviations = getCardTypesAbbreviation(typeLine);
+  return abbreviations.join('/');
+};
 
 export const getAbbreviation = (position: string) => {
   switch (position) {
@@ -197,7 +197,7 @@ export const getAbbreviation = (position: string) => {
     default:
       return '';
   }
-}
+};
 
 export const calculateTotalPoints = (cardPoints: CardPoint[]): number => {
   return cardPoints.reduce((accumulator, cardPoint) => {
@@ -213,27 +213,29 @@ export type TradeOffer = {
   requested: number[];
   state: string;
   league_id: number;
-}
+};
 
 export type TradeOfferWithCardDetails = {
-  trade_id: number
+  trade_id: number;
   offerer: Player;
   recipient: Player;
   offeredCards: CardDetails[];
   requestedCards: CardDetails[];
   state: string;
   league_id: number;
-}
+};
 
-export function transformTradeOffer(trade: TradeOfferWithCardDetails): TradeOffer {
+export function transformTradeOffer(
+  trade: TradeOfferWithCardDetails,
+): TradeOffer {
   return {
     recipient: trade.recipient.player_id,
     offerer: trade.offerer.player_id,
-    offered: trade.offeredCards.map(card => card.card_id),
-    requested: trade.requestedCards.map(card => card.card_id),
+    offered: trade.offeredCards.map((card) => card.card_id),
+    requested: trade.requestedCards.map((card) => card.card_id),
     trade_id: trade.trade_id,
     state: trade.state,
-    league_id: trade.league_id
+    league_id: trade.league_id,
   };
 }
 
@@ -242,7 +244,7 @@ export type BulletinItem = {
   message: string;
   created: Date;
   author: string;
-}
+};
 
 export type ScryfallSearchResult = {
   object: string;
@@ -371,6 +373,19 @@ export type ScoringOption = {
   league_id: number;
 };
 
-export type format = 'modern' | 'standard' | 'pioneer' | 'explorer' | 'legacy' | 'vintage' | 'commander' | 'alchemist' | 'historic' | 'pauper' | 'duel' | 'oldschool' | 'premodern';
+export type format =
+  | 'modern'
+  | 'standard'
+  | 'pioneer'
+  | 'explorer'
+  | 'legacy'
+  | 'vintage'
+  | 'commander'
+  | 'alchemist'
+  | 'historic'
+  | 'pauper'
+  | 'duel'
+  | 'oldschool'
+  | 'premodern';
 
 export const supportedFormats: format[] = ['modern', 'standard'];

@@ -5,7 +5,6 @@ import { League } from './app/lib/definitions';
 
 const SECRET = process.env.AUTH_SECRET;
 
-
 export const authConfig: NextAuthConfig = {
   pages: {
     signIn: '/login',
@@ -39,13 +38,20 @@ export const authConfig: NextAuthConfig = {
         if ((leagueId && leagueIds.includes(leagueId)) || leagueId == null) {
           return true;
         }
-        return Response.redirect(new URL('/league/new', nextUrl).toString(), 302);
+        return Response.redirect(
+          new URL('/league/new', nextUrl).toString(),
+          302,
+        );
       }
 
       if (isOnLogin) {
         if (isLoggedIn) {
-          const redirectPath = nextUrl.searchParams.get('redirect') || '/dashboard';
-          return Response.redirect(new URL(redirectPath, nextUrl).toString(), 302); // Ensure proper redirect
+          const redirectPath =
+            nextUrl.searchParams.get('redirect') || '/dashboard';
+          return Response.redirect(
+            new URL(redirectPath, nextUrl).toString(),
+            302,
+          ); // Ensure proper redirect
         }
         return true; // Allow access to login page if not logged in
       }

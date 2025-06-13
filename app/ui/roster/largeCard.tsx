@@ -62,7 +62,7 @@ export default function LargeCard({
         </div>
         <div className="relative flex p-2">
           <div className="flex w-2/3 flex-col justify-center">
-            <p className="text-md relative line-clamp-2 text-ellipsis text-center font-bold">
+            <p className="relative line-clamp-2 text-ellipsis text-center text-md font-bold">
               {selectedCard?.name ? selectedCard.name : 'empty'}
             </p>
             {card ? (

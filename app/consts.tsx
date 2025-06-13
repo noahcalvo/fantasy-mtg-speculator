@@ -1,1 +1,1 @@
-export const EPOCH = "4/8/2024";
+export const EPOCH = '4/8/2024';

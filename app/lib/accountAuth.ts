@@ -50,7 +50,10 @@ export type State = {
   message?: string | null;
 };
 
-export async function createAccount(prevState: string | undefined, formData: FormData): Promise<string> {
+export async function createAccount(
+  prevState: string | undefined,
+  formData: FormData,
+): Promise<string> {
   // validate data from form
   const validatedFields = CreateAccount.safeParse({
     name: formData.get('name'),

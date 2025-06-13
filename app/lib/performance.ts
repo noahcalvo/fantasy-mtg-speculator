@@ -1,8 +1,20 @@
 'use server';
 
-import { CardPerformances, CardPoint, RawPerformanceData, RosterIdMap, ScoringOption, TeamPerformance, WeeklyLeaguePerformances } from './definitions';
+import {
+  CardPerformances,
+  CardPoint,
+  RawPerformanceData,
+  RosterIdMap,
+  ScoringOption,
+  TeamPerformance,
+  WeeklyLeaguePerformances,
+} from './definitions';
 import pg from 'pg';
-import { fetchAllLeagues, fetchPlayersInLeague, fetchScoringOptions } from './leagues';
+import {
+  fetchAllLeagues,
+  fetchPlayersInLeague,
+  fetchScoringOptions,
+} from './leagues';
 import { getCurrentWeek } from './utils';
 import { fetchPlayerRoster } from './rosters';
 import { revalidatePath } from 'next/cache';
@@ -31,33 +43,52 @@ function getPerformanceTableNames(format: string) {
   return { challengeTable, leagueTable };
 }
 
-function getFormatsFromScoringOptions(scoringOptions: ScoringOption[]): string[] {
-  return Array.from(new Set(scoringOptions.map(option => option.format)));
+function getFormatsFromScoringOptions(
+  scoringOptions: ScoringOption[],
+): string[] {
+  return Array.from(new Set(scoringOptions.map((option) => option.format)));
 }
 
-function addPointsFromFormat(cardsWithPoints: CardPoint[], pointsFromFormat: CardPoint[]) {
-  pointsFromFormat.forEach(point => {
-    const existingCard = cardsWithPoints.find(card => card.card_id === point.card_id && card.week === point.week);
+function addPointsFromFormat(
+  cardsWithPoints: CardPoint[],
+  pointsFromFormat: CardPoint[],
+) {
+  pointsFromFormat.forEach((point) => {
+    const existingCard = cardsWithPoints.find(
+      (card) => card.card_id === point.card_id && card.week === point.week,
+    );
     if (existingCard) {
       existingCard.total_points += point.total_points;
     } else {
       cardsWithPoints.push(point);
     }
-  })
+  });
 }
 
-export async function fetchTopCards(scoringOptions: ScoringOption[], week: number, set: string): Promise<CardPerformances> {
-  let weekToFetch = week
+export async function fetchTopCards(
+  scoringOptions: ScoringOption[],
+  week: number,
+  set: string,
+): Promise<CardPerformances> {
+  let weekToFetch = week;
   if (week == -1) {
-    weekToFetch = getCurrentWeek()
+    weekToFetch = getCurrentWeek();
   }
-  const cardPerformances = await fetchCardPerformanceByScoringOptWeekSet(scoringOptions, weekToFetch, set);
+  const cardPerformances = await fetchCardPerformanceByScoringOptWeekSet(
+    scoringOptions,
+    weekToFetch,
+    set,
+  );
   // return the top 20 performers
   cardPerformances.cards.sort((a, b) => b.total_points - a.total_points);
   return { cards: cardPerformances.cards.slice(0, 20) };
 }
 
-export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: ScoringOption[], week: number, set: string): Promise<CardPerformances> {
+export async function fetchCardPerformanceByScoringOptWeekSet(
+  scoringOptions: ScoringOption[],
+  week: number,
+  set: string,
+): Promise<CardPerformances> {
   try {
     const formats = getFormatsFromScoringOptions(scoringOptions);
     if (formats.length === 0) {
@@ -102,10 +133,12 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
       const params = set ? [week, set] : [week];
       const data = await pool.query(query, params);
 
-      const pointsFromFormat = calculatePointsFromPerformances(data.rows, scoringOptions);
+      const pointsFromFormat = calculatePointsFromPerformances(
+        data.rows,
+        scoringOptions,
+      );
       addPointsFromFormat(cardsWithPoints, pointsFromFormat);
     }
-
 
     return { cards: cardsWithPoints };
   } catch (error) {
@@ -115,7 +148,6 @@ export async function fetchCardPerformanceByScoringOptWeekSet(scoringOptions: Sc
 }
 
 export async function fetchUniqueWeekNumbers() {
-
   try {
     const data = await pool.query(`
           SELECT DISTINCT
@@ -136,9 +168,9 @@ export async function fetchUniqueWeekNumbers() {
 }
 
 export async function fetchLeagueWeeks(leagueId: number) {
-
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
           SELECT DISTINCT
               week
           FROM 
@@ -147,7 +179,9 @@ export async function fetchLeagueWeeks(leagueId: number) {
               league_id = $1
           ORDER BY 
               week DESC;
-      `, [leagueId]);
+      `,
+      [leagueId],
+    );
     // Convert week numbers to numbers
     const convertedData = data.rows.map((row) => Number(row.week));
     return convertedData;
@@ -157,10 +191,14 @@ export async function fetchLeagueWeeks(leagueId: number) {
   }
 }
 
-export async function fetchRosterFromTeamPerformance(playerId: number, leagueId: number, week: number): Promise<RosterIdMap> {
-
+export async function fetchRosterFromTeamPerformance(
+  playerId: number,
+  leagueId: number,
+  week: number,
+): Promise<RosterIdMap> {
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
           SELECT 
               roster
           FROM 
@@ -171,7 +209,9 @@ export async function fetchRosterFromTeamPerformance(playerId: number, leagueId:
               league_id = $2
           AND 
               week = $3;
-      `, [playerId, leagueId, week]);
+      `,
+      [playerId, leagueId, week],
+    );
 
     return data.rows[0]?.roster ?? {};
   } catch (error) {
@@ -180,8 +220,12 @@ export async function fetchRosterFromTeamPerformance(playerId: number, leagueId:
   }
 }
 
-export async function updateWeeklyTeamPerformance(leagueId: number, week: number, player: number) {
-  'use client'
+export async function updateWeeklyTeamPerformance(
+  leagueId: number,
+  week: number,
+  player: number,
+) {
+  'use client';
   try {
     const roster = await fetchRosterFromTeamPerformance(player, leagueId, week);
     let cardIds = [];
@@ -189,19 +233,33 @@ export async function updateWeeklyTeamPerformance(leagueId: number, week: number
       const cardId = roster[rosterPosition];
       const parseCardId = parseInt(cardId);
       // turn cardId into a number and push it to the cardIds array if it is a number
-      if (typeof parseCardId === 'number' && parseCardId != 0 && !isNaN(parseCardId)) {
+      if (
+        typeof parseCardId === 'number' &&
+        parseCardId != 0 &&
+        !isNaN(parseCardId)
+      ) {
         cardIds.push(parseInt(cardId));
       }
     }
 
-    const performances = await fetchCardPerformanceByWeek(cardIds, leagueId, week);
+    const performances = await fetchCardPerformanceByWeek(
+      cardIds,
+      leagueId,
+      week,
+    );
     let points = 0;
 
     performances.cards.forEach((performance: CardPoint) => {
       points += performance.total_points;
-    })
+    });
 
-    const performanceId = await upsertWeeklyTeamPerformance(leagueId, roster, week, player, points);
+    const performanceId = await upsertWeeklyTeamPerformance(
+      leagueId,
+      roster,
+      week,
+      player,
+      points,
+    );
 
     const performanceIdValue = performanceId.rows[0].performance_id;
     return performanceIdValue;
@@ -214,7 +272,7 @@ export async function updateWeeklyTeamPerformance(leagueId: number, week: number
 async function updateWeeklyPerformance(week: number) {
   const leagues = await fetchAllLeagues();
   if (leagues != null) {
-    const leagueIds = leagues.map(league => league.league_id);
+    const leagueIds = leagues.map((league) => league.league_id);
     for (let leagueId of leagueIds) {
       const players = await fetchPlayersInLeague(leagueId);
       for (let player of players) {
@@ -222,18 +280,23 @@ async function updateWeeklyPerformance(week: number) {
       }
     }
   }
-
 }
 
 async function initWeeklyPerformnceRoster(week: number) {
   const leagues = await fetchAllLeagues();
   if (leagues != null) {
-    const leagueIds = leagues.map(league => league.league_id);
+    const leagueIds = leagues.map((league) => league.league_id);
     for (let leagueId of leagueIds) {
       const players = await fetchPlayersInLeague(leagueId);
       for (let player of players) {
         const roster = await fetchPlayerRoster(player.player_id, leagueId);
-        await upsertWeeklyTeamPerformance(leagueId, roster, week, player.player_id, 0);
+        await upsertWeeklyTeamPerformance(
+          leagueId,
+          roster,
+          week,
+          player.player_id,
+          0,
+        );
         revalidatePath(`/league/${leagueId}/teams/${player.player_id}`);
       }
     }
@@ -243,16 +306,22 @@ async function initWeeklyPerformnceRoster(week: number) {
 export async function runMondayTask() {
   try {
     const week = getCurrentWeek();
-    const lastWeek = week - 1
+    const lastWeek = week - 1;
     await updateWeeklyPerformance(lastWeek);
     await initWeeklyPerformnceRoster(week);
   } catch (error) {
     console.error('Database Error:', error);
-    throw error
+    throw error;
   }
 }
 
-async function upsertWeeklyTeamPerformance(leagueId: number, roster: RosterIdMap, week: number, player: number, points: number) {
+async function upsertWeeklyTeamPerformance(
+  leagueId: number,
+  roster: RosterIdMap,
+  week: number,
+  player: number,
+  points: number,
+) {
   try {
     const performanceId = await pool.query(
       `INSERT INTO
@@ -264,30 +333,35 @@ async function upsertWeeklyTeamPerformance(leagueId: number, roster: RosterIdMap
       points = EXCLUDED.points,
       roster = EXCLUDED.roster
     RETURNING performance_id;
-      `, [leagueId, player, week, points * 100, JSON.stringify(roster)]);
-    return performanceId
+      `,
+      [leagueId, player, week, points * 100, JSON.stringify(roster)],
+    );
+    return performanceId;
   } catch (error) {
     console.error('Database Error:', error);
     throw error;
   }
 }
 
-export async function fetchWeeklyLeaguePerformance(leagueId: number, week: number): Promise<WeeklyLeaguePerformances> {
-
+export async function fetchWeeklyLeaguePerformance(
+  leagueId: number,
+  week: number,
+): Promise<WeeklyLeaguePerformances> {
   if (week == getCurrentWeek()) {
     try {
       const data = await fetchOngoingWeekPerformance(leagueId);
       return {
         league_id: leagueId,
-        teams: data
-      }
+        teams: data,
+      };
     } catch (error) {
       console.error('Database Error:', error);
       throw new Error('Failed to fetch ongoing week performance');
     }
   }
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
           SELECT 
               player_id,
               points,
@@ -299,11 +373,13 @@ export async function fetchWeeklyLeaguePerformance(leagueId: number, week: numbe
               league_id = $1
           AND 
               week = $2;
-      `, [leagueId, week]);
+      `,
+      [leagueId, week],
+    );
 
     return {
       league_id: leagueId,
-      teams: data.rows
+      teams: data.rows,
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -311,10 +387,12 @@ export async function fetchWeeklyLeaguePerformance(leagueId: number, week: numbe
   }
 }
 
-export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<WeeklyLeaguePerformances> {
-
+export async function fetchAlltimeLeaguePerformance(
+  leagueId: number,
+): Promise<WeeklyLeaguePerformances> {
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
           SELECT 
               player_id,
               SUM(points) as points
@@ -324,22 +402,26 @@ export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<W
               league_id = $1
           GROUP BY
               player_id;
-      `, [leagueId]);
+      `,
+      [leagueId],
+    );
 
     const ongoingData = await fetchOngoingWeekPerformance(leagueId);
     const allTimeData: TeamPerformance[] = data.rows.map((row) => {
-      const player = ongoingData.find((team) => team.player_id === row.player_id);
+      const player = ongoingData.find(
+        (team) => team.player_id === row.player_id,
+      );
       return {
         player_id: row.player_id,
         points: +row.points + (player?.points ?? 0),
         week: -1,
-        roster: player?.roster ?? {}
-      }
-    })
+        roster: player?.roster ?? {},
+      };
+    });
 
     return {
       league_id: leagueId,
-      teams: allTimeData
+      teams: allTimeData,
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -347,10 +429,12 @@ export async function fetchAlltimeLeaguePerformance(leagueId: number): Promise<W
   }
 }
 
-export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): Promise<WeeklyLeaguePerformances> {
-
+export async function fetchAlltimeLeaguePerformanceLastWeek(
+  leagueId: number,
+): Promise<WeeklyLeaguePerformances> {
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
           WITH LatestWeek AS (
               SELECT MAX(week) as max_week
               FROM TeamPerformancesV3
@@ -367,11 +451,13 @@ export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): P
               tp.league_id = $1
           GROUP BY
               tp.player_id;
-      `, [leagueId]);
+      `,
+      [leagueId],
+    );
 
     return {
       league_id: leagueId,
-      teams: data.rows
+      teams: data.rows,
     };
   } catch (error) {
     console.error('Database Error:', error);
@@ -379,35 +465,48 @@ export async function fetchAlltimeLeaguePerformanceLastWeek(leagueId: number): P
   }
 }
 
-export async function fetchOngoingWeekPerformance(leagueId: number): Promise<TeamPerformance[]> {
-
+export async function fetchOngoingWeekPerformance(
+  leagueId: number,
+): Promise<TeamPerformance[]> {
   const week = getCurrentWeek();
   let performances: TeamPerformance[] = [];
   try {
     const players = await fetchPlayersInLeague(leagueId);
     for (let player of players) {
-      const roster = await fetchRosterFromTeamPerformance(player.player_id, leagueId, week);
+      const roster = await fetchRosterFromTeamPerformance(
+        player.player_id,
+        leagueId,
+        week,
+      );
       let cardIds = [];
       for (let rosterPosition in roster) {
         const cardId = roster[rosterPosition];
         const parseCardId = parseInt(cardId);
         // turn cardId into a number and push it to the cardIds array if it is a number
-        if (typeof parseCardId === 'number' && parseCardId != 0 && !isNaN(parseCardId)) {
+        if (
+          typeof parseCardId === 'number' &&
+          parseCardId != 0 &&
+          !isNaN(parseCardId)
+        ) {
           cardIds.push(parseInt(cardId));
         }
       }
 
-      const rosterPerformances = await fetchCardPerformanceByWeek(cardIds, leagueId, week);
+      const rosterPerformances = await fetchCardPerformanceByWeek(
+        cardIds,
+        leagueId,
+        week,
+      );
       let points = 0;
 
       rosterPerformances.cards.forEach((cardPerformance: CardPoint) => {
         points += cardPerformance.total_points;
-      })
+      });
       performances.push({
         player_id: player.player_id,
         points: points * 100,
         week: week,
-        roster: roster
+        roster: roster,
       });
     }
     return performances;
@@ -417,7 +516,10 @@ export async function fetchOngoingWeekPerformance(leagueId: number): Promise<Tea
   }
 }
 
-export async function fetchCardPerformances(cardIds: number[], leagueId: number): Promise<CardPoint[]> {
+export async function fetchCardPerformances(
+  cardIds: number[],
+  leagueId: number,
+): Promise<CardPoint[]> {
   if (cardIds.length === 0) {
     return [];
   }
@@ -430,11 +532,13 @@ export async function fetchCardPerformances(cardIds: number[], leagueId: number)
     const rawPerformanceData = await fetchRawPerformanceData(cardIds);
 
     // Calculate points and format the response
-    const cardsWithPoints = calculatePointsFromPerformances(rawPerformanceData, scoringOptions);
+    const cardsWithPoints = calculatePointsFromPerformances(
+      rawPerformanceData,
+      scoringOptions,
+    );
 
     // Sort by points after calculation
     return cardsWithPoints.sort((a, b) => b.total_points - a.total_points);
-
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card point data for week');
@@ -442,7 +546,9 @@ export async function fetchCardPerformances(cardIds: number[], leagueId: number)
 }
 
 // Helper function for fetching raw performance data
-async function fetchRawPerformanceData(cardIds: number[]): Promise<RawPerformanceData[]> {
+async function fetchRawPerformanceData(
+  cardIds: number[],
+): Promise<RawPerformanceData[]> {
   const data = await pool.query(
     `SELECT 
       C.card_id, 
@@ -492,13 +598,18 @@ async function fetchRawPerformanceData(cardIds: number[]): Promise<RawPerformanc
       SLP.copies
     ORDER BY
       C.name;
-    `, [cardIds]);
+    `,
+    [cardIds],
+  );
 
   return data.rows;
 }
 
 // Helper function for fetching raw performance data
-export async function fetchRawPerformanceDataByWeek(cardIds: number[], week: number): Promise<any[]> {
+export async function fetchRawPerformanceDataByWeek(
+  cardIds: number[],
+  week: number,
+): Promise<any[]> {
   const data = await pool.query(
     `SELECT 
       C.card_id, 
@@ -546,12 +657,18 @@ export async function fetchRawPerformanceDataByWeek(cardIds: number[], week: num
       SLP.copies
     ORDER BY
       C.name;
-    `, [cardIds, week]);
+    `,
+    [cardIds, week],
+  );
 
   return data.rows;
 }
 
-export async function fetchCardPerformanceByWeek(collectionIDs: number[], leagueId: number, week: number): Promise<CardPerformances> {
+export async function fetchCardPerformanceByWeek(
+  collectionIDs: number[],
+  leagueId: number,
+  week: number,
+): Promise<CardPerformances> {
   if (collectionIDs.length === 0) {
     return { cards: [] };
   }
@@ -560,15 +677,19 @@ export async function fetchCardPerformanceByWeek(collectionIDs: number[], league
     // Fetch scoring options and raw performance data concurrently
     const [scoringOptions, rawPerformanceData] = await Promise.all([
       fetchScoringOptions(leagueId),
-      fetchRawPerformanceDataByWeek(collectionIDs, week)
+      fetchRawPerformanceDataByWeek(collectionIDs, week),
     ]);
 
     // Calculate points and format the response
-    const cardsWithPoints = calculatePointsFromPerformances(rawPerformanceData, scoringOptions);
-
+    const cardsWithPoints = calculatePointsFromPerformances(
+      rawPerformanceData,
+      scoringOptions,
+    );
 
     // Sort by points after calculation
-    const sortedPerformances = cardsWithPoints.sort((a, b) => b.total_points - a.total_points);
+    const sortedPerformances = cardsWithPoints.sort(
+      (a, b) => b.total_points - a.total_points,
+    );
     return { cards: sortedPerformances };
   } catch (error) {
     console.error('Database Error:', error);
@@ -576,7 +697,11 @@ export async function fetchCardPerformanceByWeek(collectionIDs: number[], league
   }
 }
 
-export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: number, scoringOptions: ScoringOption[]): Promise<CardPoint[]> {
+export async function fetchLastNWeeksCardPerformance(
+  cardId: number,
+  weeks: number,
+  scoringOptions: ScoringOption[],
+): Promise<CardPoint[]> {
   try {
     const formats = getFormatsFromScoringOptions(scoringOptions);
     if (formats.length === 0) {
@@ -620,16 +745,20 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
           PF.week DESC;
     `;
 
-
       const data = await pool.query(query, [cardId, weeks - 1]);
 
-      const pointsFromFormat = calculatePointsFromPerformances(data.rows, scoringOptions);
+      const pointsFromFormat = calculatePointsFromPerformances(
+        data.rows,
+        scoringOptions,
+      );
       addPointsFromFormat(weeksOfPoints, pointsFromFormat);
     }
     // Fill in missing weeks with zeros
     const filledData = [];
     for (let i = 0; i < weeks; i++) {
-      const weekData = weeksOfPoints.find((row) => row.week === getCurrentWeek() - i);
+      const weekData = weeksOfPoints.find(
+        (row) => row.week === getCurrentWeek() - i,
+      );
       if (weekData) {
         filledData.push(weekData);
       } else {
@@ -641,7 +770,7 @@ export async function fetchLastNWeeksCardPerformance(cardId: number, weeks: numb
         });
       }
     }
-    return weeksOfPoints
+    return weeksOfPoints;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch last N weeks card performance');

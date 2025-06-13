@@ -54,7 +54,7 @@ export default async function SideNav() {
             </div>
           </Link>
         )}
-        <div className="text-md hidden h-auto w-full grow rounded-md bg-gray-950 md:block"></div>
+        <div className="hidden h-auto w-full grow rounded-md bg-gray-950 text-md md:block"></div>
       </div>
     </div>
   );

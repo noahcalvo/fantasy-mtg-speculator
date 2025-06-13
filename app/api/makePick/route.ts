@@ -3,9 +3,16 @@ import { Worker } from 'worker_threads';
 let timerMap = new Map<number, NodeJS.Timeout>();
 
 // Start a worker thread to run the draft function
-async function startDraftWorker(draftId: number, set: string, playerId?: number, cardName?: string) {
+async function startDraftWorker(
+  draftId: number,
+  set: string,
+  playerId?: number,
+  cardName?: string,
+) {
   return new Promise<void>((resolve, reject) => {
-    const worker = new Worker('/workers/worker.ts', { workerData: { draftId, set, playerId, cardName } });
+    const worker = new Worker('/workers/worker.ts', {
+      workerData: { draftId, set, playerId, cardName },
+    });
     worker.on('message', (message: any) => {
       console.debug('Worker sent message:', message);
       if (message === 'done') {
@@ -13,7 +20,7 @@ async function startDraftWorker(draftId: number, set: string, playerId?: number,
       }
     });
     worker.on('error', (error: Error) => {
-      console.debug("worker error:", error)
+      console.debug('worker error:', error);
       reject(error);
     });
     worker.on('exit', (code: number) => {
@@ -37,23 +44,29 @@ export async function POST(req: Request): Promise<Response> {
     await startDraftWorker(draftId, set, playerId, cardName);
 
     // Return a response to indicate the process has started
-    console.error("returning response");
-    return new Response(JSON.stringify({
-      message: "Drafting process initiated",
-    }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
+    console.error('returning response');
+    return new Response(
+      JSON.stringify({
+        message: 'Drafting process initiated',
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
+    );
   } catch (err) {
-    return new Response(JSON.stringify({
-      message: err || "An error occurred",
-    }), {
-      status: 400,
-      headers: {
-        'Content-Type': 'application/json',
+    return new Response(
+      JSON.stringify({
+        message: err || 'An error occurred',
+      }),
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
+    );
   }
 }

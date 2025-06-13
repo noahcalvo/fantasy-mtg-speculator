@@ -50,7 +50,14 @@ export async function makeTradeOffer(
     }
     await pool.query(
       'INSERT into tradesV2 (offerer, recipient, offered, requested, state, league_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      [playerId, tradePartnerId, offeredCards, wantedCards, 'pending', leagueId],
+      [
+        playerId,
+        tradePartnerId,
+        offeredCards,
+        wantedCards,
+        'pending',
+        leagueId,
+      ],
     );
   } catch (error) {
     console.error('Database Error:', error);
@@ -62,7 +69,7 @@ export async function makeTradeOffer(
 
 export async function fetchTradeOffers(
   playerId: number,
-  leagueId: number
+  leagueId: number,
 ): Promise<TradeOffer[]> {
   try {
     // complicated query that chat gpt made
@@ -214,10 +221,18 @@ export async function acceptTrade(
       'UPDATE OwnershipV3 SET player_id = $1 WHERE card_id = ANY($2::int[]) AND league_id = $3';
 
     // Update ownership for the offered cards to the recipient
-    await pool.query(updateOwnershipQuery, [trade.recipient, trade.offered, trade.league_id]);
+    await pool.query(updateOwnershipQuery, [
+      trade.recipient,
+      trade.offered,
+      trade.league_id,
+    ]);
 
     // Update ownership for the requested cards to the offerer
-    await pool.query(updateOwnershipQuery, [trade.offerer, trade.requested, trade.league_id]);
+    await pool.query(updateOwnershipQuery, [
+      trade.offerer,
+      trade.requested,
+      trade.league_id,
+    ]);
 
     const expireTradesQuery = `
     UPDATE tradesV2

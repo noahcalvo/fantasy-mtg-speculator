@@ -31,10 +31,10 @@ export function Card({
     <div className="flex flex-col justify-between rounded-xl border bg-gray-950 p-2 text-gray-50 shadow-sm">
       <div className="flex p-2">
         {Icon ? <Icon className="h-5 w-5 text-gray-50" /> : null}
-        <p className="text-md ml-2">{title}</p>
+        <p className="ml-2 text-md">{title}</p>
       </div>
       <div className="flex h-full flex-row items-center justify-center bg-gray-950">
-        <p className="text-md text-centerw truncate rounded-xl">{value}</p>
+        <p className="text-centerw truncate rounded-xl text-md">{value}</p>
       </div>
     </div>
   );

@@ -1,4 +1,9 @@
-import { CardPoint, RawPerformanceData, ScoringOption, WeeklyLeaguePerformances } from "./definitions";
+import {
+  CardPoint,
+  RawPerformanceData,
+  ScoringOption,
+  WeeklyLeaguePerformances,
+} from './definitions';
 
 export type TwoWeekStatus = {
   thisWeek: number;
@@ -6,12 +11,11 @@ export type TwoWeekStatus = {
   thisWeekPct: number;
   lastWeekPct: number;
   id: number;
-}
+};
 export function CreatePerformanceMap(
   thisWeekData: WeeklyLeaguePerformances,
-  lastWeekData: WeeklyLeaguePerformances
+  lastWeekData: WeeklyLeaguePerformances,
 ): Map<number, TwoWeekStatus> {
-
   const pointsMap = new Map<number, TwoWeekStatus>();
   let thisWeekPointTotal = 0;
 
@@ -19,7 +23,13 @@ export function CreatePerformanceMap(
   thisWeekData.teams.forEach((team) => {
     const points = team.points / 100;
     thisWeekPointTotal += points;
-    pointsMap.set(team.player_id, { thisWeek: points, lastWeek: 0, thisWeekPct: 0, lastWeekPct: 0, id: team.player_id });
+    pointsMap.set(team.player_id, {
+      thisWeek: points,
+      lastWeek: 0,
+      thisWeekPct: 0,
+      lastWeekPct: 0,
+      id: team.player_id,
+    });
   });
 
   let lastWeekPointTotal = 0;
@@ -31,7 +41,13 @@ export function CreatePerformanceMap(
     if (pointsMap.has(team.player_id)) {
       pointsMap.get(team.player_id)!.lastWeek = points;
     } else {
-      pointsMap.set(team.player_id, { thisWeek: 0, lastWeek: points, thisWeekPct: 0, lastWeekPct: 0, id: team.player_id });
+      pointsMap.set(team.player_id, {
+        thisWeek: 0,
+        lastWeek: points,
+        thisWeekPct: 0,
+        lastWeekPct: 0,
+        id: team.player_id,
+      });
     }
   });
 
@@ -48,19 +64,19 @@ export function CreatePerformanceMap(
 // Helper function to calculate total points from all performance types
 export function calculatePointsFromPerformances(
   performanceData: RawPerformanceData[],
-  scoringOptions: ScoringOption[]
+  scoringOptions: ScoringOption[],
 ): CardPoint[] {
-  return performanceData.map(performance => {
+  return performanceData.map((performance) => {
     let totalPoints = 0;
     // Calculate points for each format and event type
-    scoringOptions.forEach(scoringRule => {
+    scoringOptions.forEach((scoringRule) => {
       totalPoints += calculatePointsForPerformance(performance, scoringRule);
     });
     return {
       card_id: performance.card_id,
       name: performance.name,
       total_points: totalPoints,
-      week: performance.week
+      week: performance.week,
     };
   });
 }
@@ -73,9 +89,14 @@ function calculatePointsForPerformance(
   const typeKey = `${scoringRule.format.toLowerCase()}_${getTournamentKeyFromType(scoringRule.tournament_type)}`;
   // Ensure typeKey is a valid key of RawPerformanceData
   if (typeKey in performance) {
-    return parseInt(performance[typeKey as keyof RawPerformanceData] as string) * scoringRule.points || 0;
+    return (
+      parseInt(performance[typeKey as keyof RawPerformanceData] as string) *
+        scoringRule.points || 0
+    );
   } else {
-    console.log(`No data for typeKey: ${typeKey}, performanceData: ${JSON.stringify(performance)}`);
+    console.log(
+      `No data for typeKey: ${typeKey}, performanceData: ${JSON.stringify(performance)}`,
+    );
     throw new Error(`Invalid typeKey: ${typeKey}`);
   }
 }

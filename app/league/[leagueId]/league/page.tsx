@@ -5,7 +5,7 @@ import {
 } from '@/app/lib/leagues';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { auth } from '@/auth';
-import { CommissionerSettings } from './components/commissionerSettings';
+import { CurrentSettings, AddNewRule } from './components/commissionerSettings';
 
 export default async function Page({
   params,
@@ -27,15 +27,14 @@ export default async function Page({
   const scoringOptions = await fetchScoringOptions(leagueId);
   return (
     <main className="p-4">
-      <p className="text-lg font-bold">League Settings</p>
-      <p className="text-md ml-2 inline-block rounded-sm bg-red-900 px-2 py-1 text-gray-50">
-        {league.name}
-      </p>
-      <CommissionerSettings
-        leagueId={leagueId}
-        scoringOptions={scoringOptions}
-        playerId={playerId}
-      />
+      <div className="mb-4 text-md font-semibold text-gray-950">
+        <span className="sm:text-lg">League Settings</span>
+        <span className="font-semibold"> ({league.name})</span>
+      </div>
+
+      <CurrentSettings scoringOptions={scoringOptions} playerId={playerId} />
+
+      <AddNewRule leagueId={leagueId} />
     </main>
   );
 }

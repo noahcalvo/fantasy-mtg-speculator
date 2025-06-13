@@ -1,4 +1,4 @@
-'use client';;
+'use client';
 import { routeToCardPageById } from '../lib/routing';
 import Image from 'next/image';
 
