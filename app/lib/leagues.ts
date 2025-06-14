@@ -248,3 +248,25 @@ export async function deleteScoringSetting(
     throw new Error(`Failed to delete scoring option ${scoringOption}`);
   }
 }
+
+export async function openLeague(leagueId: number) {
+  try {
+    await sql`
+    UPDATE leaguesV3 SET open = true WHERE league_id = ${leagueId};`;
+    revalidatePath(`/league/${leagueId}/settings`);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to open league ${leagueId}`);
+  }
+}
+
+export async function closeLeague(leagueId: number) {
+  try {
+    await sql`
+    UPDATE leaguesV3 SET open = false WHERE league_id = ${leagueId};`;
+    revalidatePath(`/league/${leagueId}/settings`);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to close league ${leagueId}`);
+  }
+}

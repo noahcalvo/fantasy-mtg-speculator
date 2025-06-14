@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 
@@ -65,7 +66,7 @@ export function AddNewRule({ leagueId }: { leagueId: number }) {
       </div>
       <button
         onClick={handleAddScoringOption}
-        className="mx-auto mt-4 flex items-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-gray-50"
+        className="mx-auto mt-4 flex items-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-gray-50 hover:bg-red-900"
       >
         <PlusIcon className="w-5" />
         Add

@@ -8,21 +8,22 @@ export function ScoringRow({
   selectedForDeletion,
   setSelectedForDeletion,
   onDelete,
+  isAdmin = false,
 }: {
   option: ScoringOption;
   index: number;
   selectedForDeletion: number | null;
   setSelectedForDeletion: (index: number | null) => void;
   onDelete: (option: ScoringOption) => void;
+  isAdmin?: boolean;
 }) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
   return (
     <div key={index}>
       <div
         className={`relative p-4 ${selectedForDeletion === index ? 'shadow-lg' : ''}`}
         onClick={(e) => {
-          if (isMobile) {
+          if (isMobile && isAdmin) {
             setSelectedForDeletion(index);
             e.stopPropagation();
           }
@@ -37,15 +38,17 @@ export function ScoringRow({
               <FontAwesomeIcon icon={faClone} className="w-8" />
             )}
           </div>
-          <button
-            className="hidden bg-red-900 px-2 py-1 text-gray-50 md:block"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(option);
-            }}
-          >
-            Delete
-          </button>
+          {isAdmin && (
+            <button
+              className="hidden bg-red-900 px-2 py-1 text-gray-50 hover:bg-red-950 md:block"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(option);
+              }}
+            >
+              Delete
+            </button>
+          )}
         </div>
         {selectedForDeletion === index && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-950 bg-opacity-70">

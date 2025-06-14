@@ -1,11 +1,12 @@
+import { fetchScoringOptions, fetchLeague } from '@/app/lib/leagues';
 import {
-  fetchScoringOptions,
-  isCommissioner,
-  fetchLeague,
-} from '@/app/lib/leagues';
-import { fetchPlayerByEmail } from '@/app/lib/player';
+  fetchPlayerByEmail,
+  fetchMultipleParticipantData,
+} from '@/app/lib/player';
 import { auth } from '@/auth';
-import { CurrentSettings, AddNewRule } from './components/commissionerSettings';
+import { AddNewRule } from './components/addNewRule';
+import CurrentScoringSettings from './components/currentSettings';
+import LeagueSettings from './components/leagueSettings';
 
 export default async function Page({
   params,
@@ -18,23 +19,31 @@ export default async function Page({
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
-  const commissioner = await isCommissioner(playerId, leagueId);
-  if (!commissioner) {
-    return (
-      <div className="text-center text-red-500">You are not a commissioner</div>
-    );
-  }
+  // for each commissioner, fetch their player data
+
+  const commissioners = await fetchMultipleParticipantData(
+    league.commissioners,
+  );
+  const isAdmin = !!commissioners.find(
+    (commissioner) => commissioner.player_id === playerId,
+  );
   const scoringOptions = await fetchScoringOptions(leagueId);
   return (
     <main className="p-4">
       <div className="mb-4 text-md font-semibold text-gray-950">
-        <span className="sm:text-lg">League Settings</span>
-        <span className="font-semibold"> ({league.name})</span>
+        <span className="text-lg">League Settings</span>
       </div>
-
-      <CurrentSettings scoringOptions={scoringOptions} playerId={playerId} />
-
-      <AddNewRule leagueId={leagueId} />
+      <LeagueSettings
+        league={league}
+        commissioners={commissioners}
+        adminView={isAdmin}
+      />
+      <CurrentScoringSettings
+        scoringOptions={scoringOptions}
+        playerId={playerId}
+        isAdmin={isAdmin}
+      />
+      {isAdmin && <AddNewRule leagueId={leagueId} />}
     </main>
   );
 }

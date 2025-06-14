@@ -105,6 +105,8 @@ export type League = {
   league_id: number;
   name: string;
   participants: number[];
+  commissioners: number[];
+  open: boolean;
 };
 
 export type WeeklyLeaguePerformances = {
