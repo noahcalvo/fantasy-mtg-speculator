@@ -46,7 +46,7 @@ export default function CurrentScoringSettings({
       </div>
       <div className="px-2">
         {scoringOptions.length == 0 ? (
-          <p>
+          <p className="p-4 text-sm">
             No scoring options found. Please add scoring rules to your league.
           </p>
         ) : (

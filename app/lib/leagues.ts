@@ -116,18 +116,18 @@ export async function addCommissioner(userId: number, leagueId: number) {
   }
 }
 
-export async function createLeague(leagueName: string, userId: number) {
+export async function createLeague(leagueName: string, userId: number, isPrivate: boolean) {
   let resp;
   try {
     resp =
-      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], true) RETURNING league_id;`;
+      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], ${isPrivate}) RETURNING league_id;`;
     joinLeague(userId, resp.rows[0].league_id);
     addCommissioner(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);
   } finally {
-    redirect(`/league/${resp?.rows[0].league_id}/teams`);
+    return resp?.rows[0].league_id;
   }
 }
 
@@ -268,5 +268,19 @@ export async function closeLeague(leagueId: number) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to close league ${leagueId}`);
+  }
+}
+
+export async function createInviteCode(leagueId: number): Promise<string> {
+  try {
+    const code = Math.random().toString(36).substring(2, 10);
+    // await sql`
+    //   INSERT INTO invite_codes (league_id, code)
+    //   VALUES (${leagueId}, ${code});
+    // `;
+    return code;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to create invite code for league ${leagueId}`);
   }
 }

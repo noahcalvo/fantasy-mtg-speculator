@@ -1,12 +1,13 @@
 'use client';
 
 import { League, Player } from '@/app/lib/definitions';
-import { closeLeague, openLeague } from '@/app/lib/leagues';
+import { closeLeague, openLeague, createInviteCode } from '@/app/lib/leagues';
 import {
   LockOpenIcon,
   ArrowRightStartOnRectangleIcon,
 } from '@heroicons/react/24/solid';
-import { use, useState } from 'react';
+import { useState } from 'react';
+import { Copy } from 'lucide-react';
 
 // used to display league participant count, league name, and open/closed status
 export default function LeagueSettings({
@@ -21,9 +22,13 @@ export default function LeagueSettings({
   const [openLeagueModalDisplay, setOpenLeagueModalDisplay] = useState(false);
   const [generateInviteCodeModalDisplay, setGenerateInviteCodeModalDisplay] =
     useState(false);
+  const [generatedInviteCode, setGeneratedInviteCode] = useState<string | null>(
+    null,
+  );
 
   const cancel = () => {
     setOpenLeagueModalDisplay(false);
+    setGenerateInviteCodeModalDisplay(false);
   };
 
   const saveChange = async () => {
@@ -33,6 +38,12 @@ export default function LeagueSettings({
       await openLeague(league.league_id);
     }
     setOpenLeagueModalDisplay(false);
+  };
+
+  const generateCode = async () => {
+    const code = await createInviteCode(league.league_id);
+    setGenerateInviteCodeModalDisplay(false);
+    setGeneratedInviteCode(code);
   };
 
   return (
@@ -83,16 +94,18 @@ export default function LeagueSettings({
       </div>
       {openLeagueModalDisplay && (
         <OpenCloseLeagueModal
-          cancel={cancel}
+          close={cancel}
           saveChange={saveChange}
           open={!league.open}
         />
       )}
       {generateInviteCodeModalDisplay && (
-        <GenerateInviteCodeModal
-          cancel={cancel}
-          saveChange={saveChange}
-          open={!league.open}
+        <GenerateInviteCodeModal close={cancel} generateCode={generateCode} />
+      )}
+      {generatedInviteCode && (
+        <DisplayInviteCode
+          code={generatedInviteCode}
+          close={() => setGeneratedInviteCode(null)}
         />
       )}
     </div>
@@ -116,17 +129,25 @@ function SettingDisplayName({
 
 // open is a flag on if the modal is to open or close the league
 function OpenCloseLeagueModal({
-  cancel,
+  close,
   saveChange,
   open,
 }: {
-  cancel: () => void;
+  close: () => void;
   saveChange: () => void;
   open: boolean;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
       <div className="m-2 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
+        <button
+          onClick={close}
+          aria-label="Close modal"
+          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+        >
+          ×
+        </button>
+
         <h2 className="my-2 text-md font-semibold">
           Would you like to make this league {open ? 'public' : 'private'}?
         </h2>
@@ -135,58 +156,95 @@ function OpenCloseLeagueModal({
             ? 'The league will become visible to anyone joining a league and they will not need permission to join'
             : 'The league will become private and only those invited will be able to join'}
         </p>
-        <div className="flex justify-between">
-          <button
-            onClick={cancel}
-            className="mt-4 rounded border border-gray-50 bg-gray-950 p-2 text-gray-50"
-          >
-            Close
-          </button>
-          <button
-            onClick={saveChange}
-            className="mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
-          >
-            Yes
-          </button>
-        </div>
+        <button
+          onClick={saveChange}
+          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
+        >
+          Yes
+        </button>
       </div>
     </div>
   );
 }
 
 function GenerateInviteCodeModal({
-  cancel,
-  saveChange,
-  open,
+  close,
+  generateCode,
 }: {
-  cancel: () => void;
-  saveChange: () => void;
-  open: boolean;
+  close: () => void;
+  generateCode: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
       <div className="m-2 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
+        <button
+          onClick={close}
+          aria-label="Close modal"
+          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+        >
+          ×
+        </button>
+
         <h2 className="my-2 text-md font-semibold">
-          Create an invite code to share with a new leaguemate
+          Generate a code to invite a new leaguemate
         </h2>
         <p className="text-sm">
-          {open
-            ? 'The league will become visible to anyone joining a league and they will not need permission to join'
-            : 'The league will become private and only those invited will be able to join'}
+          The code will expire after 24 hours and can only be used once.
         </p>
-        <div className="flex justify-between">
+        <button
+          onClick={generateCode}
+          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
+        >
+          Generate
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DisplayInviteCode({
+  code,
+  close,
+}: {
+  code: string;
+  close: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+    } catch (err) {
+      console.error('Failed to copy!', err);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+      <div className="m-2 max-h-[80lvh] w-60 overflow-scroll rounded bg-gray-950 p-4">
+        <button
+          onClick={close}
+          aria-label="Close modal"
+          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+        >
+          ×
+        </button>
+
+        <div className="flex w-full items-center justify-center space-x-2">
+          <h2>{code}</h2>
           <button
-            onClick={cancel}
-            className="mt-4 rounded border border-gray-50 bg-gray-950 p-2 text-gray-50"
+            onClick={handleCopy}
+            aria-label="Copy code"
+            className="rounded p-1 hover:bg-gray-500"
           >
-            Close
+            <Copy size={16} />
           </button>
-          <button
-            onClick={saveChange}
-            className="mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
-          >
-            Yes
-          </button>
+        </div>
+        {/* Inline status message below */}
+        <div className="mt-2 h-[2rem] overflow-hidden text-sm text-green-600">
+          {copied ? 'Copied!' : 'Make sure you copy the code before closing.'}
         </div>
       </div>
     </div>

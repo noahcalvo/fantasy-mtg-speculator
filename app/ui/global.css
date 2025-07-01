@@ -35,6 +35,7 @@ input[type='number']::-webkit-outer-spin-button {
   select:focus {
     --tw-ring-color: rgb(127 29 29);
     border-color: var(--tw-ring-color);
+    box-shadow: none;
   }
 
   [type='checkbox'],
@@ -45,6 +46,12 @@ input[type='number']::-webkit-outer-spin-button {
   [type='checkbox']:focus,
   [type='radio']:focus {
     --tw-ring-color: rgb(127 29 29);
+  }
+
+  [type='checkbox']:focus {
+    outline: none;
+    --tw-ring-shadow: 0 0 0 0px;
+    box-shadow: 0 0 #0000;
   }
 }
 

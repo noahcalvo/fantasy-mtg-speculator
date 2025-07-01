@@ -1,7 +1,7 @@
 'use client';
 
 import { League } from '@/app/lib/definitions';
-import { BeakerIcon, HomeIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { ChevronRightIcon, PlusIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';

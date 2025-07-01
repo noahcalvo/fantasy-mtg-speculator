@@ -28,9 +28,6 @@ export default async function Layout({
       >
         {children}
       </LeagueMenu>
-      <footer className="p-4 text-center text-gray-50">
-        <div className="h-32"></div>
-      </footer>
     </div>
   );
 }
