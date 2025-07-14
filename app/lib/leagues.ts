@@ -81,7 +81,6 @@ export async function joinExistingLeague(userId: number, leagueId: number) {
 
 export async function joinLeague(userId: number, leagueId: number) {
   try {
-    // Check if the player is already a participant
     const leagueResult =
       await sql`SELECT participants, open FROM leaguesV3 WHERE league_id = ${leagueId};`;
     if (leagueResult.rowCount === 0) {
@@ -97,11 +96,53 @@ export async function joinLeague(userId: number, leagueId: number) {
       return;
     } else {
       await sql`UPDATE leaguesV3 SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
-      revalidatePath(`/league/teams`);
+      revalidatePath(`/league/${leagueId}/teams`);
     }
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to join league ${leagueId}`);
+  }
+}
+
+export async function joinLeagueUnsafe(userId: number, leagueId: number) {
+  try {
+    const leagueResult =
+      await sql`SELECT participants, open FROM leaguesV3 WHERE league_id = ${leagueId};`;
+    if (leagueResult.rowCount === 0) {
+      throw new Error('League not found');
+    }
+    const participants = leagueResult.rows[0].participants;
+    if (participants.includes(userId)) {
+      console.debug('Player is already a participant');
+      return;
+    } else {
+      await sql`UPDATE leaguesV3 SET participants = array_append(participants, ${userId}) WHERE league_id = ${leagueId};`;
+      revalidatePath(`/league/${leagueId}/teams`);
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to join league ${leagueId}`);
+  }
+}
+
+export async function leaveLeague(leagueId: number, playerId: number) {
+  try {
+    const league = await fetchLeague(leagueId);
+    // make sure the player isn't the commissioner of the league
+    const commissioner = await isCommissioner(playerId, leagueId);
+    if (commissioner) {
+      throw new Error(
+        `Player ${playerId} is a commissioner of league ${leagueId} and cannot leave`,
+      );
+    }
+    if (!league.participants.includes(playerId)) {
+      throw new Error(`Player ${playerId} is not in league ${leagueId}`);
+    }
+    await sql`UPDATE leaguesV3 SET participants = array_remove(participants, ${playerId}) WHERE league_id = ${leagueId};`;
+    revalidatePath(`/league/${leagueId}/teams`);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to leave league ${leagueId}`);
   }
 }
 
@@ -116,18 +157,18 @@ export async function addCommissioner(userId: number, leagueId: number) {
   }
 }
 
-export async function createLeague(leagueName: string, userId: number) {
+export async function createLeague(leagueName: string, userId: number, isPrivate: boolean) {
   let resp;
   try {
     resp =
-      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], true) RETURNING league_id;`;
-    joinLeague(userId, resp.rows[0].league_id);
+      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], ${!isPrivate}) RETURNING league_id;`;
+    joinLeagueUnsafe(userId, resp.rows[0].league_id);
     addCommissioner(userId, resp.rows[0].league_id);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create League ${leagueName}`);
   } finally {
-    redirect(`/league/${resp?.rows[0].league_id}/teams`);
+    return resp?.rows[0].league_id;
   }
 }
 
@@ -268,5 +309,19 @@ export async function closeLeague(leagueId: number) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to close league ${leagueId}`);
+  }
+}
+
+export async function createInviteCode(leagueId: number): Promise<string> {
+  try {
+    const code = Math.random().toString(36).substring(2, 10);
+    // await sql`
+    //   INSERT INTO invite_codes (league_id, code)
+    //   VALUES (${leagueId}, ${code});
+    // `;
+    return code;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to create invite code for league ${leagueId}`);
   }
 }

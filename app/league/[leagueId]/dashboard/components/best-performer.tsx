@@ -45,7 +45,7 @@ export default async function BestPerformerBadge({
             </p>
           </div>
         ) : (
-          <p className="">your cards scored no points :(</p>
+          <p className="text-sm">your cards scored no points :(</p>
         )}
       </div>
     </div>

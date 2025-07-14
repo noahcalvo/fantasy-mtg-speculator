@@ -1,7 +1,7 @@
 'use client';
 
 import { League } from '@/app/lib/definitions';
-import { BeakerIcon, HomeIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { ChevronRightIcon, PlusIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -10,7 +10,6 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function NavLinks({
   joinedLeagues,
-  playerId,
 }: {
   joinedLeagues: League[];
   playerId: number | null;
@@ -97,7 +96,7 @@ export default function NavLinks({
                 href={`/league/${league.league_id}/standings`}
                 onClick={handleLeagueClick}
                 className={clsx(
-                  'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                  'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 text-md font-medium shadow-lg shadow-gray-950 hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
                   {
                     'border-gray-50 bg-gray-950 text-gray-50':
                       leagueId === league.league_id,
@@ -114,7 +113,7 @@ export default function NavLinks({
               href={`/league/new`}
               onClick={handleLeagueClick}
               className={clsx(
-                'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border border-black bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
                 {
                   'border-gray-50 bg-gray-950 text-gray-50':
                     pathname === '/league/new',
