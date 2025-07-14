@@ -1,4 +1,8 @@
-import { fetchScoringOptions, fetchLeague } from '@/app/lib/leagues';
+import {
+  fetchPlayersInLeague,
+  fetchScoringOptions,
+  fetchLeague,
+} from '@/app/lib/leagues';
 import {
   fetchPlayerByEmail,
   fetchMultipleParticipantData,
@@ -7,6 +11,7 @@ import { auth } from '@/auth';
 import { AddNewRule } from './components/addNewRule';
 import CurrentScoringSettings from './components/currentSettings';
 import LeagueSettings from './components/leagueSettings';
+import Participants from './components/participants';
 
 export default async function Page({
   params,
@@ -24,10 +29,12 @@ export default async function Page({
   const commissioners = await fetchMultipleParticipantData(
     league.commissioners,
   );
-  const isAdmin = !!commissioners.find(
+  const isCommissioner = !!commissioners.find(
     (commissioner) => commissioner.player_id === playerId,
   );
+  const isOtherCommissioner = commissioners.length > 1 || !isCommissioner;
   const scoringOptions = await fetchScoringOptions(leagueId);
+  const participants = await fetchPlayersInLeague(leagueId);
   return (
     <main className="p-4">
       <div className="mb-4 text-md font-semibold text-gray-950">
@@ -36,14 +43,21 @@ export default async function Page({
       <LeagueSettings
         league={league}
         commissioners={commissioners}
-        adminView={isAdmin}
+        isCommissioner={isCommissioner}
       />
       <CurrentScoringSettings
         scoringOptions={scoringOptions}
         playerId={playerId}
-        isAdmin={isAdmin}
+        isCommissioner={isCommissioner}
       />
-      {isAdmin && <AddNewRule leagueId={leagueId} />}
+      {isCommissioner && <AddNewRule leagueId={leagueId} />}
+      <Participants
+        leagueId={league.league_id}
+        participants={participants}
+        playerId={playerId}
+        isOtherCommissioner={isOtherCommissioner}
+        isCommissioner={isCommissioner}
+      />
     </main>
   );
 }

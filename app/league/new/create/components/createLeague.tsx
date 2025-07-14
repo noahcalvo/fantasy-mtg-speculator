@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function CreateLeague({ playerId }: { playerId: number }) {
   const [leagueName, setLeagueName] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  console.log(isPrivate);
 
   const handleCreate = async () => {
     if (leagueName === '') {

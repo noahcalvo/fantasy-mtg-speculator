@@ -13,11 +13,11 @@ import { Copy } from 'lucide-react';
 export default function LeagueSettings({
   league,
   commissioners,
-  adminView = false,
+  isCommissioner = false,
 }: {
   league: League;
   commissioners: Player[];
-  adminView?: boolean;
+  isCommissioner?: boolean;
 }) {
   const [openLeagueModalDisplay, setOpenLeagueModalDisplay] = useState(false);
   const [generateInviteCodeModalDisplay, setGenerateInviteCodeModalDisplay] =
@@ -47,7 +47,7 @@ export default function LeagueSettings({
   };
 
   return (
-    <div className="mb-4 rounded-xl bg-gray-950 pb-4 pt-4 text-gray-50">
+    <div className="mb-4 rounded-xl bg-gray-950 p-4 text-gray-50">
       <h2 className="mx-2 mb-4 text-center text-md">General</h2>
       <div className="flex flex-col items-start justify-center">
         <SettingDisplayName settingKey="Name" settingValue={league.name} />
@@ -60,8 +60,8 @@ export default function LeagueSettings({
           settingKey="Open to Public"
           settingValue={league.open ? 'Yes' : 'No'}
         />
-        {adminView && (
-          <div className="flex flex-col gap-4 px-8 py-4">
+        {isCommissioner && (
+          <div className="flex gap-4 px-8 py-4">
             <button
               className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:border-red-900 hover:text-red-900"
               onClick={() => {
@@ -120,7 +120,7 @@ function SettingDisplayName({
   settingValue: string | number;
 }) {
   return (
-    <div className="my-1 flex w-full items-center justify-between px-4">
+    <div className="my-1 flex w-full items-center justify-between">
       <span className="text-sm font-semibold">{settingKey}:</span>
       <span className="text-sm">{settingValue}</span>
     </div>

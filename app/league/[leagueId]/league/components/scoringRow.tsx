@@ -8,14 +8,14 @@ export function ScoringRow({
   selectedForDeletion,
   setSelectedForDeletion,
   onDelete,
-  isAdmin = false,
+  isCommissioner = false,
 }: {
   option: ScoringOption;
   index: number;
   selectedForDeletion: number | null;
   setSelectedForDeletion: (index: number | null) => void;
   onDelete: (option: ScoringOption) => void;
-  isAdmin?: boolean;
+  isCommissioner?: boolean;
 }) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   return (
@@ -23,7 +23,7 @@ export function ScoringRow({
       <div
         className={`relative p-4 ${selectedForDeletion === index ? 'shadow-lg' : ''}`}
         onClick={(e) => {
-          if (isMobile && isAdmin) {
+          if (isMobile && isCommissioner) {
             setSelectedForDeletion(index);
             e.stopPropagation();
           }
@@ -38,7 +38,7 @@ export function ScoringRow({
               <FontAwesomeIcon icon={faClone} className="w-8" />
             )}
           </div>
-          {isAdmin && (
+          {isCommissioner && (
             <button
               className="hidden bg-red-900 px-2 py-1 text-gray-50 hover:bg-red-950 md:block"
               onClick={(e) => {

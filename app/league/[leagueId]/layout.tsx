@@ -1,6 +1,5 @@
 import { auth } from '@/auth';
 import { fetchPlayerByEmail } from '../../lib/player';
-import { isCommissioner } from '../../lib/leagues';
 import LeagueMenu from './../components/leagueMenu';
 
 export default async function Layout({
@@ -17,15 +16,10 @@ export default async function Layout({
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
-  const commissioner = await isCommissioner(playerId, leagueId);
 
   return (
     <div>
-      <LeagueMenu
-        leagueId={leagueId}
-        playerId={playerId}
-        isCommissioner={commissioner}
-      >
+      <LeagueMenu leagueId={leagueId} playerId={playerId}>
         {children}
       </LeagueMenu>
     </div>

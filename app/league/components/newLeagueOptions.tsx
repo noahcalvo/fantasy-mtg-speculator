@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function NewLeagueOptions() {
   return (
     <div className="absolute left-0 flex w-full flex-col items-center justify-center gap-8 py-32 md:relative">
-      <h1 className="text-xl font-semibold text-gray-50">New League</h1>
+      <h1 className="text-lg text-gray-50">New League</h1>
       <div className="flex gap-8">
         <NavButton href="/league/new/join" text="Join" />
         <NavButton href="/league/new/create" text="Create" />

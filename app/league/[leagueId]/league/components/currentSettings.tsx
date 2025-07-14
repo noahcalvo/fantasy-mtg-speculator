@@ -10,11 +10,11 @@ import { ScoringRow } from './scoringRow';
 export default function CurrentScoringSettings({
   scoringOptions,
   playerId,
-  isAdmin = false,
+  isCommissioner = false,
 }: {
   scoringOptions: ScoringOption[];
   playerId: number;
-  isAdmin?: boolean;
+  isCommissioner?: boolean;
 }) {
   const [selectedForDeletion, setSelectedForDeletion] = useState<number | null>(
     null,
@@ -39,14 +39,14 @@ export default function CurrentScoringSettings({
   };
 
   return (
-    <div className="mb-4 rounded-xl bg-gray-950 pt-4 text-gray-50">
+    <div className="mb-4 rounded-xl bg-gray-950 p-4 text-gray-50">
       <h2 className="mx-2 text-center text-md">Current Scoring</h2>
-      <div className="mb-4 px-2 text-center text-sm">
+      <div className="mb-4 text-center text-sm">
         (<FontAwesomeIcon icon={faClone} className="w-4" /> = points per copy)
       </div>
-      <div className="px-2">
+      <div>
         {scoringOptions.length == 0 ? (
-          <p className="p-4 text-sm">
+          <p className="text-sm">
             No scoring options found. Please add scoring rules to your league.
           </p>
         ) : (
@@ -66,7 +66,7 @@ export default function CurrentScoringSettings({
                 selectedForDeletion={selectedForDeletion}
                 setSelectedForDeletion={setSelectedForDeletion}
                 onDelete={handleDeleteScoringOption}
-                isAdmin={isAdmin}
+                isCommissioner={isCommissioner}
               />
             ))}
           </div>

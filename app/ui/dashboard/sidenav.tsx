@@ -6,7 +6,6 @@ import SpecLogo from '../spec-logo';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { fetchLeagues } from '@/app/lib/leagues';
 import { League } from '@/app/lib/definitions';
-import { redirect } from 'next/navigation';
 
 export default async function SideNav() {
   const user = await auth().then((res) => res?.user);
