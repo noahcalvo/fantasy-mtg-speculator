@@ -165,7 +165,7 @@ def createTables(conn):
             print("Created 'leagues' table")
 
             create_scoring_types_table_query = """
-            CREATE TABLE ScoringOptions (
+            CREATE TABLE IF NOT EXISTS ScoringOptions (
             scoring_id SERIAL PRIMARY KEY,
             format VARCHAR(50) NOT NULL,
             tournament_type VARCHAR(100) NOT NULL,
@@ -225,6 +225,18 @@ def createTables(conn):
             cur.execute(create_team_performance_table_query)
             print("Created 'team performance' table")
 
+            create_invites_table_query = """
+            CREATE TABLE IF NOT EXISTS Invites (
+            invite_id SERIAL PRIMARY KEY,
+            league_id INT NOT NULL,
+            code VARCHAR(10) NOT NULL UNIQUE,
+            expires TIMESTAMP NOT NULL,
+            FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id)
+            );
+            """
+            cur.execute(create_invites_table_query)
+            print("Created 'invites' table")
+
 
         conn.commit()
     except Exception as error:
@@ -232,8 +244,8 @@ def createTables(conn):
         raise
 
 def main():
-    print("os.getenv('POSTGRES_URL')", os.getenv("POSTGRES_URL"))
     conn = psycopg2.connect(os.getenv("POSTGRES_URL"))
+    print("Connected to the database")
     createTables(conn)
     conn.close()
 

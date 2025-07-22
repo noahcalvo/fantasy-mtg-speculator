@@ -104,6 +104,29 @@ export async function joinLeague(userId: number, leagueId: number) {
   }
 }
 
+export async function joinPrivateLeague(userId: number, inviteCode: string) {
+  try {
+    const deleted =
+      await sql`
+        DELETE FROM invites
+        WHERE code = ${inviteCode}
+        AND expires > NOW()
+        RETURNING league_id;
+      `;
+
+    if (deleted.rowCount === 0) {
+      return -1; // Code doesn't exist or expired
+    }
+
+    const leagueId = deleted.rows[0].league_id;
+    await joinLeagueUnsafe(userId, leagueId);
+    return leagueId;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error(`Failed to join private league`);
+  }
+}
+
 export async function joinLeagueUnsafe(userId: number, leagueId: number) {
   try {
     const leagueResult =
@@ -315,13 +338,24 @@ export async function closeLeague(leagueId: number) {
 export async function createInviteCode(leagueId: number): Promise<string> {
   try {
     const code = Math.random().toString(36).substring(2, 10);
-    // await sql`
-    //   INSERT INTO invite_codes (league_id, code)
-    //   VALUES (${leagueId}, ${code});
-    // `;
+    await sql`
+      INSERT INTO Invites (league_id, code, expires)
+      VALUES (${leagueId}, ${code}, NOW() + INTERVAL '24 hour');
+    `;
     return code;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to create invite code for league ${leagueId}`);
+  }
+}
+
+export async function invalidateInviteCode(code: string): Promise<void> {
+  try {
+    await sql`
+      DELETE FROM Invites WHERE code = ${code};
+    `;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error(`Failed to invalidate invite code ${code}`);
   }
 }

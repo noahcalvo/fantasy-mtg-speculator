@@ -63,7 +63,7 @@ export default function LeagueSettings({
         {isCommissioner && (
           <div className="flex gap-4 px-8 py-4">
             <button
-              className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:border-red-900 hover:text-red-900"
+              className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:bg-red-900"
               onClick={() => {
                 setOpenLeagueModalDisplay(!openLeagueModalDisplay);
               }}
@@ -72,7 +72,7 @@ export default function LeagueSettings({
             </button>
             {!league.open && (
               <button
-                className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:border-red-900 hover:text-red-900"
+                className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:bg-red-900"
                 onClick={() => {
                   setGenerateInviteCodeModalDisplay(
                     !generateInviteCodeModalDisplay,
