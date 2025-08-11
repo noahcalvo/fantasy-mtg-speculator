@@ -66,6 +66,17 @@ export async function createAccount(
     return 'Missing Fields. Failed to Create Account.';
   }
 
+  try {
+    // Check if the email already exists in the database
+    const existingUser = await sql`SELECT * FROM users WHERE email = ${validatedFields.data.email}`;
+    if (existingUser.rowCount > 0) {
+      return 'Email already in use. Please try logging in.';
+    }
+  } catch (error) {
+    console.error('Database Error:', error);
+    return 'Failed to check existing accounts.';
+  }
+
   const { name, email, password } = validatedFields.data;
   const encrpatedPassword = await bcrypt.hash(password, 10);
 
@@ -75,7 +86,7 @@ export async function createAccount(
     console.error('Database Error:', error);
     return `Failed to create account for ${name}`;
   }
-  redirect(`/login?success=${name}`);
+  redirect(`/login?created=${name}`);
 }
 
 export async function isAdmin(email: string) {

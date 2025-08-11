@@ -6,7 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { updateCollectionWithCompleteDraft } from './collection';
 import { fetchLeague, isCommissioner } from './leagues';
-import { fetchOwnedCards, fetchSet } from './sets';
+import { fetchOwnedCards } from './collection';
+import { fetchSet } from './sets';
 import { fetchCardName } from './card';
 import pg from 'pg';
 

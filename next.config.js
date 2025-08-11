@@ -8,6 +8,12 @@ const nextConfig = {
         port: '',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'svgs.scryfall.io',
+        port: '',
+        pathname: '**',
+      },
     ],
   },
   async redirects() {

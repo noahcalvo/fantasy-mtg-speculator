@@ -29,7 +29,8 @@ const config: Config = {
         },
       },
       fontSize: {
-        sm: '.6rem',
+        xs: '.6rem',
+        sm: '.75rem',
         md: '1rem',
         lg: '1.65rem',
         xl: '2.75rem',

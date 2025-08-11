@@ -15,16 +15,14 @@ export default function LoginPage() {
 
 function LoginPageContent() {
   const searchParams = useSearchParams();
-  const success = searchParams.get('success');
+  const success = searchParams.get('created');
+  const announce = success
+    ? `Account successfully created for ${success}!`
+    : undefined;
 
   return (
     <div>
-      {success && (
-        <p className="mb-2 ml-2 text-white">
-          Account successfully created for {success}!
-        </p>
-      )}
-      <LoginForm />
+      <LoginForm announce={announce} />
     </div>
   );
 }

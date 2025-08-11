@@ -1,27 +1,6 @@
 'use client';
-
 import Image from 'next/image';
-import { useState } from 'react';
-
-const pictureFeatureMap: {
-  [key in FeatureKey]: { desktop: string; mobile: string };
-} = {
-  draft: { desktop: '/draft.desktop.png', mobile: '/draft.mobile.png' },
-  lineup: { desktop: '/roster.desktop.png', mobile: '/roster.mobile.png' },
-  standings: {
-    desktop: '/standings.desktop.png',
-    mobile: '/standings.mobile.png',
-  },
-  chat: {
-    desktop: '/chat.png',
-    mobile: '/chat.png',
-  },
-  trade: { desktop: '/trade.desktop.png', mobile: '/trade.mobile.png' },
-  performance: {
-    desktop: '/performance.png',
-    mobile: '/performance.png',
-  },
-};
+import { useState, useEffect, useRef } from 'react';
 
 type FeatureKey =
   | 'draft'
@@ -31,110 +10,101 @@ type FeatureKey =
   | 'trade'
   | 'performance';
 
-type FeatureButtonProps = {
-  featureKey: FeatureKey;
-  currentFeature: FeatureKey;
-  onClick: (feature: FeatureKey) => void;
-  children: React.ReactNode;
+const pictureFeatureMap: Record<
+  FeatureKey,
+  { desktop: string; mobile: string }
+> = {
+  draft: { desktop: '/draft.desktop.png', mobile: '/draft.mobile.png' },
+  lineup: { desktop: '/roster.desktop.png', mobile: '/roster.mobile.png' },
+  standings: {
+    desktop: '/standings.desktop.png',
+    mobile: '/standings.mobile.png',
+  },
+  chat: { desktop: '/chat.png', mobile: '/chat.png' },
+  trade: { desktop: '/trade.desktop.png', mobile: '/trade.png' },
+  performance: { desktop: '/performance.png', mobile: '/performance.png' },
 };
 
-function FeatureButton({
-  featureKey,
-  currentFeature,
-  onClick,
-  children,
-}: FeatureButtonProps) {
-  return (
-    <li
-      className={`mb-2 cursor-pointer rounded-md border border-gray-600 px-1 ${
-        currentFeature === featureKey ? 'bg-gray-950 text-gray-50' : ''
-      }`}
-      onClick={() => onClick(featureKey)}
-    >
-      {children}
-    </li>
-  );
-}
+const featureLabels: Record<FeatureKey, string> = {
+  draft: 'Draft by set',
+  lineup: 'Manage your lineup',
+  standings: 'League standings',
+  chat: 'Chat with your league',
+  trade: 'Trade',
+  performance: 'Track card performance',
+};
 
 export function FeaturesCarousel() {
-  const [currentFeature, setCurrentFeature] = useState<FeatureKey>('draft');
+  const featureKeys = Object.keys(pictureFeatureMap) as FeatureKey[];
+  const [currentFeatureIdx, setCurrentFeatureIdx] = useState(0);
+  const timerRef = useRef<number>();
+  const intervalMs = 5000; // switch every 5 seconds
+
+  // Auto-advance
+  useEffect(() => {
+    timerRef.current = window.setInterval(() => {
+      setCurrentFeatureIdx((idx) => (idx + 1) % featureKeys.length);
+    }, intervalMs);
+    return () => window.clearInterval(timerRef.current);
+  }, [featureKeys.length]);
+
+  const goPrev = () => {
+    setCurrentFeatureIdx(
+      (idx) => (idx - 1 + featureKeys.length) % featureKeys.length,
+    );
+    resetTimer();
+  };
+  const goNext = () => {
+    setCurrentFeatureIdx((idx) => (idx + 1) % featureKeys.length);
+    resetTimer();
+  };
+  const resetTimer = () => {
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+    }
+    timerRef.current = window.setInterval(() => {
+      setCurrentFeatureIdx((idx) => (idx + 1) % featureKeys.length);
+    }, intervalMs);
+  };
+
+  const currentKey = featureKeys[currentFeatureIdx];
+  const bannerText = featureLabels[currentKey];
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 px-8 py-8 font-mono xl:w-1/3">
-      <div>
-        <p className="mb-4 w-full text-lg text-gray-800">Spec Features:</p>
-        <div>
-          <div className="grid list-none grid-cols-2 gap-4 text-gray-600">
-            <ul className="list-inside">
-              <FeatureButton
-                featureKey="draft"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                Draft by set
-              </FeatureButton>
-              <FeatureButton
-                featureKey="lineup"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                Manage your lineup
-              </FeatureButton>
-              <FeatureButton
-                featureKey="standings"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                League standings
-              </FeatureButton>
-            </ul>
-            <ul className="list-inside">
-              <FeatureButton
-                featureKey="chat"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                Chat with your league
-              </FeatureButton>
-              <FeatureButton
-                featureKey="trade"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                Trade
-              </FeatureButton>
-              <FeatureButton
-                featureKey="performance"
-                currentFeature={currentFeature}
-                onClick={setCurrentFeature}
-              >
-                Track card performance
-              </FeatureButton>
-            </ul>
-          </div>
-        </div>
+    <div className="relative aspect-square w-full overflow-hidden rounded-lg">
+      {/* Images for desktop and mobile */}
+      <Image
+        src={pictureFeatureMap[currentKey].desktop}
+        alt={currentKey}
+        fill
+        className="hidden object-cover md:block"
+      />
+      <Image
+        src={pictureFeatureMap[currentKey].mobile}
+        alt={currentKey}
+        fill
+        className="block object-cover md:hidden"
+      />
+
+      {/* Transparent banner */}
+      <div className="absolute bottom-0 w-full bg-red-900 bg-opacity-70 p-4 text-center">
+        <span className="text-lg font-semibold text-gray-50">{bannerText}</span>
       </div>
-      <div className="aspect-square w-full overflow-hidden">
-        <Image
-          src={
-            pictureFeatureMap[currentFeature].desktop?.toString() ??
-            '/draft.desktop.png'
-          }
-          width="400"
-          height="400"
-          alt={'image of ' + currentFeature}
-          className="hidden w-full border-2 border-black md:block"
-        />
-        <Image
-          src={
-            pictureFeatureMap[currentFeature].mobile?.toString() ??
-            '/draft.desktop.png'
-          }
-          width="200"
-          height="200"
-          alt={'image of ' + currentFeature}
-          className="block aspect-square w-full border-2 border-black md:hidden"
-        />
+
+      {/* Click zones */}
+      <div
+        className="absolute inset-0 flex"
+        onClick={(e) => {
+          const { left, width } = (
+            e.currentTarget as HTMLDivElement
+          ).getBoundingClientRect();
+          const clickX = e.clientX - left;
+          if (clickX < width / 2) goPrev();
+          else goNext();
+        }}
+      >
+        <div className="flex-1" />
+        <div className="flex-1" />
       </div>
     </div>
   );

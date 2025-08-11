@@ -5,7 +5,6 @@ import { useState } from 'react';
 export default function CreateLeague({ playerId }: { playerId: number }) {
   const [leagueName, setLeagueName] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-  console.log(isPrivate);
 
   const handleCreate = async () => {
     if (leagueName === '') {
@@ -14,7 +13,6 @@ export default function CreateLeague({ playerId }: { playerId: number }) {
     }
     const leagueID = await createLeague(leagueName, playerId, isPrivate);
     // Redirect to the new league page after creation
-    console.log(`League created with ID: ${leagueID}`);
     window.location.href = `/league/${leagueID}/league`;
   };
 

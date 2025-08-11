@@ -12,6 +12,20 @@ import { fetchCard } from './card';
 import { fetchParticipantData } from './player';
 import { fetchCardPerformances } from './performance';
 
+export async function fetchOwnedCards(
+  set: string,
+  league_id: number,
+): Promise<Card[]> {
+  const data = await sql<Card>`
+        SELECT c.card_id, c.name, c.origin 
+        FROM Cards AS c
+        JOIN OwnershipV3 AS o ON c.card_id = o.card_id
+        WHERE c.origin = ${set}
+        AND o.league_id = ${league_id};
+    `;
+  return data.rows;
+}
+
 export async function fetchPlayerCollection(
   playerId: number,
   leagueId: number,

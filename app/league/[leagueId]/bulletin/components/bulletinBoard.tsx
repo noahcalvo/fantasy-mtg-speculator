@@ -11,9 +11,9 @@ export default function BulletinBoard({
     (a, b) => a.created.valueOf() - b.created.valueOf(),
   );
   return (
-    <div>
+    <div className="mb-8">
       <h1 className="mb-4 text-2xl font-bold">Bulletin</h1>
-      <ul>
+      <ul className="max-h-[70vh] overflow-y-auto overflow-x-hidden">
         {bulletinsSorted.map((bulletin, index) => (
           <li key={index} className="mb-2">
             <div

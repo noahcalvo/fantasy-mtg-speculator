@@ -58,7 +58,12 @@ export default function Page() {
             </p>
           </div>
         </div>
-        <FeaturesCarousel />
+        <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
+          <div>
+            <p className="mb-4 w-full text-lg text-gray-800">Features</p>
+          </div>
+          <FeaturesCarousel />
+        </div>
       </div>
       <footer className="py-4 text-gray-600">
         <div className="flex justify-center gap-4">

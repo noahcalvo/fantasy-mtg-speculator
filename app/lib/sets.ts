@@ -55,9 +55,9 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
       image: card.image_uris
         ? [card.image_uris?.png]
         : [
-            card.card_faces[0].image_uris.png,
-            card.card_faces[1].image_uris.png,
-          ],
+          card.card_faces[0].image_uris.png,
+          card.card_faces[1].image_uris.png,
+        ],
       price: {
         tix: prices.tix,
         usd: prices.usd,
@@ -85,9 +85,9 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
         image: card.image_uris?.png
           ? [card.image_uris.png]
           : [
-              card.card_faces[0].image_uris?.png,
-              card.card_faces[1].image_uris?.png,
-            ],
+            card.card_faces[0].image_uris?.png,
+            card.card_faces[1].image_uris?.png,
+          ],
         price: {
           tix: prices.tix,
           usd: prices.usd,
@@ -124,16 +124,103 @@ async function getSetCode(set: string): Promise<string> {
   return setCode.code;
 }
 
-export async function fetchOwnedCards(
-  set: string,
-  league_id: number,
-): Promise<Card[]> {
-  const data = await sql<Card>`
-        SELECT c.card_id, c.name, c.origin 
-        FROM Cards AS c
-        JOIN OwnershipV3 AS o ON c.card_id = o.card_id
-        WHERE c.origin = ${set}
-        AND o.league_id = ${league_id};
-    `;
-  return data.rows;
+/**
+ * Fetches all unreleased MTG sets from Scryfall,
+ * excluding tokens/promos/memorabilia and any silver-border sets
+ * that aren't Un-sets, then sorts by release date (soonest first).
+ * Uses Next.js ISR cache: revalidates every 24 hours by default.
+ * Adds a `legalIn` array for standard, modern, pioneer & commander.
+ * @returns An array of MTGSet objects with the next upcoming set first.
+ * @throws Error if the Scryfall API request fails.
+ */
+export async function fetchUnreleasedSets(): Promise<MTGSet[]> {
+  // Query params to reduce payload: ordered by release and exclude extras/variations
+  const url = new URL('https://api.scryfall.com/sets');
+  url.searchParams.set('order', 'released');
+  url.searchParams.set('include_extras', 'false');
+  url.searchParams.set('include_variations', 'false');
+
+  const res = await fetch(url.toString(), {
+    next: { revalidate: 60 * 60 * 24 }, // seconds
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to load sets from Scryfall: ${res.status} ${res.statusText}`);
+  }
+
+  const json: ScryfallListResponse = await res.json();
+  const now = new Date();
+
+  const upcomingSets = json.data
+    // only sets with a known release date in the future
+    .filter((set) => set.released_at !== null && new Date(set.released_at) > now)
+    // exclude token, promo, memorabilia, and silver-border (funny) sets, except Un-sets
+    .filter((set) => {
+      if (EXCLUDED_SET_TYPES.has(set.set_type)) return false;
+      if (set.set_type === 'funny' && !set.name.startsWith('Un')) return false;
+      return true;
+    })
+    // sort by release date ascending
+    .sort((a, b) =>
+      new Date(a.released_at as string).getTime() - new Date(b.released_at as string).getTime()
+    )
+    // map to our clean MTGSet interface
+    .map<MTGSet>((set) => ({
+      id: set.id,
+      code: set.code,
+      name: set.name,
+      releaseDate: set.released_at as string,
+      setType: set.set_type,
+      scryfall_uri: set.scryfall_uri || '',
+      icon: set.icon_svg_uri ? set.icon_svg_uri : undefined,
+      legalIn: ['standard', 'modern', 'pioneer', 'commander'],
+    }));
+
+  return upcomingSets;
 }
+
+/**
+ * A minimal representation of a Magic: The Gathering set.
+ */
+export interface MTGSet {
+  /** The Scryfall UUID for this set */
+  id: string;
+  /** The set code, e.g. "KHM" */
+  code: string;
+  /** The name of the set, e.g. "Kaldheim" */
+  name: string;
+  /** Release date in YYYY-MM-DD format */
+  releaseDate: string;
+  /** Type of the set, e.g. "expansion", "core" */
+  setType: string;
+  /** Scryfall URI */
+  scryfall_uri: string; // optional, not all sets have a URI
+  /** URL to the set icon SVG */
+  icon?: string; // optional, not all sets have an icon
+}
+
+/**
+ * Raw set object returned by Scryfall.
+ */
+interface ScryfallSetRaw {
+  id: string;
+  code: string;
+  name: string;
+  released_at: string | null;
+  set_type: string;
+  scryfall_uri: string | null;
+  icon_svg_uri: string | null;
+}
+
+/**
+ * Scryfall /sets endpoint response.
+ * This endpoint returns all MTG sets in one page—no pagination.
+ */
+interface ScryfallListResponse {
+  data: ScryfallSetRaw[];
+}
+
+const EXCLUDED_SET_TYPES = new Set<string>([
+  'token',
+  'promo',
+  'memorabilia',
+]);

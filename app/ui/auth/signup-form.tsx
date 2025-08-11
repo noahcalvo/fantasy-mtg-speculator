@@ -6,7 +6,7 @@ import {
   KeyIcon,
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
+import { ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/20/solid';
 import { Button } from '../button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createAccount } from '@/app/lib/accountAuth';
@@ -16,13 +16,20 @@ export default function SignupForm() {
 
   return (
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-      <form action={dispatch} className="space-y-3">
+      <a href="/login">
+        <Button className="float-right mb-4 justify-between">
+          <ArrowLeftIcon className="mr-2 h-5 w-5" />
+          Login
+        </Button>
+      </a>
+      <h1 className="mb-4 w-full text-2xl">Create Account</h1>
+
+      <form action={dispatch}>
         <div>
-          <h1 className="mb-4 text-2xl">Welcome.</h1>
           <div className="w-full">
             <div>
               <label
-                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
+                className="mb-2 ml-1 mt-6 block text-xs font-medium text-gray-950"
                 htmlFor="name"
               >
                 Name
@@ -40,9 +47,9 @@ export default function SignupForm() {
               </div>
             </div>
 
-            <div>
+            <div className="mt-4">
               <label
-                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
+                className="mb-2 ml-1 block text-xs font-medium text-gray-950"
                 htmlFor="email"
               >
                 Email
@@ -59,9 +66,9 @@ export default function SignupForm() {
                 <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mb-4 mt-4">
               <label
-                className="mb-4 mt-6 block text-xs font-medium text-gray-950"
+                className="mb-2 ml-1 block text-xs font-medium text-gray-950"
                 htmlFor="password"
               >
                 Password
@@ -82,7 +89,7 @@ export default function SignupForm() {
           </div>
           <SignupButton />
           <div
-            className="flex h-8 items-end space-x-1"
+            className="mt-2 flex items-center space-x-1"
             aria-live="polite"
             aria-atomic="true"
           >
@@ -95,9 +102,6 @@ export default function SignupForm() {
           </div>
         </div>
       </form>
-      <a href="/login">
-        <Button className="w-full">Back to Login</Button>
-      </a>
     </div>
   );
 }

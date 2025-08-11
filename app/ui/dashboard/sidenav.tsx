@@ -6,6 +6,7 @@ import SpecLogo from '../spec-logo';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import { fetchLeagues } from '@/app/lib/leagues';
 import { League } from '@/app/lib/definitions';
+import LoginLink from './login-link';
 
 export default async function SideNav() {
   const user = await auth().then((res) => res?.user);
@@ -45,13 +46,7 @@ export default async function SideNav() {
             </button>
           </form>
         ) : (
-          // sign in button appears if player == null
-          <Link href="/login">
-            <div className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md border border-black bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-gray-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3">
-              <PowerIcon className="w-6" />
-              <div className="hidden md:block">Sign In</div>
-            </div>
-          </Link>
+          <LoginLink />
         )}
         <div className="hidden h-auto w-full grow rounded-md bg-gray-950 text-md md:block"></div>
       </div>

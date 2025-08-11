@@ -157,11 +157,11 @@ export default function PointChart() {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="block rounded-md text-gray-50">
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <div className="mb-4 flex flex-wrap gap-4">
           <FormatPicker />
           <SetPicker />
           <WeekPicker />
-        </Box>
+        </div>
 
         {(cardDataLoading && <RevenueChartSkeleton />) || (
           <div className="text-lg">

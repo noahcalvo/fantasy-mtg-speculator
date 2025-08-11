@@ -10,18 +10,27 @@ import { Button } from '../button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/accountAuth';
 
-export default function LoginForm() {
+export default function LoginForm({ announce }: { announce?: string }) {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
 
   return (
-    <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-      <form action={dispatch} className="space-y-3">
+    <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-6">
+      {!announce && (
+        <a href="/signup">
+          <Button className="mb-8 w-full bg-red-800 hover:bg-red-950">
+            Create New Account
+          </Button>
+        </a>
+      )}
+
+      <p className="mb-6 font-semibold text-black">{announce}</p>
+
+      <form action={dispatch}>
         <div>
-          <h1 className="mb-4 text-2xl">Please log in to continue.</h1>
           <div className="w-full">
             <div>
               <label
-                className="mb-4 mt-6 block text-xs font-medium text-black"
+                className="mb-2 ml-1 block text-xs font-medium text-black"
                 htmlFor="email"
               >
                 Email
@@ -32,7 +41,7 @@ export default function LoginForm() {
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="Enter your email address"
+                  placeholder="Enter email address"
                   required
                 />
                 <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-black" />
@@ -40,7 +49,7 @@ export default function LoginForm() {
             </div>
             <div className="mt-4">
               <label
-                className="mb-4 mt-6 block text-xs font-medium text-black"
+                className="mb-2 ml-1 mt-6 block text-xs font-medium text-black"
                 htmlFor="password"
               >
                 Password
@@ -61,7 +70,7 @@ export default function LoginForm() {
           </div>
           <LoginButton />
           <div
-            className="flex h-8 items-end space-x-1"
+            className="mt-4 flex items-end space-x-1"
             aria-live="polite"
             aria-atomic="true"
           >
@@ -74,9 +83,6 @@ export default function LoginForm() {
           </div>
         </div>
       </form>
-      <a href="/signup">
-        <Button className="w-full">Create New Account</Button>
-      </a>
     </div>
   );
 }
@@ -85,7 +91,7 @@ function LoginButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button className="mt-4 w-full" aria-disabled={pending}>
+    <Button className="mt-10 w-full" aria-disabled={pending}>
       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
     </Button>
   );
