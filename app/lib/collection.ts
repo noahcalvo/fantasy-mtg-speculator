@@ -109,7 +109,7 @@ export async function fetchPlayerCollectionWithPerformance(
 export async function updateCollectionWithCompleteDraft(draftId: number) {
   try {
     const leagueIdQuery =
-      await sql`SELECT league_id FROM draftsV2 WHERE draft_id = ${draftId}`;
+      await sql`SELECT league_id FROM draftsV4 WHERE draft_id = ${draftId}`;
     const leagueId = leagueIdQuery.rows[0].league_id;
     const picks = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id

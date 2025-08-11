@@ -74,7 +74,7 @@ export async function createDraft(
   let resp;
   try {
     resp = await pool.query(
-      `INSERT INTO draftsV2 (set, active, rounds, name, participants, league_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING draft_id;`,
+      `INSERT INTO draftsV4 (set, active, rounds, name, participants, league_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING draft_id;`,
       [set, true, rounds, name, [], leagueId],
     );
   } catch (error) {
@@ -88,7 +88,7 @@ export async function createDraft(
 const fetchAllDrafts = async (leagueId: number): Promise<Draft[]> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT * FROM draftsV2 WHERE league_id = $1;`,
+      `SELECT * FROM draftsV4 WHERE league_id = $1;`,
       [leagueId],
     );
     return res.rows;
@@ -104,7 +104,7 @@ const fetchDraftsBySet = async (
 ): Promise<Draft[]> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT * FROM draftsV2 WHERE set = $1 AND league_id = $2;`,
+      `SELECT * FROM draftsV4 WHERE set = $1 AND league_id = $2;`,
       [set, leagueId],
     );
     return res.rows;
@@ -127,7 +127,7 @@ export const fetchDrafts = async (
 export const fetchDraft = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV2 WHERE draft_id = $1;`,
+      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows[0];
@@ -145,7 +145,7 @@ export const joinDraft = async (
   try {
     // Check if the player is already a participant
     const draftResult = await pool.query(
-      `SELECT participants, active FROM draftsV2 WHERE draft_id = $1 AND league_id = $2;`,
+      `SELECT participants, active FROM draftsV4 WHERE draft_id = $1 AND league_id = $2;`,
       [draftId, leagueId],
     );
     if (draftResult.rowCount === 0) {
@@ -166,7 +166,7 @@ export const joinDraft = async (
       throw new Error('Player not in league');
     }
     await pool.query(
-      `UPDATE draftsV2 SET participants = array_append(participants, $1) WHERE draft_id = $2;`,
+      `UPDATE draftsV4 SET participants = array_append(participants, $1) WHERE draft_id = $2;`,
       [playerId, draftId],
     );
     await addPicks(draftId, playerId);
@@ -304,7 +304,7 @@ export async function makePick(
     // await pool.query(`UPDATE draftsV2 SET last_pick_timestamp = NOW() WHERE draft_id = $1;`, [draftId]);
     if (await isDraftComplete(draftId)) {
       await pool.query(
-        `UPDATE draftsV2 SET active = false WHERE draft_id = ${draftId};`,
+        `UPDATE draftsV4 SET active = false WHERE draft_id = ${draftId};`,
       );
       await updateCollectionWithCompleteDraft(draftId);
     }
@@ -384,7 +384,7 @@ export const getActivePick = async (
       `
     SELECT p.*
     FROM picksV3 p
-    JOIN draftsV2 d ON p.draft_id = d.draft_id
+    JOIN draftsV4 d ON p.draft_id = d.draft_id
     WHERE d.draft_id = $1 AND p.card_id IS NULL
     ORDER BY p.round ASC, p.pick_number ASC
     LIMIT 1;
