@@ -21,7 +21,7 @@ const pictureFeatureMap: Record<
     mobile: '/standings.mobile.png',
   },
   chat: { desktop: '/chat.png', mobile: '/chat.png' },
-  trade: { desktop: '/trade.desktop.png', mobile: '/trade.png' },
+  trade: { desktop: '/trade.desktop.png', mobile: '/trade.mobile.png' },
   performance: { desktop: '/performance.png', mobile: '/performance.png' },
 };
 
