@@ -22,7 +22,7 @@ jobs:
           node-version: '22'
           cache: 'yarn'
 
-      - run: yarn --version # sanity check
+      - run: yarn --version  # sanity check
       - run: yarn install --frozen-lockfile
 
       - run: yarn build
@@ -31,4 +31,14 @@ jobs:
         uses: treosh/lighthouse-ci-action@v11
         with:
           lhci_command: autorun
-          config_path: './lighthouserc.json'
+          config_path: "./lighthouserc.json"
+
+      - name: Upload Lighthouse reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-${{ github.run_id }}
+          path: |
+            .lighthouseci/*.html
+            .lighthouseci/*.json
+          retention-days: 7
