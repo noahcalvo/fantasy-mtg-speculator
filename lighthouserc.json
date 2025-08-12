@@ -1,0 +1,13 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "npm run build && npx next start -p 8080",
+      "startServerReadyPattern": "started server on",
+      "url": [
+        "http://localhost:8080/",
+        "http://localhost:8080/some/page"
+      ],
+      "numberOfRuns": 3
+    }
+  }
+}
