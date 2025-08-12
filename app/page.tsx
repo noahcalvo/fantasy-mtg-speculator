@@ -46,7 +46,7 @@ export default function Page() {
               community.
             </p>
           </div>
-          <div className="flex flex-col items-center lg:flex-row lg:items-start xl:flex-col xl:items-center">
+          <div className="flex flex-col items-center xl:flex-col xl:items-center">
             <Image
               src="/gooners.jpg"
               width="200"
@@ -62,7 +62,7 @@ export default function Page() {
         </div>
         <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
           <div>
-            <p className="mb-4 w-full text-lg text-gray-800">Features</p>
+            <p className="mb-4 w-full text-lg text-gray-800">Features:</p>
           </div>
           <FeaturesCarousel />
         </div>

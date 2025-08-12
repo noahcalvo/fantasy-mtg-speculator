@@ -3,7 +3,7 @@ import { CardPoint } from '@/app/lib/definitions';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { RevenueChartSkeleton } from '../skeletons';
+import { TopCardSkeleton } from '../skeletons';
 import {
   defaultModernScoringOptions,
   defaultStandardScoringOptions,
@@ -163,7 +163,7 @@ export default function PointChart() {
           <WeekPicker />
         </div>
 
-        {(cardDataLoading && <RevenueChartSkeleton />) || (
+        {(cardDataLoading && <TopCardSkeleton />) || (
           <div className="text-lg">
             <div ref={containerRef} className="">
               {hasMounted && cardData?.length > 0 ? (

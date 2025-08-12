@@ -138,7 +138,7 @@ function OpenCloseLeagueModal({
   open: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
       <div className="m-2 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
         <button
           onClick={close}
@@ -175,7 +175,7 @@ function GenerateInviteCodeModal({
   generateCode: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
       <div className="m-2 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
         <button
           onClick={close}
@@ -222,7 +222,7 @@ function DisplayInviteCode({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
       <div className="m-2 max-h-[80lvh] w-60 overflow-scroll rounded bg-gray-950 p-4">
         <button
           onClick={close}

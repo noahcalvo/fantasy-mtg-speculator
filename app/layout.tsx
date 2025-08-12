@@ -2,6 +2,12 @@ import './ui/global.css';
 import SideNav from './ui/dashboard/sidenav';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Fantasy MTG Speculator',
+  description: 'Build your fantasy MTG lineup',
+};
 
 export default async function RootLayout({
   children,
@@ -10,10 +16,12 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" className="bg-gray-950 font-mono">
-      <SpeedInsights />
-      <Analytics />
-      <link rel="icon" href="/favicon.ico" sizes="any" />
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body>
+        <SpeedInsights />
+        <Analytics />
         <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
           <div className="w-full flex-none px-4 pt-4 md:w-64 md:pr-0 lg:w-72 lg:pl-8 lg:pt-8">
             <SideNav />
