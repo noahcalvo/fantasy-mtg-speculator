@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 
-const config: Config = {
+export default {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -88,5 +88,4 @@ const config: Config = {
     require('@tailwindcss/forms'),
     require('tailwind-scrollbar')({ nocompatible: true }),
   ],
-};
-export default config;
+} satisfies Config;
