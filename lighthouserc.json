@@ -3,11 +3,32 @@
     "collect": {
       "startServerCommand": "npm run build && npx next start -p 8080",
       "startServerReadyPattern": "started server on",
+      "startServerReadyTimeout": 120000,
       "url": [
         "http://localhost:8080/",
-        "http://localhost:8080/some/page"
+        "http://localhost:8080/dashboard"
       ],
       "numberOfRuns": 3
+    },
+    "assert": {
+      "preset": "lighthouse:recommended",
+      "assertions": {
+        "categories:performance": [
+          "warn",
+          {
+            "minScore": 0.85
+          }
+        ],
+        "categories:accessibility": [
+          "error",
+          {
+            "minScore": 0.90
+          }
+        ]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
     }
   }
 }

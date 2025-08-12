@@ -1,21 +1,34 @@
-name: 'Lighthouse CI'
-on: [pull_request]
+name: Lighthouse CI
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lhci:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      # Add any runtime env so your SSR routes don’t 302 to login:
+      # NEXT_PUBLIC_API_BASE: ${{ secrets.NEXT_PUBLIC_API_BASE }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
+
       - run: npm ci
+
+      # Build happens inside startServerCommand too; keeping it here caches .next
       - run: npm run build
-      - name: Serve production build
-        run: |
-          npm install -g http-server
-          http-server ./build -p 8080 &
+
       - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v8
+        uses: treosh/lighthouse-ci-action@v11
         with:
           lhci_command: autorun
           config_path: './lighthouserc.json'
