@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 type FeatureKey =
   | 'draft'
@@ -70,21 +70,29 @@ export function FeaturesCarousel() {
   const currentKey = featureKeys[currentFeatureIdx];
   const bannerText = featureLabels[currentKey];
 
+  // Memoize the image sources to avoid recalculation
+  const currentImages = useMemo(
+    () => pictureFeatureMap[currentKey],
+    [currentKey],
+  );
+
   return (
     <div className="border-3 rounded-xl border-gray-900">
       <div className="group relative aspect-square w-full overflow-hidden rounded-t-lg">
         {/* Images for desktop and mobile */}
         <Image
-          src={pictureFeatureMap[currentKey].desktop}
+          src={currentImages.desktop}
           alt={currentKey}
           fill
           className="hidden object-cover md:block"
+          priority={currentFeatureIdx === 0} // Only prioritize the first image
         />
         <Image
-          src={pictureFeatureMap[currentKey].mobile}
+          src={currentImages.mobile}
           alt={currentKey}
           fill
           className="block object-cover md:hidden"
+          priority={currentFeatureIdx === 0} // Only prioritize the first image
         />
         {/* Navigation arrows */}
         <div className="pointer-events-none absolute inset-0 flex">

@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Optimize bundle splitting
+  experimental: {
+    optimizePackageImports: ['@heroicons/react'],
+  },
+  // Enable SWC minification for better performance
+  swcMinify: true,
+  // Optimize images
   images: {
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: 'https',
