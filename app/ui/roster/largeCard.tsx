@@ -114,7 +114,7 @@ export default function LargeCard({
             )}
           </div>
           {owner && (
-            <div className="md:z-5 flex items-center justify-center transition-opacity md:absolute md:inset-0 md:bg-gray-50 md:bg-opacity-50 md:p-0 md:opacity-0 md:hover:opacity-100">
+            <div className="md:z-5 flex items-center justify-center transition-opacity md:absolute md:inset-0 md:bg-gray-50/50 md:p-0 md:opacity-0 md:hover:opacity-100">
               <ArrowsUpDownIcon
                 className="h-10 w-10 cursor-pointer rounded-full bg-gray-50 p-2 text-gray-950"
                 onClick={showModal}
@@ -124,7 +124,7 @@ export default function LargeCard({
         </div>
       </div>
       {isModalVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
           <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
             <h2 className="text-lg font-bold">
               Select a card to swap to your {position} slot
@@ -224,7 +224,7 @@ export function EmptyPositionPlaceholder({
             </div>
           </div>
           {owner && (
-            <div className="md:z-5 flex items-center justify-center transition-opacity md:absolute md:inset-0 md:bg-gray-50 md:bg-opacity-50 md:p-0 md:opacity-0 md:hover:opacity-100">
+            <div className="md:z-5 flex items-center justify-center transition-opacity md:absolute md:inset-0 md:bg-gray-50/50 md:p-0 md:opacity-0 md:hover:opacity-100">
               <ArrowsUpDownIcon
                 className="h-10 w-10 cursor-pointer rounded-full bg-gray-50 p-2 text-gray-950"
                 onClick={showModal}
@@ -234,7 +234,7 @@ export function EmptyPositionPlaceholder({
         </div>
       </div>
       {isModalVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
           <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
             <h2 className="text-lg font-bold">
               Select a card to swap to your {position} slot

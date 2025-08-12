@@ -1,0 +1,36 @@
+name: Lighthouse CI
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lhci:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      # Add any runtime env so your SSR routes don’t 302 to login:
+      # NEXT_PUBLIC_API_BASE: ${{ secrets.NEXT_PUBLIC_API_BASE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - run: yarn --version # sanity check
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          lhci_command: autorun
+          config_path: ./lighthouserc.json
+          uploadArtifacts: true # <- adds the HTML/JSON as job artifacts
+          temporaryPublicStorage: true # <- prints public URLs in logs (optional)

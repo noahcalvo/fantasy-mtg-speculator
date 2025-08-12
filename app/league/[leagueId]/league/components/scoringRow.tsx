@@ -51,7 +51,7 @@ export function ScoringRow({
           )}
         </div>
         {selectedForDeletion === index && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-950 bg-opacity-70">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-950/70">
             <button
               className="bg-red-900 px-4 py-2 text-white"
               onClick={(e) => {
