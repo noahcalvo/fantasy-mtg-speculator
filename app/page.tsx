@@ -35,6 +35,7 @@ export default function Page() {
             height="200"
             className="mx-auto w-28 animate-fly duration-[4s] sm:my-auto sm:animate-grow md:hidden md:p-4"
             alt="spec logo of creepy guy"
+            priority
           />
         </div>
         <div className="flex flex-col gap-4 rounded-lg bg-gray-50 px-8 py-8 xl:w-1/3">
@@ -52,6 +53,7 @@ export default function Page() {
               height="200"
               className="border-2 border-black"
               alt="spec beta testers: complete goons"
+              priority
             />
             <p className="p-4 text-center text-sm text-gray-600">
               Gooners - the inspiration and motivation behind Spec.
