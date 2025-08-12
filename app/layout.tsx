@@ -1,4 +1,4 @@
-import '@/app/ui/global.css';
+import './ui/global.css';
 import SideNav from './ui/dashboard/sidenav';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
