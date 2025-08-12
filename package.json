@@ -1,5 +1,8 @@
 {
   "private": true,
+  "name": "fantasy-mtg-speculator",
+  "version": "1.0.0",
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "build": "next build",
     "build:workers": "tsc -p tsconfig.worker.json",
