@@ -139,7 +139,7 @@ export default function AvailableCards({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search cards"
-            className="max-w-24 mx-2 border-gray-950 bg-gray-50 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
+            className="max-w-48 mx-2 self-center border-gray-950 bg-gray-50 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-wrap">
