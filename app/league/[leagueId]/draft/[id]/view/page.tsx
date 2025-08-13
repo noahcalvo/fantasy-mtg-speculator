@@ -25,6 +25,7 @@ export default async function Page({
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
+  console.log('participants:', draft.participants);
   await redirectIfJoined(
     draft.participants,
     playerId,

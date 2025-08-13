@@ -31,7 +31,7 @@ export default function CreateDraftForm({
           <select
             id="set"
             name="set"
-            className="peer block rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
             defaultValue={'all'}
           >
             <option value="">select a set</option>
@@ -46,7 +46,7 @@ export default function CreateDraftForm({
             id="rounds"
             name="rounds"
             placeholder="rounds"
-            className="peer block rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-col gap-x-2 gap-y-2 xl:flex-row">
@@ -55,7 +55,7 @@ export default function CreateDraftForm({
             id="name"
             name="name"
             placeholder="draft name"
-            className="peer block rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
           />
 
           <button

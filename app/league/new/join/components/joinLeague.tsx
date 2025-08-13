@@ -90,7 +90,9 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
       </div>
       <section>
         <div className="mx-auto mb-16 w-80 text-gray-50">
-          <h2 className="mb-4 text-center text-lg">Join Private League</h2>
+          <h2 className="mb-4 text-center text-lg font-semibold">
+            Join Private League
+          </h2>
           <input
             type="text"
             placeholder="Invite Code"
@@ -98,7 +100,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
             onChange={(e) => {
               setInviteCode(e.target.value);
             }}
-            className="my-4 w-full rounded-md border px-3 py-2 text-gray-950"
+            className="my-4 w-full rounded-md border border-gray-50 bg-gray-950 px-3 py-2 text-gray-50"
             maxLength={8}
           />
           {invalidCode && (
@@ -108,7 +110,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
           )}
           <button
             onClick={() => handleJoinPrivate(inviteCode)}
-            className="mt-auto h-8 w-full rounded-md border border-black bg-gray-50 px-2 py-1 text-md text-gray-950 hover:bg-red-800 hover:text-gray-50"
+            className="text-md mt-auto h-8 w-full rounded-md border border-black bg-gray-50 px-2 py-1 text-gray-950 hover:bg-red-800 hover:text-gray-50"
           >
             Join
           </button>
@@ -136,7 +138,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
               key={league.league_id}
               className="flex flex-col justify-between rounded-lg border p-4 shadow-sm"
             >
-              <h3 className="mb-2 text-md font-semibold">{league.name}</h3>
+              <h3 className="text-md mb-2 font-semibold">{league.name}</h3>
               <p className="mb-4 text-sm text-gray-500">
                 {league.participants.length ?? 0} member
                 {league.participants.length === 1 ? '' : 's'}

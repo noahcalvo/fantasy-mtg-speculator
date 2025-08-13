@@ -154,34 +154,38 @@ export const joinDraft = async (
   leagueId: number,
 ): Promise<void> => {
   try {
+    // Check if player belongs to the league
+    const leagueResult = await fetchLeague(leagueId);
+    if (!leagueResult.participants.includes(playerId)) {
+      throw new Error('Player not in league');
+    }
     // Check if the player is already a participant
     const draftResult = await pool.query(
-      `SELECT participants, active FROM draftsV4 WHERE draft_id = $1 AND league_id = $2;`,
+      `SELECT participants, active, rounds FROM draftsV4 WHERE draft_id = $1 AND league_id = $2;`,
       [draftId, leagueId],
     );
     if (draftResult.rowCount === 0) {
       throw new Error('Draft not found');
     }
 
-    if (!draftResult.rows[0].active) {
+    const result = draftResult.rows[0];
+
+    if (!result.active) {
       throw new Error('Draft not active');
     }
-    const participants = draftResult.rows[0].participants;
+    const participants = result.participants;
     if (participants.includes(playerId)) {
       console.debug('Player is already a participant');
       return;
     }
-    // Check if player belongs to the league
-    const leagueResult = await fetchLeague(leagueId);
-    if (!leagueResult.participants.includes(playerId)) {
-      throw new Error('Player not in league');
-    }
+    await addPicks(draftId, playerId, participants.length, result.rounds);
+    participants.push(playerId);
+    await snakePicks(draftId, participants, result.rounds);
+    console.log("picks added and snaked")
     await pool.query(
       `UPDATE draftsV4 SET participants = array_append(participants, $1) WHERE draft_id = $2;`,
       [playerId, draftId],
     );
-    await addPicks(draftId, playerId);
-    await snakePicks(draftId);
 
     // Invalidate caches for this specific draft when someone joins
     revalidateTag(`draft-${draftId}-info`); // Draft participants changed
@@ -218,15 +222,15 @@ export const redirectIfJoined = async (
   }
 };
 
-const addPicks = async (draftId: number, playerId: number) => {
+const addPicks = async (draftId: number, playerId: number, position: number, rounds: number) => {
   try {
-    const draft = await fetchDraft(draftId);
-    const rounds = draft.rounds;
-    const pick = draft.participants.length - 1;
+    console.log('Adding picks for draft:', draftId, 'for player:', playerId);
+    console.log('Draft rounds:', rounds, 'Pick number:', position);
+    // add picks for each round for this player
     for (let i = 0; i < rounds; i++) {
       await pool.query(
         `INSERT INTO picksv5 (draft_id, player_id, round, pick_number) VALUES ($1, $2, $3, $4);`,
-        [draftId, playerId, i, pick],
+        [draftId, playerId, i, position],
       );
     }
   } catch (error) {
@@ -235,24 +239,19 @@ const addPicks = async (draftId: number, playerId: number) => {
   }
 };
 
-const snakePicks = async (draftId: number) => {
+const snakePicks = async (draftId: number, participants: number[], rounds: number) => {
   try {
-    const draft = await fetchDraft(draftId);
-    const participants = draft.participants;
-    const rounds = draft.rounds;
-    const picksPerRound = participants.length;
-    // even numbered rounds are reversed (2nd, 4th, etc.)
     for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
       await pool.query(
         `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
-        [picksPerRound, draftId, i, participants[picksPerRound - 1]],
+        [participants.length, draftId, i, participants[participants.length - 1]],
       );
-      for (let j = 0; j < picksPerRound; j++) {
+      for (let j = 0; j < participants.length; j++) {
         // move pick j over 1
         await pool.query(
           `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
-          [picksPerRound - j - 1, draftId, i, participants[j]],
+          [participants.length - j - 1, draftId, i, participants[j]],
         );
       }
     }
