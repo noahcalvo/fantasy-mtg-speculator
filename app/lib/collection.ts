@@ -111,7 +111,7 @@ export async function updateCollectionWithCompleteDraft(draftId: number) {
     const leagueIdQuery =
       await sql`SELECT league_id FROM draftsV4 WHERE draft_id = ${draftId}`;
     const leagueId = leagueIdQuery.rows[0].league_id;
-    const picks = await sql`SELECT * FROM picksV3 WHERE draft_id = ${draftId}`;
+    const picks = await sql`SELECT * FROM picksv5 WHERE draft_id = ${draftId}`;
     // for each pick in the draft, update the ownership table with the player_id
     for (const pick of picks.rows) {
       await sql`INSERT INTO ownershipV3 (player_id, card_id, league_id) VALUES (${pick.player_id}, ${pick.card_id}, ${leagueId});`;

@@ -1,4 +1,4 @@
-import { fetchDraft, fetchPicks, fetchUndrafterCards } from '@/app/lib/draft';
+import { fetchDraft, fetchPicks, fetchUndraftedCards } from '@/app/lib/draft';
 import notFound from '../not-found';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
@@ -35,7 +35,7 @@ export default async function Page({
 
   const picks = await fetchPicks(draftId);
 
-  const undraftedCards = await fetchUndrafterCards(draftId);
+  const undraftedCards = await fetchUndraftedCards(draftId);
   const undraftedCardIds = undraftedCards
     .filter(
       (card: CardDetails) => card.card_id !== undefined && card.card_id !== -1,
