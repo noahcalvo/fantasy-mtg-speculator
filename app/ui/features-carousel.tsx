@@ -99,11 +99,11 @@ export function FeaturesCarousel() {
           {/* Left arrow */}
           <div className="flex flex-1 items-center justify-start pl-4">
             <button
-              className="pointer-events-auto rounded-full bg-black bg-opacity-0 p-3 opacity-0 duration-200 hover:bg-opacity-75 hover:opacity-100 group-hover:opacity-100"
+              className="pointer-events-auto rounded-full bg-gray-950 bg-opacity-0 bg-opacity-50 p-3 opacity-100"
               onClick={goPrev}
             >
               <svg
-                className="h-6 w-6 text-white"
+                className="h-6 w-6 text-gray-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -120,11 +120,11 @@ export function FeaturesCarousel() {
           {/* Right arrow */}
           <div className="flex flex-1 items-center justify-end pr-4">
             <button
-              className="pointer-events-auto rounded-full bg-black bg-opacity-0 p-3 opacity-0 duration-200 hover:bg-opacity-75 hover:opacity-100 group-hover:opacity-100"
+              className="pointer-events-auto rounded-full bg-gray-950 bg-opacity-0 bg-opacity-50 p-3 opacity-100"
               onClick={goNext}
             >
               <svg
-                className="h-6 w-6 text-white"
+                className="h-6 w-6 text-gray-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

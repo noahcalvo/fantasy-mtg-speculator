@@ -189,7 +189,7 @@ export default function AvailableCards({
                   className="cursor-pointer"
                 >
                   <div
-                    className={`line-clamp-3 flex h-12 px-2 py-1 leading-6 ${
+                    className={`line-clamp-3 flex px-2 py-1 leading-6 ${
                       expandedCard === card.name
                         ? 'bg-gray-50 text-gray-950'
                         : ''
@@ -202,13 +202,13 @@ export default function AvailableCards({
                           <div className="flex w-full place-content-between">
                             <div>
                               pts:
-                              <span className="rounded-md bg-red-900 px-1">
+                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
                                 {card.points}
                               </span>
                             </div>
                             <div>
                               week:
-                              <span className="rounded-md bg-red-900 px-1">
+                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
                                 {card.week == -1 ? 0 : card.week}
                               </span>
                             </div>

@@ -46,7 +46,7 @@ export default function Page() {
           </div>
           <div className="flex flex-col items-center xl:flex-col xl:items-center">
             <Image
-              src="/gooners.jpg"
+              src="/gooners_200x200.jpg"
               width="200"
               height="200"
               className="border-2 border-black"
