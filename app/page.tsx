@@ -63,7 +63,9 @@ export default function Page() {
           <div>
             <p className="mb-4 w-full text-lg text-gray-800">Features:</p>
           </div>
-          <FeaturesCarouselLazy />
+          <div className="flex justify-center">
+            <FeaturesCarouselLazy />
+          </div>
         </div>
       </div>
       <footer className="pb-4 pt-12 text-gray-600">
