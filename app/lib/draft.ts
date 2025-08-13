@@ -2,7 +2,7 @@
 
 import { Card, CardDetails, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { updateCollectionWithCompleteDraft } from './collection';
 import { fetchLeague, isCommissioner } from './leagues';
@@ -124,7 +124,7 @@ export const fetchDrafts = async (
   return fetchAllDrafts(leagueId);
 };
 
-export const fetchDraft = async (draftId: number): Promise<Draft> => {
+const _fetchDraftUncached = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
       `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = $1;`,
@@ -135,6 +135,17 @@ export const fetchDraft = async (draftId: number): Promise<Draft> => {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch draft');
   }
+};
+
+export const fetchDraft = (draftId: number) => {
+  return unstable_cache(
+    _fetchDraftUncached,
+    [`fetchDraft-${draftId}`],
+    {
+      tags: [`draft-${draftId}-info`],
+      revalidate: false, // Only revalidate when tags are invalidated
+    }
+  )(draftId);
 };
 
 export const joinDraft = async (
@@ -171,6 +182,11 @@ export const joinDraft = async (
     );
     await addPicks(draftId, playerId);
     await snakePicks(draftId);
+
+    // Invalidate caches for this specific draft when someone joins
+    revalidateTag(`draft-${draftId}-info`); // Draft participants changed
+    revalidateTag(`draft-${draftId}-picks`); // New picks were added
+    revalidateTag(`draft-${draftId}-undrafted`); // Undrafted cards may change due to owned cards
     revalidatePath(`/league/${leagueId}/draft/${draftId}/view`);
     revalidatePath(`league/${leagueId}/draft`);
   } catch (error) {
@@ -209,7 +225,7 @@ const addPicks = async (draftId: number, playerId: number) => {
     const pick = draft.participants.length - 1;
     for (let i = 0; i < rounds; i++) {
       await pool.query(
-        `INSERT INTO picksV3 (draft_id, player_id, round, pick_number) VALUES ($1, $2, $3, $4);`,
+        `INSERT INTO picksv5 (draft_id, player_id, round, pick_number) VALUES ($1, $2, $3, $4);`,
         [draftId, playerId, i, pick],
       );
     }
@@ -229,13 +245,13 @@ const snakePicks = async (draftId: number) => {
     for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
       await pool.query(
-        `UPDATE picksV3 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
+        `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
         [picksPerRound, draftId, i, participants[picksPerRound - 1]],
       );
       for (let j = 0; j < picksPerRound; j++) {
         // move pick j over 1
         await pool.query(
-          `UPDATE picksV3 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
+          `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
           [picksPerRound - j - 1, draftId, i, participants[j]],
         );
       }
@@ -246,10 +262,10 @@ const snakePicks = async (draftId: number) => {
   }
 };
 
-export const fetchPicks = async (draftId: number) => {
+const _fetchPicksUncached = async (draftId: number) => {
   try {
     const res = await pool.query<DraftPick>(
-      `SELECT * FROM picksV3 WHERE draft_id = $1;`,
+      `SELECT * FROM picksv5 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows;
@@ -259,13 +275,24 @@ export const fetchPicks = async (draftId: number) => {
   }
 };
 
+export const fetchPicks = (draftId: number) => {
+  return unstable_cache(
+    _fetchPicksUncached,
+    [`fetchPicks-${draftId}`],
+    {
+      tags: [`draft-${draftId}-picks`],
+      revalidate: false, // Only revalidate when tags are invalidated
+    }
+  )(draftId);
+};
+
 export const fetchAvailableCards = async (
   cards: CardDetails[],
   draftId: number,
 ) => {
   try {
     const res = await pool.query(
-      `SELECT * FROM picksV3 WHERE draft_id = $1);`,
+      `SELECT * FROM picksv5 WHERE draft_id = $1;`,
       [draftId],
     );
     const undraftedCards = cards.filter(
@@ -298,7 +325,7 @@ export async function makePick(
       throw new Error('Not your turn');
     }
     await pool.query(
-      `UPDATE picksV3 SET card_id = $1 WHERE draft_id = $2 AND player_id = $3 AND round = $4 AND pick_number = $5;`,
+      `UPDATE picksv5 SET card_id = $1 WHERE draft_id = $2 AND player_id = $3 AND round = $4 AND pick_number = $5;`,
       [cardId, draftId, playerId, activePick.round, activePick.pick_number],
     );
     // await pool.query(`UPDATE draftsV2 SET last_pick_timestamp = NOW() WHERE draft_id = $1;`, [draftId]);
@@ -307,7 +334,13 @@ export async function makePick(
         `UPDATE draftsV4 SET active = false WHERE draft_id = ${draftId};`,
       );
       await updateCollectionWithCompleteDraft(draftId);
+      // Invalidate draft info cache when draft becomes inactive
+      revalidateTag(`draft-${draftId}-info`);
     }
+
+    // Invalidate caches for this specific draft when a pick is made
+    revalidateTag(`draft-${draftId}-picks`);
+    revalidateTag(`draft-${draftId}-undrafted`);
     revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
   } catch (error) {
     console.error('Database Error:', error);
@@ -383,7 +416,7 @@ export const getActivePick = async (
     const activePick = await pool.query<DraftPick>(
       `
     SELECT p.*
-    FROM picksV3 p
+    FROM picksv5 p
     JOIN draftsV4 d ON p.draft_id = d.draft_id
     WHERE d.draft_id = $1 AND p.card_id IS NULL
     ORDER BY p.round ASC, p.pick_number ASC
@@ -404,7 +437,7 @@ export const getActivePick = async (
 
 export const fetchMostValuableUndraftedCard = async (draftId: number) => {
   try {
-    const undraftedCards = await fetchUndrafterCards(draftId);
+    const undraftedCards = await fetchUndraftedCards(draftId);
     const mostValuableCard = undraftedCards.reduce(
       (prev: CardDetails, current: CardDetails) => {
         return prev.price.usd > current.price.usd ? prev : current;
@@ -417,7 +450,7 @@ export const fetchMostValuableUndraftedCard = async (draftId: number) => {
   }
 };
 
-export const fetchUndrafterCards = async (draftId: number) => {
+const _fetchUndraftedCardsUncached = async (draftId: number) => {
   try {
     const draft = await fetchDraft(draftId);
     const cards = await fetchSet(draft.set);
@@ -441,6 +474,17 @@ export const fetchUndrafterCards = async (draftId: number) => {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch undrafted cards');
   }
+};
+
+export const fetchUndraftedCards = (draftId: number) => {
+  return unstable_cache(
+    _fetchUndraftedCardsUncached,
+    [`fetchUndraftedCards-${draftId}`],
+    {
+      tags: [`draft-${draftId}-undrafted`],
+      revalidate: false, // Only revalidate when tags are invalidated
+    }
+  )(draftId);
 };
 
 // export const fetchAutoDraftTime = async (draftId: number): Promise<number | null> => {

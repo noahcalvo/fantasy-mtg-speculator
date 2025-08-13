@@ -59,8 +59,7 @@ export default function AvailableCards({
 
   const types = getRosterPositions();
 
-  const expandedCardDisplay =
-    expandedCard &&
+  const expandedCardDisplay = expandedCard ? (
     undraftedCards
       .filter((card) => card.name === expandedCard) // Step 1: Filter cards
       .map(
@@ -75,8 +74,8 @@ export default function AvailableCards({
               src={card.image[0]}
               alt={card.name}
               width="125"
-              height="125"
-              className="cursor-pointer"
+              height="173"
+              className="cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500"
               onClick={() => {
                 if (card.card_id !== -1) {
                   routeToCardPageById(card.card_id);
@@ -100,7 +99,15 @@ export default function AvailableCards({
             </button>
           </div>
         ),
-      );
+      )
+  ) : (
+    <div className="mt-2 flex flex-col items-center justify-center">
+      <div
+        className="border border-amber-500 shadow-xl shadow-amber-500"
+        style={{ width: '125px', height: '173px' }}
+      />
+    </div>
+  );
 
   function handleNameClicked(
     e: React.MouseEvent<HTMLDivElement>,
@@ -123,14 +130,16 @@ export default function AvailableCards({
   return (
     <div className="h-full items-center justify-center overflow-auto bg-gray-950 p-2 text-gray-50">
       <div className="h-full w-full overflow-auto shadow-md">
-        <div className="mb-2 grid grid-cols-2">
-          <h1 className="text-2xl font-bold lg:text-3xl">Available Cards</h1>
+        <div className="mb-2 grid lg:grid-cols-2">
+          <h1 className="mx-2 my-2 text-2xl font-bold lg:text-3xl">
+            Available Cards
+          </h1>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search cards"
-            className="border-gray-950 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
+            className="max-w-48 mx-2 self-center border-gray-950 bg-gray-50 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-wrap">
@@ -179,7 +188,13 @@ export default function AvailableCards({
                   onClick={(e) => handleNameClicked(e, card)}
                   className="cursor-pointer"
                 >
-                  <div className="line-clamp-3 flex h-12 px-2 py-1 leading-6">
+                  <div
+                    className={`line-clamp-3 flex px-2 py-1 leading-6 ${
+                      expandedCard === card.name
+                        ? 'bg-gray-50 text-gray-950'
+                        : ''
+                    }`}
+                  >
                     <div className="w-full">
                       <div className="line-clamp-1">{card.name}</div>
                       {sortedBy === 'points' ? (
@@ -187,13 +202,13 @@ export default function AvailableCards({
                           <div className="flex w-full place-content-between">
                             <div>
                               pts:
-                              <span className="rounded-md bg-red-900 px-1">
+                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
                                 {card.points}
                               </span>
                             </div>
                             <div>
                               week:
-                              <span className="rounded-md bg-red-900 px-1">
+                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
                                 {card.week == -1 ? 0 : card.week}
                               </span>
                             </div>

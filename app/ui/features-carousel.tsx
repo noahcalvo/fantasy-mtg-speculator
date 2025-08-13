@@ -77,7 +77,7 @@ export function FeaturesCarousel() {
   );
 
   return (
-    <div className="border-3 rounded-xl border-gray-900">
+    <div className="border-3 w-[300px] rounded-xl border-gray-900">
       <div className="group relative aspect-square w-full overflow-hidden rounded-t-lg">
         {/* Images for desktop and mobile */}
         <Image
@@ -95,15 +95,15 @@ export function FeaturesCarousel() {
           priority={currentFeatureIdx === 0} // Only prioritize the first image
         />
         {/* Navigation arrows */}
-        <div className="pointer-events-none absolute inset-0 flex">
+        <div className="pointer-events-none absolute inset-0 mt-[25px] flex">
           {/* Left arrow */}
           <div className="flex flex-1 items-center justify-start pl-4">
             <button
-              className="pointer-events-auto rounded-full bg-black bg-opacity-0 p-3 opacity-0 duration-200 hover:bg-opacity-75 hover:opacity-100 group-hover:opacity-100"
+              className="pointer-events-auto rounded-full bg-red-900/50 p-3 opacity-100"
               onClick={goPrev}
             >
               <svg
-                className="h-6 w-6 text-white"
+                className="h-6 w-6 text-gray-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -120,11 +120,11 @@ export function FeaturesCarousel() {
           {/* Right arrow */}
           <div className="flex flex-1 items-center justify-end pr-4">
             <button
-              className="pointer-events-auto rounded-full bg-black bg-opacity-0 p-3 opacity-0 duration-200 hover:bg-opacity-75 hover:opacity-100 group-hover:opacity-100"
+              className="pointer-events-auto rounded-full bg-red-900/50 p-3 opacity-100"
               onClick={goNext}
             >
               <svg
-                className="h-6 w-6 text-white"
+                className="h-6 w-6 text-gray-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

@@ -46,7 +46,7 @@ export default function Page() {
           </div>
           <div className="flex flex-col items-center xl:flex-col xl:items-center">
             <Image
-              src="/gooners.jpg"
+              src="/gooners_200x200.jpg"
               width="200"
               height="200"
               className="border-2 border-black"
@@ -63,7 +63,9 @@ export default function Page() {
           <div>
             <p className="mb-4 w-full text-lg text-gray-800">Features:</p>
           </div>
-          <FeaturesCarouselLazy />
+          <div className="flex justify-center">
+            <FeaturesCarouselLazy />
+          </div>
         </div>
       </div>
       <footer className="pb-4 pt-12 text-gray-600">

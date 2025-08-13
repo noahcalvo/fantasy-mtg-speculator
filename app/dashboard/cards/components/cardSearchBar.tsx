@@ -40,7 +40,7 @@ const CardSearchBar = () => {
       <input
         type="text"
         placeholder="Search for a card"
-        className="h-8 rounded-lg border-gray-50"
+        className="h-8 rounded-lg border-gray-950 bg-gray-50 px-2"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

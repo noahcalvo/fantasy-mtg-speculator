@@ -47,6 +47,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "redis": "^5.1.0",
+    "sharp": "^0.34.3",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "5.2.2",

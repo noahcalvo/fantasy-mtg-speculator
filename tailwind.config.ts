@@ -14,13 +14,6 @@ export default {
         '16': 'repeat(16, minmax(0, 1fr))',
         footer: '200px minmax(900px, 1fr) 100px',
       },
-      fontSize: {
-        xs: '.6rem',
-        sm: '.75rem',
-        md: '1rem',
-        lg: '4.65rem',
-        xl: '2.75rem',
-      },
       keyframes: {
         shimmer: { '100%': { transform: 'translateX(100%)' } },
         fly: {
