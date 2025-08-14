@@ -62,7 +62,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   }, [draftId]);
 
   return (
-    <div className="overflow-auto border-2 border-gray-950">
+    <div className="h-fit overflow-auto border-2 border-gray-950">
       <table className="table-fixed divide-y divide-gray-950 border-2 border-gray-950">
         <thead>
           <tr>

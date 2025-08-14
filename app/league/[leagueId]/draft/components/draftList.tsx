@@ -14,7 +14,7 @@ export const DraftList = async ({ leagueId }: { leagueId: number }) => {
           <DraftPill key={key} draft={draft} leagueId={leagueId} />
         ))}
         {activeDrafts.length == 0 && (
-          <p className="pl-2 text-sm lg:text-md">
+          <p className="lg:text-md pl-2 text-sm">
             No active drafts in your league.
           </p>
         )}
@@ -25,8 +25,8 @@ export const DraftList = async ({ leagueId }: { leagueId: number }) => {
           <DraftPill key={key} draft={draft} leagueId={leagueId} />
         ))}
         {previousDrafts.length == 0 && (
-          <p className="pl-2 text-sm lg:text-md">
-            Your league hasn&apos;t hosted any drafts.
+          <p className="lg:text-md pl-2 text-sm">
+            Your league hasn&apos;t completed any drafts.
           </p>
         )}
       </ul>

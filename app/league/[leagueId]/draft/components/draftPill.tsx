@@ -13,7 +13,7 @@ export const DraftPill = ({
     : 'grid grid-cols-12 cursor-pointer items-center justify-between rounded-full bg-gray-50 px-3 py-2 text-gray-950 hover:bg-red-800 hover:text-gray-50 focus:outline-red-800 border border-gray-950 lg:text-md md:text-normal text-xs';
 
   return (
-    <li key={draft.draft_id} className="mb-4 md:mb-0">
+    <li key={draft.draft_id}>
       <p className="w-full text-center text-xs uppercase text-gray-50 md:hidden">
         {draft.set}
       </p>

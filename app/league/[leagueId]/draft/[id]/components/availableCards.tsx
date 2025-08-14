@@ -181,7 +181,7 @@ export default function AvailableCards({
         <hr className="my-2 border-gray-50" />
         <div className="grid grid-cols-2">
           <div>
-            <div className="scrollbar-visible max-h-[25vh] overflow-auto scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
+            <div className="max-h-[25vh] overflow-scroll scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
               {paginatedCards.map((card: CardDetailsWithPoints) => (
                 <div
                   key={card.name}
@@ -196,7 +196,7 @@ export default function AvailableCards({
                     }`}
                   >
                     <div className="w-full">
-                      <div className="line-clamp-1">{card.name}</div>
+                      <div className="line-clamp-1 text-sm">{card.name}</div>
                       {sortedBy === 'points' ? (
                         card.points ? (
                           <div className="flex w-full place-content-between">
@@ -217,7 +217,7 @@ export default function AvailableCards({
                           'no point data found'
                         )
                       ) : (
-                        <div>
+                        <div className="text-sm">
                           {card.price.usd
                             ? '$' + card.price.usd
                             : 'no price data found'}
@@ -229,20 +229,22 @@ export default function AvailableCards({
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 0}
-              className="mx-2 mt-2 rounded-md border border-gray-50 px-2"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage(page + 1)}
-              disabled={page >= totalPages - 1}
-              className="mx-2 rounded-md border border-gray-50 px-2"
-            >
-              Next
-            </button>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 0}
+                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages - 1}
+                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
           {expandedCardDisplay}
         </div>

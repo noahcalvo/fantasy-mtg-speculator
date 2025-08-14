@@ -42,7 +42,7 @@ export async function createDraft(
   formData: FormData,
   leagueId: number,
   playerId: number,
-  auto_draft: boolean = false,
+  pickDurationSeconds: number = 0,
 ) {
   const commissioner = await isCommissioner(playerId, leagueId);
   if (!commissioner) {
@@ -61,6 +61,8 @@ export async function createDraft(
     name: formData.get('name'),
   });
 
+  const autoDraft = pickDurationSeconds > 0;
+
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
     return {
@@ -74,8 +76,8 @@ export async function createDraft(
   let resp;
   try {
     resp = await pool.query(
-      `INSERT INTO draftsV4 (set, active, rounds, name, participants, league_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING draft_id;`,
-      [set, true, rounds, name, [], leagueId],
+      `INSERT INTO draftsV4 (set, active, rounds, name, participants, league_id, auto_draft, pick_time_seconds) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING draft_id;`,
+      [set, true, rounds, name, [], leagueId, autoDraft, pickDurationSeconds],
     );
   } catch (error) {
     console.error('Database Error:', error);

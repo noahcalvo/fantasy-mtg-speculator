@@ -23,7 +23,7 @@ export default async function RootLayout({
         <SpeedInsights />
         <Analytics />
         <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-          <div className="w-full flex-none px-4 pt-4 md:w-64 md:pr-0 lg:w-72 lg:pl-8 lg:pt-8">
+          <div className="sticky top-0 z-30 w-full flex-none bg-gray-950 p-4 md:relative md:w-64 md:pr-0 lg:w-72 lg:pl-8 lg:pt-8">
             <SideNav />
           </div>
           <div className="flex-grow p-4 md:overflow-y-auto lg:p-8">
