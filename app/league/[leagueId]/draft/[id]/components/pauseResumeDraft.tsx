@@ -16,6 +16,11 @@ export default function PauseResumeDraft({
   const [error, setError] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState(false);
 
+  function setPaused(paused: boolean) {
+    setIsPaused(paused);
+    console.log('Draft is now', paused ? 'paused' : 'resumed');
+  }
+
   // fetch the draft status from server if needed
   useEffect(() => {
     const fetchDraftStatus = async () => {
@@ -41,7 +46,7 @@ export default function PauseResumeDraft({
   }, [draftId]);
 
   useDraftRealtime(draftId, {
-    paused: () => setIsPaused(true),
+    paused: () => setPaused(true),
     resumed: () => setIsPaused(false),
     onConnectionIssue: setConnectionError,
   });

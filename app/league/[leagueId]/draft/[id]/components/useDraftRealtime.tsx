@@ -8,7 +8,8 @@ type DraftEvent =
   | 'resumed'
   | 'pick_made'
   | 'clock_started'
-  | 'draft_complete';
+  | 'draft_complete'
+  | 'player_joined';
 
 type Handlers = Partial<Record<DraftEvent, (payload: any) => void>> & {
   onConnectionIssue?: (bad: boolean) => void;
@@ -30,6 +31,7 @@ export function useDraftRealtime(draftId: number, handlers?: Handlers) {
 
     const bind = <T,>(ev: DraftEvent, fn?: (payload: T) => void) => {
       ch.bind(ev, (data: T) => {
+        console.log(`Received event: ${ev}`, data);
         // always call specific handler if provided
         fn?.(data);
         // also refresh on these so server-rendered bits (e.g. timers) update
@@ -48,6 +50,7 @@ export function useDraftRealtime(draftId: number, handlers?: Handlers) {
     bind('pick_made', handlers?.pick_made);
     bind('clock_started', handlers?.clock_started);
     bind('draft_complete', handlers?.draft_complete);
+    bind('player_joined', handlers?.player_joined);
 
     const setConn = handlers?.onConnectionIssue;
     const bad = () => setConn?.(true);

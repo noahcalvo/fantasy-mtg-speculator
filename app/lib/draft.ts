@@ -303,16 +303,16 @@ export async function makePick(
 
     // Guard: not paused and not past deadline for someone else to auto-pick first
     const { rows: [d] } = await client.query(
-      `SELECT deadline_at, paused_at FROM DraftsV4 WHERE draft_id = $1 FOR UPDATE;`,
+      `SELECT current_pick_deadline_at, paused_at FROM DraftsV4 WHERE draft_id = $1 FOR UPDATE;`,
       [draftId]
     );
     if (!d) throw new Error('Draft not found');
     if (d.paused_at) throw new Error('Draft is paused');
     // (Optional) reject if overdue and it's not this player's turn – up to your UX.
-    if (d.deadline_at && new Date(d.deadline_at) < new Date()) {
-      console.log('Deadline passed, pick may be auto-drafted first');
-      return
-    }
+    // if (d.current_pick_deadline_at && new Date(d.current_pick_deadline_at) < new Date()) {
+    //   console.log('Deadline passed, pick may be auto-drafted first');
+    //   return
+    // }
 
     // Get the current active slot FOR UPDATE SKIP LOCKED to serialize
     const { rows: [slot] } = await client.query<DraftPick>(
@@ -329,7 +329,7 @@ export async function makePick(
 
     const cardId = await getOrCreateCard(cardName, set);
     if (!cardId) throw new Error('Card not found/created');
-
+    console.log("getting here?")
     // Assign the pick
     await client.query(
       `UPDATE PicksV5
@@ -364,6 +364,7 @@ export async function makePick(
     await client.query('ROLLBACK');
     throw e;
   } finally {
+    await broadcastDraft(draftId, 'pick_made', {});
     client.release();
   }
 }
@@ -602,7 +603,7 @@ async function startNextTurn(client: pg.PoolClient, draftId: number) {
   // Use pick_time_seconds from the draft row
   await client.query(
     `UPDATE DraftsV4
-       SET deadline_at = NOW() + make_interval(secs => pick_time_seconds)
+       SET current_pick_deadline_at = NOW() + make_interval(secs => pick_time_seconds)
      WHERE draft_id = $1;`,
     [draftId]
   );
@@ -631,14 +632,14 @@ export async function autoPickIfOverdue(draftId: number, leagueId: number) {
 
     // 1) Lock the draft row and check timers
     const { rows: [d] } = await client.query(
-      `SELECT deadline_at, paused_at, pick_time_seconds, active FROM DraftsV4
+      `SELECT current_pick_deadline_at, paused_at, pick_time_seconds, active FROM DraftsV4
        WHERE draft_id = $1 FOR UPDATE;`,
       [draftId]
     );
     if (!d) { await client.query('ROLLBACK'); return; }
     if (d.paused_at) { await client.query('ROLLBACK'); return; }              // paused → do nothing
     if (!d.active) { await client.query('ROLLBACK'); return; }              // inactive → done
-    if (!d.deadline_at || new Date(d.deadline_at) > new Date()) {
+    if (!d.current_pick_deadline_at || new Date(d.current_pick_deadline_at) > new Date()) {
       await client.query('ROLLBACK'); return;                                 // not overdue yet
     }
 

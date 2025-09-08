@@ -1,65 +1,75 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DraftPick, Player } from '@/app/lib/definitions';
 import DraftPickCell from './draftPickCell';
 import { getActivePick } from '@/app/lib/clientActions';
+// ⚠️ If fetchPicks/fetchDraft are server-only, wrap them in an /api/* route and call fetch() instead.
 import { fetchDraft, fetchPicks } from '@/app/lib/draft';
 import { notFound } from 'next/navigation';
 import { fetchMultipleParticipantData } from '@/app/lib/player';
+import { useDraftRealtime } from './useDraftRealtime';
 
 const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [participants, setParticipants] = useState<Player[]>([]);
   const [rounds, setRounds] = useState(0);
-  const [activePick, setActivePick] = useState<DraftPick | undefined>(
-    undefined,
-  );
+  const [activePick, setActivePick] = useState<DraftPick | undefined>();
+  const [connectionIssue, setConnectionIssue] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const newPicks = await fetchPicks(draftId);
-        const draft = await fetchDraft(draftId);
+  // Stable fetcher so our WS handlers don't capture stale closures
+  const fetchData = useCallback(async () => {
+    console.log('fetching data');
+    try {
+      const newPicks = await fetchPicks(draftId);
+      const draft = await fetchDraft(draftId);
+      if (!draft) notFound();
 
-        if (!draft) {
-          notFound();
+      const participantsData = await fetchMultipleParticipantData(
+        draft.participants,
+      );
+
+      // Update picks + derived state if changed
+      setPicks((prev) => {
+        if (JSON.stringify(newPicks) !== JSON.stringify(prev)) {
+          const newRounds = Math.max(0, ...newPicks.map((p) => p.round)) + 1;
+          setRounds(newRounds);
+          setActivePick(getActivePick(newPicks));
+          return newPicks;
         }
+        return prev;
+      });
 
-        const participantIDs = draft.participants;
-        const participantsData =
-          await fetchMultipleParticipantData(participantIDs);
-
-        setPicks((prevPicks) => {
-          if (JSON.stringify(newPicks) !== JSON.stringify(prevPicks)) {
-            const newRounds =
-              Math.max(...newPicks.map((pick) => pick.round)) + 1;
-            setRounds(newRounds);
-            const newActivePick = getActivePick(newPicks);
-            setActivePick(newActivePick);
-            return newPicks;
-          }
-          return prevPicks;
-        });
-
-        setParticipants((prevParticipants) => {
-          if (
-            JSON.stringify(participantsData) !==
-            JSON.stringify(prevParticipants)
-          ) {
-            return participantsData;
-          }
-          return prevParticipants;
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const interval = setInterval(fetchData, 20000);
-    fetchData(); // Initial fetch
-
-    return () => clearInterval(interval);
+      // Update participants if changed
+      setParticipants((prev) => {
+        if (JSON.stringify(participantsData) !== JSON.stringify(prev)) {
+          return participantsData;
+        }
+        return prev;
+      });
+    } catch (err) {
+      console.error('[DraftGrid] fetchData error:', err);
+    }
   }, [draftId]);
+
+  // Optional: keep a very gentle poll only when connection is bad
+  useEffect(() => {
+    if (!connectionIssue) return;
+    const id = setInterval(fetchData, 10000);
+    return () => clearInterval(id);
+  }, [connectionIssue, fetchData]);
+
+  // Initial load
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useDraftRealtime(draftId, {
+    pick_made: () => fetchData(),
+    clock_started: () => fetchData(),
+    draft_complete: () => fetchData(),
+    player_joined: () => fetchData(),
+    onConnectionIssue: setConnectionIssue,
+  });
 
   return (
     <div className="h-fit overflow-auto border-2 border-gray-950">
@@ -81,9 +91,9 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
             <tr key={roundIndex} className="space-y-2">
               {participants.map((participant, participantIndex) => {
                 const pick = picks.find(
-                  (pick) =>
-                    pick.round === roundIndex &&
-                    pick.player_id === participant.player_id,
+                  (p) =>
+                    p.round === roundIndex &&
+                    p.player_id === participant.player_id,
                 );
                 const activePickNumber = activePick?.pick_number ?? 0;
                 const activePickRound = activePick?.round ?? 0;
@@ -93,10 +103,11 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
                   (pickRound - activePickRound) * participants.length -
                   activePickNumber +
                   pickNumber;
+
                 return (
                   <DraftPickCell
-                    pick={pick as DraftPick}
                     key={participantIndex}
+                    pick={pick as DraftPick}
                     picksTilActive={picksTilActive}
                   />
                 );
