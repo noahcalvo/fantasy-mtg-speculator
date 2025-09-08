@@ -116,7 +116,8 @@ def createTables(conn):
             rounds INT NOT NULL,
             auto_draft BOOLEAN NOT NULL,
             pick_time_seconds INT,
-            last_pick_timestamp timestamp with time zone,
+            current_pick_deadline_at timestamp with time zone,
+            paused_at timestamptz,
             FOREIGN KEY (league_id) REFERENCES LeaguesV3(league_id)
             );
             """

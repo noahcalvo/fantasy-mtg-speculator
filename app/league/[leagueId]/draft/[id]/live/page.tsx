@@ -1,4 +1,5 @@
 import { fetchDraft, fetchPicks, fetchUndraftedCards } from '@/app/lib/draft';
+import { isCommissioner } from '@/app/lib/leagues';
 import notFound from '../not-found';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
@@ -11,6 +12,7 @@ import {
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchCardPerformances } from '@/app/lib/performance';
+import PauseResumeDraft from '../components/pauseResumeDraft';
 
 export default async function Page({
   params,
@@ -27,6 +29,11 @@ export default async function Page({
   if (isNaN(draftId)) {
     notFound(leagueId);
   }
+
+  const isLeagueCommissioner = await isCommissioner(
+    player?.player_id,
+    leagueId,
+  );
 
   const draft = await fetchDraft(draftId);
   if (!draft) {
@@ -72,6 +79,11 @@ export default async function Page({
   const activeDrafter = getActivePick(picks)?.player_id;
   return (
     <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-0 xl:flex-row">
+      <PauseResumeDraft
+        draftId={draftId}
+        leagueId={leagueId}
+        commissioner={isLeagueCommissioner}
+      />
       <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
         <DraftGrid draftId={draftId} />
       </div>

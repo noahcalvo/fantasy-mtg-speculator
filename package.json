@@ -44,6 +44,8 @@
     "next-auth": "^5.0.0-beta.17",
     "pg": "^8.12.0",
     "postcss": "8.4.31",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "redis": "^5.1.0",

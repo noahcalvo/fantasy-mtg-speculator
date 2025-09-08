@@ -1,6 +1,6 @@
 'use server';
 
-import { Card, CardDetails, Draft, DraftPick } from './definitions';
+import { Card, CardDetails, CardDetailsWithPoints, Draft, DraftPick, num } from './definitions';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -10,6 +10,9 @@ import { fetchOwnedCards } from './collection';
 import { fetchSet } from './sets';
 import { fetchCardName } from './card';
 import pg from 'pg';
+import { fetchCardPerformances } from './performance';
+import { priceUsd } from './performance-utils';
+import { broadcastDraft } from './realtime';
 
 const { Pool } = pg;
 
@@ -129,7 +132,7 @@ export const fetchDrafts = async (
 const _fetchDraftUncached = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id FROM draftsV4 WHERE draft_id = $1;`,
+      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at FROM draftsV4 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows[0];
@@ -287,25 +290,6 @@ export const fetchPicks = (draftId: number) => {
   )(draftId);
 };
 
-export const fetchAvailableCards = async (
-  cards: CardDetails[],
-  draftId: number,
-) => {
-  try {
-    const res = await pool.query(
-      `SELECT * FROM picksv5 WHERE draft_id = $1;`,
-      [draftId],
-    );
-    const undraftedCards = cards.filter(
-      (card) => !res.rows.some((pick) => pick.card_id === card.name),
-    );
-    return undraftedCards;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch available cards');
-  }
-};
-
 export async function makePick(
   draftId: number,
   playerId: number,
@@ -313,39 +297,74 @@ export async function makePick(
   set: string,
   leagueId: number,
 ) {
-  console.error('Making pick:', draftId, playerId, cardName, set);
-  console.error('using pool:', pool);
+  const client = await pool.connect();
   try {
-    const cardId = await getOrCreateCard(cardName, set);
-    if (!cardId) {
-      throw new Error('Failed to get or create card');
-    }
-    const activePick = await getActivePick(draftId);
-    if (activePick?.player_id !== playerId) {
-      console.debug('Not your turn', activePick, playerId);
-      throw new Error('Not your turn');
-    }
-    await pool.query(
-      `UPDATE picksv5 SET card_id = $1 WHERE draft_id = $2 AND player_id = $3 AND round = $4 AND pick_number = $5;`,
-      [cardId, draftId, playerId, activePick.round, activePick.pick_number],
+    await client.query('BEGIN');
+
+    // Guard: not paused and not past deadline for someone else to auto-pick first
+    const { rows: [d] } = await client.query(
+      `SELECT deadline_at, paused_at FROM DraftsV4 WHERE draft_id = $1 FOR UPDATE;`,
+      [draftId]
     );
-    // await pool.query(`UPDATE draftsV2 SET last_pick_timestamp = NOW() WHERE draft_id = $1;`, [draftId]);
-    if (await isDraftComplete(draftId)) {
-      await pool.query(
-        `UPDATE draftsV4 SET active = false WHERE draft_id = ${draftId};`,
-      );
-      await updateCollectionWithCompleteDraft(draftId);
-      // Invalidate draft info cache when draft becomes inactive
-      revalidateTag(`draft-${draftId}-info`);
+    if (!d) throw new Error('Draft not found');
+    if (d.paused_at) throw new Error('Draft is paused');
+    // (Optional) reject if overdue and it's not this player's turn – up to your UX.
+    if (d.deadline_at && new Date(d.deadline_at) < new Date()) {
+      console.log('Deadline passed, pick may be auto-drafted first');
+      return
     }
 
-    // Invalidate caches for this specific draft when a pick is made
+    // Get the current active slot FOR UPDATE SKIP LOCKED to serialize
+    const { rows: [slot] } = await client.query<DraftPick>(
+      `SELECT *
+         FROM PicksV5
+        WHERE draft_id = $1 AND card_id IS NULL
+        ORDER BY round ASC, pick_number ASC
+        FOR UPDATE SKIP LOCKED
+        LIMIT 1;`,
+      [draftId]
+    );
+    if (!slot) throw new Error('Draft complete');
+    if (slot.player_id !== playerId) throw new Error('Not your turn');
+
+    const cardId = await getOrCreateCard(cardName, set);
+    if (!cardId) throw new Error('Card not found/created');
+
+    // Assign the pick
+    await client.query(
+      `UPDATE PicksV5
+        SET card_id = $1
+        WHERE draft_id = $2 AND round = $3 AND pick_number = $4 AND player_id = $5 AND card_id IS NULL;`,
+      [cardId, draftId, slot.round, slot.pick_number, playerId]
+    );
+
+    // Advance the deadline for the next turn
+    await startNextTurn(client, draftId);
+
+    // If no more open picks, mark draft inactive
+    const { rows: [remain] } = await client.query(
+      `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
+      [draftId]
+    );
+    if (!remain.has_open) {
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
+    }
+
+    await client.query('COMMIT');
+
+    // Post-commit side effects
+    if (!remain.has_open) {
+      await updateCollectionWithCompleteDraft(draftId);
+      revalidateTag(`draft-${draftId}-info`);
+    }
     revalidateTag(`draft-${draftId}-picks`);
     revalidateTag(`draft-${draftId}-undrafted`);
     revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to make pick');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
   }
 }
 
@@ -364,7 +383,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     if (existingCard.rows.length > 0) {
       if (existingCard.rows[0].name !== cardName) {
         // update the name to include the full, double sided name
-        await pool.query(`UPDATE cards SET name = $1 WHERE card_id = $1;`, [
+        await pool.query(`UPDATE cards SET name = $1 WHERE card_id = $2;`, [
           cardName,
           existingCard.rows[0].card_id,
         ]);
@@ -523,3 +542,210 @@ export const fetchUndraftedCards = (draftId: number) => {
 //     throw new Error('Failed to fetch draft timer');
 //   }
 // }
+
+export async function pauseDraft(draftId: number, leagueId: number) {
+  'use client'
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rowCount } = await client.query(
+      `UPDATE DraftsV4
+         SET paused_at = COALESCE(paused_at, NOW())
+       WHERE draft_id = $1
+         AND active = true;`, // if you add a status enum later, use status='live'
+      [draftId]
+    );
+    await client.query('COMMIT');
+    if (rowCount > 0) {
+      revalidateTag(`draft-${draftId}-info`);
+    }
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    await broadcastDraft(draftId, 'paused', {});
+    client.release();
+  }
+}
+
+export async function resumeDraft(draftId: number) {
+  'use client'
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      `SELECT paused_at FROM DraftsV4 WHERE draft_id = $1 FOR UPDATE;`,
+      [draftId]
+    );
+    if (!rows.length || !rows[0].paused_at) {
+      await client.query('ROLLBACK'); return; // not paused
+    }
+    await client.query(
+      `UPDATE DraftsV4
+         SET current_pick_deadline_at = current_pick_deadline_at + (NOW() - paused_at),
+             paused_at = NULL
+       WHERE draft_id = $1;`,
+      [draftId]
+    );
+    await client.query('COMMIT');
+    revalidateTag(`draft-${draftId}-info`);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    await broadcastDraft(draftId, 'resumed', {});
+    client.release();
+  }
+}
+
+async function startNextTurn(client: pg.PoolClient, draftId: number) {
+  // Use pick_time_seconds from the draft row
+  await client.query(
+    `UPDATE DraftsV4
+       SET deadline_at = NOW() + make_interval(secs => pick_time_seconds)
+     WHERE draft_id = $1;`,
+    [draftId]
+  );
+}
+
+// autodraft comparison function
+function cmpAuto(a: CardDetailsWithPoints, b: CardDetailsWithPoints): number {
+  // prefer the latest scorer
+  if (b.week !== a.week) return b.week - a.week;
+  // prefer the highest scorer
+  if (b.points !== a.points) return b.points - a.points;
+  // prefer the most expensive
+  const pa = priceUsd(a), pb = priceUsd(b);
+  if (pa !== pb) return pb - pa;
+  // alphabetical A-Z, case-insensitive
+  const n = a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+  if (n !== 0) return n;
+  // final deterministic tiebreaker: lowest card_id wins
+  return num(a.card_id, Infinity) - num(b.card_id, Infinity);
+}
+
+export async function autoPickIfOverdue(draftId: number, leagueId: number) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1) Lock the draft row and check timers
+    const { rows: [d] } = await client.query(
+      `SELECT deadline_at, paused_at, pick_time_seconds, active FROM DraftsV4
+       WHERE draft_id = $1 FOR UPDATE;`,
+      [draftId]
+    );
+    if (!d) { await client.query('ROLLBACK'); return; }
+    if (d.paused_at) { await client.query('ROLLBACK'); return; }              // paused → do nothing
+    if (!d.active) { await client.query('ROLLBACK'); return; }              // inactive → done
+    if (!d.deadline_at || new Date(d.deadline_at) > new Date()) {
+      await client.query('ROLLBACK'); return;                                 // not overdue yet
+    }
+
+    // 2) Lock the current open slot (first unpicked)
+    const { rows: [slot] } = await client.query<DraftPick>(
+      `SELECT * FROM PicksV5
+         WHERE draft_id = $1 AND card_id IS NULL
+         ORDER BY round ASC, pick_number ASC
+         FOR UPDATE SKIP LOCKED
+         LIMIT 1;`,
+      [draftId]
+    );
+    if (!slot) {
+      // no open picks → mark inactive and exit
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
+      await client.query('COMMIT');
+      await updateCollectionWithCompleteDraft(draftId);
+      revalidateTag(`draft-${draftId}-info`);
+      return;
+    }
+
+    // 3) Build candidate list (UNCACHED to avoid stale reads)
+    const undrafted = await _fetchUndraftedCardsUncached(draftId);
+    if (!undrafted.length) {
+      await client.query('ROLLBACK'); return;                                  // nothing to pick (shouldn't happen)
+    }
+
+    // Enrich with points (your code, slightly tightened)
+    const undraftedIds = undrafted
+      .filter(c => c.card_id !== undefined && c.card_id !== -1)
+      .map(c => c.card_id as number);
+
+    const pointsRows = await fetchCardPerformances(undraftedIds, leagueId); // returns { card_id, total_points, week }
+    const withPoints: CardDetailsWithPoints[] = undrafted.map((c) => {
+      const p = pointsRows.find((r) => r.card_id === c.card_id);
+      return {
+        ...c,
+        points: p?.total_points ?? 0,
+        week: p?.week ?? -1,
+      };
+    });
+
+    // 4) Choose best by points → price → A-Z (deterministic)
+    withPoints.sort(cmpAuto);
+    const best = withPoints[0];
+    if (!best?.name) { await client.query('ROLLBACK'); return; }
+
+    // 5) Resolve/ensure card_id (your helper)
+    const cardId = best.card_id;
+    if (!cardId) { await client.query('ROLLBACK'); return; }
+
+    // 6) Atomically assign the pick (guard against races)
+    const { rowCount } = await client.query(
+      `UPDATE PicksV5
+          SET card_id = $1
+        WHERE draft_id = $2
+          AND round = $3
+          AND pick_number = $4
+          AND player_id = $5
+          AND card_id IS NULL;`,
+      [cardId, draftId, slot.round, slot.pick_number, slot.player_id]
+    );
+    if (rowCount === 0) {
+      // someone else picked in parallel
+      await client.query('ROLLBACK');
+      return;
+    }
+
+    await startNextTurn(client, draftId)
+
+    // 8) If no open picks remain, mark inactive
+    const { rows: [remain] } = await client.query(
+      `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
+      [draftId]
+    );
+    if (!remain.has_open) {
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
+    }
+
+    await client.query('COMMIT');
+
+    // 9) Post-commit side effects & cache busting
+    if (!remain.has_open) {
+      await updateCollectionWithCompleteDraft(draftId);
+      revalidateTag(`draft-${draftId}-info`);
+    }
+    revalidateTag(`draft-${draftId}-picks`);
+    revalidateTag(`draft-${draftId}-undrafted`);
+    // if your live page depends on server components:
+    revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getPausedStatus(draftId: number): Promise<string> {
+  const client = await pool.connect();
+  try {
+    const { rows: [draft] } = await client.query<{ paused_at: string | null }>(
+      `SELECT paused_at FROM DraftsV4 WHERE draft_id = $1;`,
+      [draftId]
+    );
+    return draft.paused_at ?? '';
+  } finally {
+    client.release();
+  }
+}
