@@ -132,7 +132,7 @@ export const fetchDrafts = async (
 const _fetchDraftUncached = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at FROM draftsV4 WHERE draft_id = $1;`,
+      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at, current_pick_deadline_at FROM draftsV4 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows[0];
@@ -372,10 +372,11 @@ export async function makePick(
 export const getOrCreateCard = async (cardName: string, set: string) => {
   console.error('Getting or creating card:', cardName, set);
   try {
-    // Check if card exists in the database
-    // remove '//'  and everything after it
-    const frontSideName = cardName.split(' //')[0].trim();
+    // Handle "front // back" with or without spaces around //
+    const frontSideName = cardName.split(/\s*\/\/\s*/)[0].trim();
     console.error('one more shot', frontSideName);
+
+    // 1) Try exact front side (common for DFCs stored as front only)
     const existingCard = await pool.query<Card>(
       `SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
       [frontSideName],
@@ -383,7 +384,7 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     console.error('Existing card:', existingCard);
     if (existingCard.rows.length > 0) {
       if (existingCard.rows[0].name !== cardName) {
-        // update the name to include the full, double sided name
+        // upgrade stored name to full DFC name
         await pool.query(`UPDATE cards SET name = $1 WHERE card_id = $2;`, [
           cardName,
           existingCard.rows[0].card_id,
@@ -391,14 +392,18 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
       }
       return existingCard.rows[0].card_id;
     }
+
+    // 2) If not a DFC name, just create it
     if (frontSideName === cardName) {
-      const newCard = await pool.query<Card>(
+      const newCard = await pool.query<{ card_id: number }>(
         `INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`,
         [cardName, set],
       );
       console.debug('New card created:', newCard);
-      return newCard.rows[0].card_id;
+      return newCard.rows[0].card_id; // ✅ return here
     }
+
+    // 3) Try full DFC name
     const existingDoubleFaceCard = await pool.query<Card>(
       `SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
       [cardName],
@@ -406,16 +411,20 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
     if (existingDoubleFaceCard.rows.length > 0) {
       return existingDoubleFaceCard.rows[0].card_id;
     }
-    const newCard = await pool.query<Card>(
+
+    // 4) Create full DFC name
+    const newCard = await pool.query<{ card_id: number }>(
       `INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`,
       [cardName, set],
     );
     console.debug('New card created:', newCard);
+    return newCard.rows[0].card_id; // ✅ THIS WAS MISSING
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error(`Failed to get or create card: ${error}`);
   }
 };
+
 
 const isDraftComplete = async (draftId: number) => {
   try {

@@ -7,7 +7,8 @@ import { getActivePick } from '@/app/lib/clientActions';
 import { fetchDraft, fetchPicks } from '@/app/lib/draft';
 import { notFound } from 'next/navigation';
 import { fetchMultipleParticipantData } from '@/app/lib/player';
-import { useDraftRealtime } from './useDraftRealtime';
+import ActivePickCell from './activePickCell';
+import { useDraftRealtime } from '@/app/lib/useDraftRealtime';
 
 const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [picks, setPicks] = useState<DraftPick[]>([]);
@@ -15,18 +16,21 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [rounds, setRounds] = useState(0);
   const [activePick, setActivePick] = useState<DraftPick | undefined>();
   const [connectionIssue, setConnectionIssue] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [deadlineAt, setDeadlineAt] = useState('0');
 
   // Stable fetcher so our WS handlers don't capture stale closures
   const fetchData = useCallback(async () => {
-    console.log('fetching data');
     try {
       const newPicks = await fetchPicks(draftId);
       const draft = await fetchDraft(draftId);
       if (!draft) notFound();
-
+      setDeadlineAt(draft.current_pick_deadline_at);
       const participantsData = await fetchMultipleParticipantData(
         draft.participants,
       );
+
+      setPaused(!!draft.paused_at);
 
       // Update picks + derived state if changed
       setPicks((prev) => {
@@ -63,13 +67,19 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
     fetchData();
   }, [fetchData]);
 
-  useDraftRealtime(draftId, {
-    pick_made: () => fetchData(),
-    clock_started: () => fetchData(),
-    draft_complete: () => fetchData(),
-    player_joined: () => fetchData(),
-    onConnectionIssue: setConnectionIssue,
-  });
+  useDraftRealtime(
+    draftId,
+    {
+      paused: () => setPaused(true),
+      resumed: () => setPaused(false),
+      pick_made: () => fetchData(),
+      draft_complete: () => fetchData(),
+      onConnectionIssue: setConnectionIssue,
+    },
+    'grid',
+  );
+
+  console.log('paused', paused);
 
   return (
     <div className="h-fit overflow-auto border-2 border-gray-950">
@@ -104,11 +114,22 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
                   activePickNumber +
                   pickNumber;
 
-                return (
+                const isActive = picksTilActive === 0;
+
+                return isActive ? (
+                  <ActivePickCell
+                    key={participantIndex}
+                    pick={pick as DraftPick}
+                    picksTilActive={picksTilActive}
+                    paused={paused}
+                    deadlineAt={deadlineAt}
+                  />
+                ) : (
                   <DraftPickCell
                     key={participantIndex}
                     pick={pick as DraftPick}
                     picksTilActive={picksTilActive}
+                    paused={paused}
                   />
                 );
               })}

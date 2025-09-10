@@ -1,7 +1,7 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { getPusher } from '@/app/lib/realtimeClient';
+import { acquireChannel, getPusher } from '@/app/lib/realtimeClient';
 
 type DraftEvent =
   | 'paused'
@@ -15,12 +15,22 @@ type Handlers = Partial<Record<DraftEvent, (payload: any) => void>> & {
   onConnectionIssue?: (bad: boolean) => void;
 };
 
-export function useDraftRealtime(draftId: number, handlers?: Handlers) {
+export function useDraftRealtime(
+  draftId: number,
+  handlers?: Handlers,
+  debugLabel?: string,
+) {
   const router = useRouter();
+  const handlersRef = useRef<Handlers>({});
+  // keep the latest handlers without retriggering the subscription
+  useEffect(() => {
+    handlersRef.current = handlers ?? {};
+  }, [handlers]);
 
   useEffect(() => {
+    const channelName = `draft-${draftId}`;
     const p = getPusher();
-    const ch = p.subscribe(`draft-${draftId}`);
+    const ch = acquireChannel(channelName);
 
     // default: refresh server components on impactful events
     let debounce: ReturnType<typeof setTimeout> | null = null;
@@ -29,44 +39,49 @@ export function useDraftRealtime(draftId: number, handlers?: Handlers) {
       debounce = setTimeout(() => router.refresh(), 120);
     };
 
-    const bind = <T,>(ev: DraftEvent, fn?: (payload: T) => void) => {
-      ch.bind(ev, (data: T) => {
-        console.log(`Received event: ${ev}`, data);
-        // always call specific handler if provided
-        fn?.(data);
-        // also refresh on these so server-rendered bits (e.g. timers) update
-        if (
-          ev === 'pick_made' ||
-          ev === 'clock_started' ||
-          ev === 'draft_complete'
-        ) {
-          refresh();
-        }
-      });
+    // stable callbacks (so we can unbind them)
+    const on = (ev: DraftEvent) => (data: any) => {
+      console.log(`[${debugLabel ?? 'rt'}] ${ev}`, data);
+      handlersRef.current?.[ev]?.(data);
+      if (
+        ev === 'pick_made' ||
+        ev === 'clock_started' ||
+        ev === 'draft_complete'
+      ) {
+        refresh();
+      }
     };
 
-    bind('paused', handlers?.paused);
-    bind('resumed', handlers?.resumed);
-    bind('pick_made', handlers?.pick_made);
-    bind('clock_started', handlers?.clock_started);
-    bind('draft_complete', handlers?.draft_complete);
-    bind('player_joined', handlers?.player_joined);
+    const onPaused = on('paused');
+    const onResumed = on('resumed');
+    const onPick = on('pick_made');
+    const onClock = on('clock_started');
+    const onDone = on('draft_complete');
 
-    const setConn = handlers?.onConnectionIssue;
-    const bad = () => setConn?.(true);
-    const good = () => setConn?.(false);
-    p.connection.bind('error', bad);
-    p.connection.bind('failed', bad);
-    p.connection.bind('unavailable', bad);
-    p.connection.bind('connected', good);
+    ch.bind('paused', onPaused);
+    ch.bind('resumed', onResumed);
+    ch.bind('pick_made', onPick);
+    ch.bind('clock_started', onClock);
+    ch.bind('draft_complete', onDone);
+
+    const connBad = () => handlersRef.current?.onConnectionIssue?.(true);
+    const connGood = () => handlersRef.current?.onConnectionIssue?.(false);
+    p.connection.bind('error', connBad);
+    p.connection.bind('failed', connBad);
+    p.connection.bind('unavailable', connBad);
+    p.connection.bind('connected', connGood);
 
     return () => {
-      ch.unbind_all();
-      p.connection.unbind('error', bad);
-      p.connection.unbind('failed', bad);
-      p.connection.unbind('unavailable', bad);
-      p.connection.unbind('connected', good);
+      ch.unbind('paused', onPaused);
+      ch.unbind('resumed', onResumed);
+      ch.unbind('pick_made', onPick);
+      ch.unbind('clock_started', onClock);
+      ch.unbind('draft_complete', onDone);
+      p.connection.unbind('error', connBad);
+      p.connection.unbind('failed', connBad);
+      p.connection.unbind('unavailable', connBad);
+      p.connection.unbind('connected', connGood);
       p.unsubscribe(`draft-${draftId}`);
     };
-  }, [draftId, router, handlers]);
+  }, [draftId, router]); // ← NOTE: no 'handlers' here
 }

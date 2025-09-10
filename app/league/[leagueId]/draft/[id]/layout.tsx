@@ -2,6 +2,10 @@ import Link from 'next/link';
 import DraftInfoHeader from './components/draftInfoHeader';
 import { fetchDraft } from '@/app/lib/draft';
 import notFound from './not-found';
+import PauseResumeDraft from './components/pauseResumeDraft';
+import { auth } from '@/auth';
+import { fetchPlayerByEmail } from '@/app/lib/player';
+import { isCommissioner } from '@/app/lib/leagues';
 
 export default async function Layout({
   children,
@@ -19,6 +23,15 @@ export default async function Layout({
   if (!draft) {
     return notFound(leagueId);
   }
+  const user = await auth().then((res) => res?.user);
+  const player = await fetchPlayerByEmail(user?.email || '');
+  const isLeagueCommissioner = await isCommissioner(
+    player?.player_id,
+    leagueId,
+  );
+
+  console.log('Draft', draft);
+
   return (
     <div className="p-2">
       <main>
@@ -36,6 +49,12 @@ export default async function Layout({
           </div>
           <div className="w-20"></div>
         </div>
+        <PauseResumeDraft
+          draftId={draftId}
+          leagueId={leagueId}
+          commissioner={isLeagueCommissioner}
+        />
+
         {children}
       </main>
     </div>

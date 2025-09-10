@@ -2,25 +2,22 @@ import {
   CardDetails,
   DraftPick,
   getCardTypesAbbreviation,
-  Player,
 } from '@/app/lib/definitions';
-import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/card';
 import PickCell from './pickCell';
 import { useEffect, useState } from 'react';
+import { useCountdown } from './useCountdown';
 
-export default function DraftPickCell({
+export default function ActivePickCell({
   pick,
   picksTilActive,
   paused,
-  timeLabel,
-  totalSeconds,
+  deadlineAt,
 }: {
   pick: DraftPick;
   picksTilActive: number;
   paused?: boolean;
-  timeLabel?: string; // e.g., "0:43" or "Paused"
-  totalSeconds?: number; // remaining seconds
+  deadlineAt?: string | null;
 }) {
   const [cardData, setCardData] = useState<CardDetails | null>(null);
 
@@ -32,6 +29,8 @@ export default function DraftPickCell({
     }
   }, [pick]);
 
+  const { totalSeconds, mmss } = useCountdown(deadlineAt, paused);
+
   const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
 
   return (
@@ -41,7 +40,7 @@ export default function DraftPickCell({
       pick={pick}
       cardType={cardType}
       paused={paused}
-      timeLabel={timeLabel}
+      timeLabel={mmss}
       totalSeconds={totalSeconds}
     />
   );

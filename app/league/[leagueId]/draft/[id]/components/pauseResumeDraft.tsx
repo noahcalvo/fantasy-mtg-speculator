@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useDraftRealtime } from './useDraftRealtime';
+import { useDraftRealtime } from '@/app/lib/useDraftRealtime';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function PauseResumeDraft({
   draftId,
@@ -16,40 +16,45 @@ export default function PauseResumeDraft({
   const [error, setError] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState(false);
 
-  function setPaused(paused: boolean) {
-    setIsPaused(paused);
-    console.log('Draft is now', paused ? 'paused' : 'resumed');
-  }
-
-  // fetch the draft status from server if needed
+  // initial load
   useEffect(() => {
-    const fetchDraftStatus = async () => {
+    (async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`/api/draft/${draftId}/status`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch draft status');
-        }
-        const data = await response.json();
+        const res = await fetch(`/api/draft/${draftId}/status`);
+        if (!res.ok) throw new Error('Failed to fetch draft status');
+        const data = await res.json();
         setIsPaused(data.isPaused);
         setConnectionError(false);
-      } catch (err) {
-        console.error('Failed to fetch draft status:', err);
+      } catch (e) {
+        console.error('Failed to fetch draft status:', e);
         setError('Failed to fetch draft status');
         setConnectionError(true);
       } finally {
         setIsLoading(false);
       }
-    };
-    fetchDraftStatus();
+    })();
   }, [draftId]);
 
-  useDraftRealtime(draftId, {
-    paused: () => setPaused(true),
-    resumed: () => setIsPaused(false),
-    onConnectionIssue: setConnectionError,
-  });
+  // 👇 memoize handlers so their identity doesn't change every render
+  const handlers = useMemo(
+    () => ({
+      paused: () => {
+        setIsPaused(true);
+        console.log('[PauseButton] got paused event');
+      },
+      resumed: () => {
+        setIsPaused(false);
+        console.log('[PauseButton] got resumed event');
+      },
+      onConnectionIssue: setConnectionError,
+    }),
+    [setConnectionError],
+  );
+
+  // 👇 single hook call
+  useDraftRealtime(draftId, handlers, 'pause');
 
   const handlePauseResume = async () => {
     try {
@@ -79,33 +84,37 @@ export default function PauseResumeDraft({
 
   if (isLoading) {
     return (
-      <button disabled className="cursor-not-allowed opacity-50">
-        Loading...
-      </button>
+      <div className="my-2 flex items-center justify-center gap-2">
+        <button disabled className="cursor-not-allowed opacity-50">
+          Loading...
+        </button>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-sm text-red-500">
-        {error}
-        {connectionError && (
-          <div className="mt-1 text-xs text-yellow-600">
-            ⚠️ Real-time updates may be delayed
-          </div>
-        )}
-        <button
-          onClick={() => window.location.reload()}
-          className="ml-2 underline"
-        >
-          Retry
-        </button>
+      <div className="my-2 flex items-center justify-center gap-2">
+        <div className="text-sm text-red-500">
+          {error}
+          {connectionError && (
+            <div className="mt-1 text-xs text-yellow-600">
+              ⚠️ Real-time updates may be delayed
+            </div>
+          )}
+          <button
+            onClick={() => window.location.reload()}
+            className="ml-2 underline"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
   if (!commissioner) {
     return (
-      <span>
+      <div className="my-2 flex items-center justify-center gap-2">
         {isPaused ? 'Paused' : ''}
         {connectionError && (
           <span
@@ -115,15 +124,15 @@ export default function PauseResumeDraft({
             ⚠️
           </span>
         )}
-      </span>
+      </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="my-2 flex items-center justify-center gap-2">
       <button
         onClick={handlePauseResume}
-        className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+        className="rounded border border-gray-950 bg-red-800 px-4 py-2 text-white transition-colors hover:bg-red-900"
       >
         {isPaused ? 'Resume Draft' : 'Pause Draft'}
       </button>
