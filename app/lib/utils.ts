@@ -162,3 +162,9 @@ export function validatePoints(points: number | ''): string | null {
   if (decimalPlaces > 2) return 'Points can only have two decimal places.';
   return null;
 }
+
+export function createPickDeadline(pick_time_in_seconds: number): string {
+  const now = new Date();
+  const deadlineTime = new Date(now.getTime() + (pick_time_in_seconds * 1000));
+  return deadlineTime.toISOString();
+}

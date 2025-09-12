@@ -132,7 +132,7 @@ export const fetchDrafts = async (
 const _fetchDraftUncached = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at, current_pick_deadline_at FROM draftsV4 WHERE draft_id = $1;`,
+      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at, current_pick_deadline_at, pick_time_seconds FROM draftsV4 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows[0];
@@ -158,51 +158,81 @@ export const joinDraft = async (
   playerId: number,
   leagueId: number,
 ): Promise<void> => {
+  const client = await pool.connect();
   try {
-    // Check if player belongs to the league
+    // Pre-checks that don't need DB (if fetchLeague is external). Keep them up front.
     const leagueResult = await fetchLeague(leagueId);
     if (!leagueResult.participants.includes(playerId)) {
-      throw new Error('Player not in league');
+      throw new Error("Player not in league");
     }
-    // Check if the player is already a participant
-    const draftResult = await pool.query(
-      `SELECT participants, active, rounds FROM draftsV4 WHERE draft_id = $1 AND league_id = $2;`,
+
+    await client.query("BEGIN"); // start tx
+
+    // Lock the draft row so two people don't modify participants concurrently
+    const draftResult = await client.query(
+      `
+      SELECT participants, active, rounds
+      FROM draftsV4
+      WHERE draft_id = $1 AND league_id = $2
+      FOR UPDATE
+      `,
       [draftId, leagueId],
     );
-    if (draftResult.rowCount === 0) {
-      throw new Error('Draft not found');
-    }
 
-    const result = draftResult.rows[0];
+    if (draftResult.rowCount === 0) throw new Error("Draft not found");
 
-    if (!result.active) {
-      throw new Error('Draft not active');
-    }
-    const participants = result.participants;
+    const { participants, active, rounds } = draftResult.rows[0] as {
+      participants: number[];
+      active: boolean;
+      rounds: number;
+    };
+
+    if (!active) throw new Error("Draft not active");
+
+    // Already in? Commit no-op and bail.
     if (participants.includes(playerId)) {
-      console.debug('Player is already a participant');
+      await client.query("COMMIT");
       return;
     }
-    await addPicks(draftId, playerId, participants.length, result.rounds);
-    participants.push(playerId);
-    await snakePicks(draftId, participants, result.rounds);
-    console.log("picks added and snaked")
-    await pool.query(
-      `UPDATE draftsV4 SET participants = array_append(participants, $1) WHERE draft_id = $2;`,
-      [playerId, draftId],
+
+    // All writes below are part of the same transaction
+    await addPicksTx(client, draftId, playerId, participants.length, rounds);
+
+    const newParticipants = [...participants, playerId];
+    await snakePicksTx(client, draftId, newParticipants, rounds);
+
+    // Use league_id in the UPDATE where clause to match your SELECT
+    // Also guard against dupes under race by asserting NOT already present
+    await client.query(
+      `
+      UPDATE draftsV4
+      SET participants = array_append(participants, $1)
+      WHERE draft_id = $2 AND league_id = $3
+        AND NOT (participants @> ARRAY[$1]::int[])
+      `,
+      [playerId, draftId, leagueId],
     );
 
-    // Invalidate caches for this specific draft when someone joins
-    revalidateTag(`draft-${draftId}-info`); // Draft participants changed
-    revalidateTag(`draft-${draftId}-picks`); // New picks were added
-    revalidateTag(`draft-${draftId}-undrafted`); // Undrafted cards may change due to owned cards
+    await client.query("COMMIT");
+
+    // ❗ Do side effects only after COMMIT succeeds
+    revalidateTag(`draft-${draftId}-info`);
+    revalidateTag(`draft-${draftId}-picks`);
+    revalidateTag(`draft-${draftId}-undrafted`);
     revalidatePath(`/league/${leagueId}/draft/${draftId}/view`);
     revalidatePath(`league/${leagueId}/draft`);
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to join draft');
-  } finally {
+
+    // Redirect only on success; don't put this in finally
     redirect(`/league/${leagueId}/draft/${draftId}/live`);
+  } catch (error) {
+    // Try to rollback; ignore rollback errors if the tx is already aborted
+    try {
+      await client.query("ROLLBACK");
+    } catch { }
+    console.error("Database Error:", error);
+    throw new Error("Failed to join draft");
+  } finally {
+    client.release();
   }
 };
 
@@ -227,13 +257,13 @@ export const redirectIfJoined = async (
   }
 };
 
-const addPicks = async (draftId: number, playerId: number, position: number, rounds: number) => {
+const addPicksTx = async (connection: pg.PoolClient, draftId: number, playerId: number, position: number, rounds: number) => {
   try {
     console.log('Adding picks for draft:', draftId, 'for player:', playerId);
     console.log('Draft rounds:', rounds, 'Pick number:', position);
     // add picks for each round for this player
     for (let i = 0; i < rounds; i++) {
-      await pool.query(
+      await connection.query(
         `INSERT INTO picksv5 (draft_id, player_id, round, pick_number) VALUES ($1, $2, $3, $4);`,
         [draftId, playerId, i, position],
       );
@@ -244,17 +274,17 @@ const addPicks = async (draftId: number, playerId: number, position: number, rou
   }
 };
 
-const snakePicks = async (draftId: number, participants: number[], rounds: number) => {
+const snakePicksTx = async (connection: pg.PoolClient, draftId: number, participants: number[], rounds: number) => {
   try {
     for (let i = 1; i < rounds; i = i + 2) {
       // move the last entry out of bounds
-      await pool.query(
+      await connection.query(
         `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
         [participants.length, draftId, i, participants[participants.length - 1]],
       );
       for (let j = 0; j < participants.length; j++) {
         // move pick j over 1
-        await pool.query(
+        await connection.query(
           `UPDATE picksv5 SET pick_number = $1 WHERE draft_id = $2 AND round = $3 AND player_id = $4;`,
           [participants.length - j - 1, draftId, i, participants[j]],
         );
@@ -298,6 +328,8 @@ export async function makePick(
   leagueId: number,
 ) {
   const client = await pool.connect();
+  let pickId = null;
+  let cardId = null;
   try {
     await client.query('BEGIN');
 
@@ -327,16 +359,17 @@ export async function makePick(
     if (!slot) throw new Error('Draft complete');
     if (slot.player_id !== playerId) throw new Error('Not your turn');
 
-    const cardId = await getOrCreateCard(cardName, set);
+    cardId = await getOrCreateCard(cardName, set);
     if (!cardId) throw new Error('Card not found/created');
-    console.log("getting here?")
     // Assign the pick
-    await client.query(
+    const { rows: [pick] } = await client.query(
       `UPDATE PicksV5
         SET card_id = $1
-        WHERE draft_id = $2 AND round = $3 AND pick_number = $4 AND player_id = $5 AND card_id IS NULL;`,
+        WHERE draft_id = $2 AND round = $3 AND pick_number = $4 AND player_id = $5 AND card_id IS NULL
+        RETURNING pick_id;`,
       [cardId, draftId, slot.round, slot.pick_number, playerId]
     );
+    pickId = pick.pick_id;
 
     // Advance the deadline for the next turn
     await startNextTurn(client, draftId);
@@ -364,7 +397,7 @@ export async function makePick(
     await client.query('ROLLBACK');
     throw e;
   } finally {
-    await broadcastDraft(draftId, 'pick_made', {});
+    await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
     client.release();
   }
 }

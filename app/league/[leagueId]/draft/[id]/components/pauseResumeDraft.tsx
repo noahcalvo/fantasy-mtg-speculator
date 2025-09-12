@@ -42,11 +42,9 @@ export default function PauseResumeDraft({
     () => ({
       paused: () => {
         setIsPaused(true);
-        console.log('[PauseButton] got paused event');
       },
       resumed: () => {
         setIsPaused(false);
-        console.log('[PauseButton] got resumed event');
       },
       onConnectionIssue: setConnectionError,
     }),

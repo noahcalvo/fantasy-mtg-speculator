@@ -11,6 +11,8 @@ import {
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchCardPerformances } from '@/app/lib/performance';
+import PauseResumeDraft from '../components/pauseResumeDraft';
+import { isCommissioner } from '@/app/lib/leagues';
 
 export default async function Page({
   params,
@@ -70,20 +72,35 @@ export default async function Page({
   );
 
   const activeDrafter = getActivePick(picks)?.player_id;
+  const isLeagueCommissioner = await isCommissioner(
+    player?.player_id,
+    leagueId,
+  );
+
   return (
-    <main className="flex flex-col content-start justify-center gap-x-2 gap-y-2 py-0 xl:flex-row">
-      <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
-        <DraftGrid draftId={draftId} />
-      </div>
-      <div>
-        <AvailableCards
-          undraftedCards={undraftedCardsWithPoints}
-          playerId={player.player_id}
-          activeDrafter={activeDrafter == player.player_id}
-          draftId={draft.draft_id}
-          set={draft.set}
+    <main className="flex flex-col content-start justify-center gap-2 py-0">
+      {isLeagueCommissioner && (
+        <PauseResumeDraft
+          draftId={draftId}
           leagueId={leagueId}
+          commissioner={isLeagueCommissioner}
         />
+      )}
+      <div className="flex flex-col justify-center gap-2 xl:flex-row">
+        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
+          <DraftGrid draftId={draftId} />
+        </div>
+        <div>
+          <AvailableCards
+            undraftedCards={undraftedCardsWithPoints}
+            playerId={player.player_id}
+            activeDrafter={activeDrafter == player.player_id}
+            draftId={draft.draft_id}
+            set={draft.set}
+            leagueId={leagueId}
+            isPaused={draft.paused_at !== null}
+          />
+        </div>
       </div>
     </main>
   );

@@ -87,6 +87,7 @@ export type Draft = {
   league_id: number;
   paused_at: string;
   current_pick_deadline_at: string;
+  pick_time_seconds: number;
 };
 
 export type DraftPick = {

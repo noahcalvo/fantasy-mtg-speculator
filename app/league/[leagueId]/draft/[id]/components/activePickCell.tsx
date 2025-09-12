@@ -11,12 +11,12 @@ import { useCountdown } from './useCountdown';
 export default function ActivePickCell({
   pick,
   picksTilActive,
-  paused,
+  pausedAt,
   deadlineAt,
 }: {
   pick: DraftPick;
   picksTilActive: number;
-  paused?: boolean;
+  pausedAt?: string | null;
   deadlineAt?: string | null;
 }) {
   const [cardData, setCardData] = useState<CardDetails | null>(null);
@@ -29,17 +29,16 @@ export default function ActivePickCell({
     }
   }, [pick]);
 
-  const { totalSeconds, mmss } = useCountdown(deadlineAt, paused);
+  const { totalSeconds, mmss } = useCountdown(deadlineAt, pausedAt);
 
   const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
-
   return (
     <PickCell
       picksTilActive={picksTilActive}
       cardData={cardData}
       pick={pick}
       cardType={cardType}
-      paused={paused}
+      paused={pausedAt !== null}
       timeLabel={mmss}
       totalSeconds={totalSeconds}
     />

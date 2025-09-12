@@ -23,14 +23,6 @@ export default async function Layout({
   if (!draft) {
     return notFound(leagueId);
   }
-  const user = await auth().then((res) => res?.user);
-  const player = await fetchPlayerByEmail(user?.email || '');
-  const isLeagueCommissioner = await isCommissioner(
-    player?.player_id,
-    leagueId,
-  );
-
-  console.log('Draft', draft);
 
   return (
     <div className="p-2">
@@ -49,11 +41,6 @@ export default async function Layout({
           </div>
           <div className="w-20"></div>
         </div>
-        <PauseResumeDraft
-          draftId={draftId}
-          leagueId={leagueId}
-          commissioner={isLeagueCommissioner}
-        />
 
         {children}
       </main>

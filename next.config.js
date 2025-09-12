@@ -70,7 +70,7 @@ module.exports = (phase) => {
           ],
         },
         {
-          source: '/(favicon.ico|.*\\.(png|jpg|jpeg|gif|svg))',
+          source: '/:path*\\.:ext(png|jpg|jpeg|gif|svg|ico)',
           headers: [
             {
               key: 'Cache-Control',

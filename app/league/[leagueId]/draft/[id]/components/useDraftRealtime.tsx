@@ -41,7 +41,6 @@ export function useDraftRealtime(
 
     // stable callbacks (so we can unbind them)
     const on = (ev: DraftEvent) => (data: any) => {
-      console.log(`[${debugLabel ?? 'rt'}] ${ev}`, data);
       handlersRef.current?.[ev]?.(data);
       if (
         ev === 'pick_made' ||
