@@ -1,7 +1,7 @@
 // app/api/autodraft/poke/route.ts
 import { NextResponse } from "next/server";
 import { Receiver } from "@upstash/qstash";
-import { processOneDraft } from "@/app/lib/autodraft"; // your tx from earlier
+import { autopickIfDue } from "@/app/lib/draft"; // your tx from earlier
 
 export const runtime = "nodejs"; // we need Node to talk to Postgres
 
@@ -21,11 +21,11 @@ export async function POST(req: Request) {
     url: `${process.env.APP_BASE_URL}/api/autodraft/poke`,
   });
   if (!ok) return new NextResponse("invalid signature", { status: 401 }); // hard fail
-  const { draftId } = JSON.parse(bodyText) as { draftId: string };
+  const { draftId } = JSON.parse(bodyText) as { draftId: number };
 
   // 2) Run the idempotent, race-safe autopick
   //    (advisory lock + UNIQUE(draft_id, pick_no) inside processOneDraft)
-  await processOneDraft(draftId);
+  await autopickIfDue(draftId);
 
   return new NextResponse(null, { status: 204 });
 }

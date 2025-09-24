@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { routeToCardPageById, routeToCardPageByName } from '@/app/lib/routing';
 import { getActivePick, makePick } from '@/app/lib/draft';
 import { useDraftRealtime } from './useDraftRealtime';
+import { sortCardsByPoints, sortCardsByPrice } from '@/app/lib/utils';
 
 type SortBy = 'price' | 'points';
 
@@ -154,7 +155,6 @@ export default function AvailableCards({
       paused: () => setPaused(true),
       resumed: () => setPaused(false),
       pick_made: (msg?: any) => {
-        
         fetchData();
       },
     },
@@ -287,28 +287,12 @@ export default function AvailableCards({
 }
 
 function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
-  return cards.sort((a: CardDetailsWithPoints, b: CardDetailsWithPoints) => {
-    // When sorting by points, consider week as part of the sorting criteria
-    if (sortBy === 'points') {
-      // First, compare by week, descending (latest week is most valuable)
-      if (a.week !== b.week) {
-        return b.week - a.week; // Sort by week in descending order
-      }
-      // If weeks are the same, then sort by points, descending
-      return b.points - a.points;
-    } else if (sortBy === 'price') {
-      // Sorting by price logic remains unchanged
-      if (a.price.usd === null && b.price.usd === null) {
-        return 0;
-      } else if (a.price.usd === null) {
-        return 1;
-      } else if (b.price.usd === null) {
-        return -1;
-      } else {
-        return b.price.usd - a.price.usd;
-      }
-    }
-    // Default to sorting by points if sortBy is not recognized
-    return b.points - a.points;
-  });
+  if (sortBy === 'points') {
+    return sortCardsByPoints(cards);
+  } else if (sortBy === 'price') {
+    return sortCardsByPrice(cards);
+  } else {
+    console.error('Invalid sortBy value:', sortBy);
+    return cards;
+  }
 }

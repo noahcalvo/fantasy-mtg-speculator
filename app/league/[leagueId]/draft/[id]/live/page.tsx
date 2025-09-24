@@ -1,16 +1,14 @@
-import { fetchDraft, fetchPicks, fetchUndraftedCards } from '@/app/lib/draft';
+import {
+  fetchDraft,
+  fetchPicks,
+  fetchUndraftedWithPoints,
+} from '@/app/lib/draft';
 import notFound from '../not-found';
 import { fetchPlayerByEmail } from '@/app/lib/player';
 import DraftGrid from '../components/draftGrid';
 import AvailableCards from '../components/availableCards';
-import {
-  CardDetails,
-  CardDetailsWithPoints,
-  CardPoint,
-} from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import { getActivePick } from '@/app/lib/clientActions';
-import { fetchCardPerformances } from '@/app/lib/performance';
 import PauseResumeDraft from '../components/pauseResumeDraft';
 import { isCommissioner } from '@/app/lib/leagues';
 
@@ -37,38 +35,9 @@ export default async function Page({
 
   const picks = await fetchPicks(draftId);
 
-  const undraftedCards = await fetchUndraftedCards(draftId);
-  const undraftedCardIds = undraftedCards
-    .filter(
-      (card: CardDetails) => card.card_id !== undefined && card.card_id !== -1,
-    )
-    .map((card: CardDetails) => card.card_id);
-
-  const undraftedCardPoints = await fetchCardPerformances(
-    undraftedCardIds,
+  const undraftedCardsWithPoints = await fetchUndraftedWithPoints(
+    draftId,
     leagueId,
-  );
-
-  const undraftedCardsWithPoints: CardDetailsWithPoints[] = undraftedCards.map(
-    (card: CardDetails) => {
-      const pointsEntry = undraftedCardPoints.find(
-        (cp: CardPoint) => cp.card_id === card.card_id,
-      );
-      const points = pointsEntry?.total_points || 0;
-      const week = pointsEntry?.week || -1;
-      return {
-        card_id: card.card_id,
-        name: card.name,
-        typeLine: card.typeLine,
-        image: card.image,
-        price: card.price,
-        scryfallUri: card.scryfallUri,
-        colorIdentity: card.colorIdentity,
-        set: card.set,
-        points,
-        week,
-      };
-    },
   );
 
   const activeDrafter = getActivePick(picks)?.player_id;

@@ -3,6 +3,10 @@
     {
       "path": "/api/hello",
       "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/makePick/sweep",
+      "schedule": "* * * * *"
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { EPOCH } from '../consts';
-import { CardPoint, ScoringOption } from './definitions';
+import { CardDetailsWithPoints, CardPoint, ScoringOption } from './definitions';
 
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
@@ -167,4 +167,32 @@ export function createPickDeadline(pick_time_in_seconds: number): string {
   const now = new Date();
   const deadlineTime = new Date(now.getTime() + (pick_time_in_seconds * 1000));
   return deadlineTime.toISOString();
+}
+
+export function sortCardsByPoints(cards: CardDetailsWithPoints[]) {
+  return cards.sort((a: CardDetailsWithPoints, b: CardDetailsWithPoints) => {
+    // prefer latest week
+    if (b.week !== a.week) return b.week - a.week;
+    // then points
+    if (b.points !== a.points) return b.points - a.points;
+    // then price
+    if (b.price.usd !== a.price.usd) return b.price.usd - a.price.usd;
+    // then name
+    const n = a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+    return n
+  });
+}
+
+export function sortCardsByPrice(cards: CardDetailsWithPoints[]) {
+  return cards.sort((a: CardDetailsWithPoints, b: CardDetailsWithPoints) => {
+    if (a.price.usd === null && b.price.usd === null) {
+      return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+    } else if (a.price.usd === null) {
+      return 1;
+    } else if (b.price.usd === null) {
+      return -1;
+    } else {
+      return b.price.usd - a.price.usd;
+    }
+  });
 }

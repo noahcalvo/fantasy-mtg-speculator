@@ -11,8 +11,9 @@ import { fetchSet } from './sets';
 import { fetchCardName } from './card';
 import pg from 'pg';
 import { fetchCardPerformances } from './performance';
-import { priceUsd } from './performance-utils';
 import { broadcastDraft } from './realtime';
+import { sortCardsByPoints } from './utils';
+import { cancelAutodraftIfScheduled, scheduleAutodraftOnce } from './qstash';
 
 const { Pool } = pg;
 
@@ -159,6 +160,9 @@ export const joinDraft = async (
   leagueId: number,
 ): Promise<void> => {
   const client = await pool.connect();
+  let success = false;
+  let redirectTo: string | null = null;
+
   try {
     // Pre-checks that don't need DB (if fetchLeague is external). Keep them up front.
     const leagueResult = await fetchLeague(leagueId);
@@ -223,7 +227,8 @@ export const joinDraft = async (
     revalidatePath(`league/${leagueId}/draft`);
 
     // Redirect only on success; don't put this in finally
-    redirect(`/league/${leagueId}/draft/${draftId}/live`);
+    success = true;
+    redirectTo = `/league/${leagueId}/draft/${draftId}/live`; // <- set, don't call here
   } catch (error) {
     // Try to rollback; ignore rollback errors if the tx is already aborted
     try {
@@ -234,6 +239,11 @@ export const joinDraft = async (
   } finally {
     client.release();
   }
+
+  if (success && redirectTo) {
+    redirect(redirectTo); // <- OUTSIDE try/catch, won’t be swallowed
+  }
+
 };
 
 export const redirectIfJoined = async (
@@ -333,45 +343,31 @@ export async function makePick(
   try {
     await client.query('BEGIN');
 
-    // Guard: not paused and not past deadline for someone else to auto-pick first
-    const { rows: [d] } = await client.query(
-      `SELECT current_pick_deadline_at, paused_at FROM DraftsV4 WHERE draft_id = $1 FOR UPDATE;`,
-      [draftId]
-    );
-    if (!d) throw new Error('Draft not found');
-    if (d.paused_at) throw new Error('Draft is paused');
-    // (Optional) reject if overdue and it's not this player's turn – up to your UX.
-    // if (d.current_pick_deadline_at && new Date(d.current_pick_deadline_at) < new Date()) {
-    //   console.log('Deadline passed, pick may be auto-drafted first');
-    //   return
-    // }
+    // ✅ shared lock/guards (active + not paused). Manual does NOT require overdue.
+    const d = await lockDraftForTurn(client, draftId, "manual");
+    if (!d) throw new Error('Draft not available for picking (paused/inactive/locked)');
 
-    // Get the current active slot FOR UPDATE SKIP LOCKED to serialize
-    const { rows: [slot] } = await client.query<DraftPick>(
-      `SELECT *
-         FROM PicksV5
-        WHERE draft_id = $1 AND card_id IS NULL
-        ORDER BY round ASC, pick_number ASC
-        FOR UPDATE SKIP LOCKED
-        LIMIT 1;`,
-      [draftId]
-    );
+    // Lock the active slot
+    const slot = await getActivePickLocked(client, draftId);
     if (!slot) throw new Error('Draft complete');
-    if (slot.player_id !== playerId) throw new Error('Not your turn');
+    if (slot.player_id !== playerId) {
+      console.log('Not your turn:', playerId, 'vs', slot.player_id);
+      throw new Error('Not your turn');
+    }
 
     cardId = await getOrCreateCard(cardName, set);
     if (!cardId) throw new Error('Card not found/created');
-    // Assign the pick
-    const { rows: [pick] } = await client.query(
-      `UPDATE PicksV5
-        SET card_id = $1
-        WHERE draft_id = $2 AND round = $3 AND pick_number = $4 AND player_id = $5 AND card_id IS NULL
-        RETURNING pick_id;`,
-      [cardId, draftId, slot.round, slot.pick_number, playerId]
-    );
-    pickId = pick.pick_id;
 
-    // Advance the deadline for the next turn
+    // Race-safe assignment: if autopick (or another tab) won, this returns null
+    const maybePickId = await assignPickIfStillOpen(client, draftId, slot, cardId);
+    if (!maybePickId) {
+      await client.query('ROLLBACK');
+      // Optionally fetch the winning pick for UX here
+      return;
+    }
+    pickId = maybePickId;
+
+    // Advance deadline for next turn
     await startNextTurn(client, draftId);
 
     // If no more open picks, mark draft inactive
@@ -384,6 +380,8 @@ export async function makePick(
     }
 
     await client.query('COMMIT');
+    await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
+    await scheduleAutodraftOnce(draftId);
 
     // Post-commit side effects
     if (!remain.has_open) {
@@ -397,7 +395,6 @@ export async function makePick(
     await client.query('ROLLBACK');
     throw e;
   } finally {
-    await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
     client.release();
   }
 }
@@ -458,20 +455,6 @@ export const getOrCreateCard = async (cardName: string, set: string) => {
   }
 };
 
-
-const isDraftComplete = async (draftId: number) => {
-  try {
-    const activePick = await getActivePick(draftId);
-    if (activePick) {
-      return false;
-    }
-    return true;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to check if draft is complete');
-  }
-};
-
 export const getActivePick = async (
   draftId: number,
 ): Promise<DraftPick | null> => {
@@ -498,20 +481,19 @@ export const getActivePick = async (
   }
 };
 
-export const fetchMostValuableUndraftedCard = async (draftId: number) => {
-  try {
-    const undraftedCards = await fetchUndraftedCards(draftId);
-    const mostValuableCard = undraftedCards.reduce(
-      (prev: CardDetails, current: CardDetails) => {
-        return prev.price.usd > current.price.usd ? prev : current;
-      },
-    );
-    return mostValuableCard;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch most valuable undrafted card');
-  }
-};
+async function getActivePickLocked(client: pg.PoolClient, draftId: number) {
+  const { rows: [slot] } = await client.query<DraftPick>(
+    `SELECT *
+       FROM PicksV5
+      WHERE draft_id = $1 AND card_id IS NULL
+      ORDER BY round ASC, pick_number ASC
+      FOR UPDATE SKIP LOCKED
+      LIMIT 1;`,
+    [draftId]
+  );
+  return slot ?? null;
+}
+
 
 const _fetchUndraftedCardsUncached = async (draftId: number) => {
   try {
@@ -550,44 +532,7 @@ export const fetchUndraftedCards = (draftId: number) => {
   )(draftId);
 };
 
-// export const fetchAutoDraftTime = async (draftId: number): Promise<number | null> => {
-//   try {
-//     const pick_time_seconds = await pool.query(`SELECT pick_time_seconds, auto_draft FROM draftsV2 WHERE draft_id = $1;`, [draftId]);
-//     const pick_time = pick_time_seconds.rows[0].pick_time_seconds;
-//     const auto_draft = pick_time_seconds.rows[0].auto_draft;
-//     if (auto_draft) {
-//       return pick_time;
-//     }
-//     return null;
-//   } catch (error) {
-//     console.error('Database Error:', error);
-//     throw new Error('Failed to fetch auto draft time');
-//   }
-// }
-
-// export const fetchDraftTimer = async (draftId: number): Promise<number | null> => {
-//   try {
-//     const draft = await pool.query(`SELECT pick_time_seconds, auto_draft, last_pick_timestamp FROM draftsV2 WHERE draft_id = $1;`, [draftId]);
-//     if (draft.rowCount === 0) {
-//       throw new Error('Draft not found');
-//     }
-//     if (!draft.rows[0].auto_draft) {
-//       return null;
-//     }
-//     const pick_time = draft.rows[0].pick_time_seconds;
-//     const last_pick_timestamp: Date = draft.rows[0].last_pick_timestamp;
-//     // add time to last_pick_timestamp to create return object
-//     last_pick_timestamp.setSeconds(last_pick_timestamp.getSeconds() + pick_time);
-
-//     return last_pick_timestamp.getTime();
-//   } catch (error) {
-//     console.error('Database Error:', error);
-//     throw new Error('Failed to fetch draft timer');
-//   }
-// }
-
 export async function pauseDraft(draftId: number, leagueId: number) {
-  'use client'
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -599,20 +544,20 @@ export async function pauseDraft(draftId: number, leagueId: number) {
       [draftId]
     );
     await client.query('COMMIT');
-    if (rowCount > 0) {
+    await broadcastDraft(draftId, 'paused', {});
+    if (rowCount) {
       revalidateTag(`draft-${draftId}-info`);
+      await cancelAutodraftIfScheduled(draftId);
     }
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
   } finally {
-    await broadcastDraft(draftId, 'paused', {});
     client.release();
   }
 }
 
 export async function resumeDraft(draftId: number) {
-  'use client'
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -632,11 +577,12 @@ export async function resumeDraft(draftId: number) {
     );
     await client.query('COMMIT');
     revalidateTag(`draft-${draftId}-info`);
+    await broadcastDraft(draftId, 'resumed', {});
+    await scheduleAutodraftOnce(draftId);           // <— add this
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
   } finally {
-    await broadcastDraft(draftId, 'resumed', {});
     client.release();
   }
 }
@@ -651,135 +597,6 @@ async function startNextTurn(client: pg.PoolClient, draftId: number) {
   );
 }
 
-// autodraft comparison function
-function cmpAuto(a: CardDetailsWithPoints, b: CardDetailsWithPoints): number {
-  // prefer the latest scorer
-  if (b.week !== a.week) return b.week - a.week;
-  // prefer the highest scorer
-  if (b.points !== a.points) return b.points - a.points;
-  // prefer the most expensive
-  const pa = priceUsd(a), pb = priceUsd(b);
-  if (pa !== pb) return pb - pa;
-  // alphabetical A-Z, case-insensitive
-  const n = a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
-  if (n !== 0) return n;
-  // final deterministic tiebreaker: lowest card_id wins
-  return num(a.card_id, Infinity) - num(b.card_id, Infinity);
-}
-
-export async function autoPickIfOverdue(draftId: number, leagueId: number) {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // 1) Lock the draft row and check timers
-    const { rows: [d] } = await client.query(
-      `SELECT current_pick_deadline_at, paused_at, pick_time_seconds, active FROM DraftsV4
-       WHERE draft_id = $1 FOR UPDATE;`,
-      [draftId]
-    );
-    if (!d) { await client.query('ROLLBACK'); return; }
-    if (d.paused_at) { await client.query('ROLLBACK'); return; }              // paused → do nothing
-    if (!d.active) { await client.query('ROLLBACK'); return; }              // inactive → done
-    if (!d.current_pick_deadline_at || new Date(d.current_pick_deadline_at) > new Date()) {
-      await client.query('ROLLBACK'); return;                                 // not overdue yet
-    }
-
-    // 2) Lock the current open slot (first unpicked)
-    const { rows: [slot] } = await client.query<DraftPick>(
-      `SELECT * FROM PicksV5
-         WHERE draft_id = $1 AND card_id IS NULL
-         ORDER BY round ASC, pick_number ASC
-         FOR UPDATE SKIP LOCKED
-         LIMIT 1;`,
-      [draftId]
-    );
-    if (!slot) {
-      // no open picks → mark inactive and exit
-      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
-      await client.query('COMMIT');
-      await updateCollectionWithCompleteDraft(draftId);
-      revalidateTag(`draft-${draftId}-info`);
-      return;
-    }
-
-    // 3) Build candidate list (UNCACHED to avoid stale reads)
-    const undrafted = await _fetchUndraftedCardsUncached(draftId);
-    if (!undrafted.length) {
-      await client.query('ROLLBACK'); return;                                  // nothing to pick (shouldn't happen)
-    }
-
-    // Enrich with points (your code, slightly tightened)
-    const undraftedIds = undrafted
-      .filter(c => c.card_id !== undefined && c.card_id !== -1)
-      .map(c => c.card_id as number);
-
-    const pointsRows = await fetchCardPerformances(undraftedIds, leagueId); // returns { card_id, total_points, week }
-    const withPoints: CardDetailsWithPoints[] = undrafted.map((c) => {
-      const p = pointsRows.find((r) => r.card_id === c.card_id);
-      return {
-        ...c,
-        points: p?.total_points ?? 0,
-        week: p?.week ?? -1,
-      };
-    });
-
-    // 4) Choose best by points → price → A-Z (deterministic)
-    withPoints.sort(cmpAuto);
-    const best = withPoints[0];
-    if (!best?.name) { await client.query('ROLLBACK'); return; }
-
-    // 5) Resolve/ensure card_id (your helper)
-    const cardId = best.card_id;
-    if (!cardId) { await client.query('ROLLBACK'); return; }
-
-    // 6) Atomically assign the pick (guard against races)
-    const { rowCount } = await client.query(
-      `UPDATE PicksV5
-          SET card_id = $1
-        WHERE draft_id = $2
-          AND round = $3
-          AND pick_number = $4
-          AND player_id = $5
-          AND card_id IS NULL;`,
-      [cardId, draftId, slot.round, slot.pick_number, slot.player_id]
-    );
-    if (rowCount === 0) {
-      // someone else picked in parallel
-      await client.query('ROLLBACK');
-      return;
-    }
-
-    await startNextTurn(client, draftId)
-
-    // 8) If no open picks remain, mark inactive
-    const { rows: [remain] } = await client.query(
-      `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
-      [draftId]
-    );
-    if (!remain.has_open) {
-      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
-    }
-
-    await client.query('COMMIT');
-
-    // 9) Post-commit side effects & cache busting
-    if (!remain.has_open) {
-      await updateCollectionWithCompleteDraft(draftId);
-      revalidateTag(`draft-${draftId}-info`);
-    }
-    revalidateTag(`draft-${draftId}-picks`);
-    revalidateTag(`draft-${draftId}-undrafted`);
-    // if your live page depends on server components:
-    revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
-  } catch (e) {
-    await client.query('ROLLBACK');
-    throw e;
-  } finally {
-    client.release();
-  }
-}
-
 export async function getPausedStatus(draftId: number): Promise<string> {
   const client = await pool.connect();
   try {
@@ -791,4 +608,178 @@ export async function getPausedStatus(draftId: number): Promise<string> {
   } finally {
     client.release();
   }
+}
+
+export async function fetchUndraftedWithPoints(
+  draftId: number,
+  leagueId: number
+): Promise<CardDetailsWithPoints[]> {
+  const undrafted = await _fetchUndraftedCardsUncached(draftId); // uncached on purpose
+  if (!undrafted.length) return [];
+
+  const ids = undrafted
+    .filter(c => c.card_id !== undefined && c.card_id !== -1)
+    .map(c => c.card_id as number);
+
+  const perf = await fetchCardPerformances(ids, leagueId); // [{card_id,total_points,week}]
+  return undrafted.map((c) => {
+    const p = perf.find(r => r.card_id === c.card_id);
+    return { ...c, points: p?.total_points ?? 0, week: p?.week ?? -1 };
+  });
+}
+
+async function assignPickIfStillOpen(
+  client: pg.PoolClient,
+  draftId: number,
+  pick: DraftPick,
+  cardId: number
+): Promise<number | null> {
+  const { rows, rowCount } = await client.query(
+    `UPDATE PicksV5
+        SET card_id = $1
+      WHERE draft_id = $2
+        AND round = $3
+        AND pick_number = $4
+        AND player_id = $5
+        AND card_id IS NULL
+      RETURNING pick_id;`,
+    [cardId, draftId, pick.round, pick.pick_number, pick.player_id]
+  );
+  return rowCount ? (rows[0].pick_id as number) : null;
+}
+
+async function markCompleteIfNoOpen(client: pg.PoolClient, draftId: number): Promise<boolean> {
+  const { rows: [remain] } = await client.query(
+    `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
+    [draftId]
+  );
+  if (!remain.has_open) {
+    await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
+    return true;
+  }
+  return false;
+}
+
+export async function autopickIfDue(draftId: number): Promise<void> {
+  const client = await pool.connect();
+  let pickId: number | null = null;
+  let cardId: number | null = null;
+  let leagueId: number | null = null;
+  let draftCompleted = false;
+
+  try {
+    await client.query('BEGIN');
+
+    const d = await lockDraftForTurn(client, draftId, "auto");
+    if (!d) { await client.query('ROLLBACK'); return; }
+
+    leagueId = d.league_id as number;
+
+    const pick = await getActivePickLocked(client, draftId);
+    if (!pick) {
+      draftCompleted = true;
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id = $1;`, [draftId]);
+      await client.query('COMMIT');
+      return;
+    }
+
+    const candidates = await fetchUndraftedWithPoints(draftId, leagueId);
+    if (!candidates.length) {
+      draftCompleted = true;
+      console.error('No cards left to draft for draftId:', draftId);
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id = $1;`, [draftId]);
+      await client.query('COMMIT');
+      return;
+    }
+
+    const sortedCandidates = sortCardsByPoints(candidates);
+    const best = sortedCandidates[0];
+    if (!best?.card_id) { await client.query('ROLLBACK'); return; }
+    cardId = best.card_id;
+
+    const maybePickId = await assignPickIfStillOpen(client, draftId, pick, cardId);
+    if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
+
+    pickId = maybePickId;
+
+    // done?
+    draftCompleted = await markCompleteIfNoOpen(client, draftId);
+    if (!draftCompleted) {
+      // advance deadline
+      await startNextTurn(client, draftId);
+      await scheduleAutodraftOnce(draftId);
+    }
+
+    await client.query('COMMIT');
+    await broadcastDraft(draftId, 'pick_made', { pickId, cardId, source: 'autodraft' });
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch { }
+    throw e;
+  } finally {
+    client.release();
+
+    // post-commit side effects (safe even if no-op)
+    if (leagueId != null) {
+      if (draftCompleted) {
+        await updateCollectionWithCompleteDraft(draftId);
+        await revalidateTag(`draft-${draftId}-info`);
+      }
+      await revalidateTag(`draft-${draftId}-picks`);
+      await revalidateTag(`draft-${draftId}-undrafted`);
+      await revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
+    }
+  }
+}
+
+// are we past deadline?
+function nowDue(deadline: string | null): boolean {
+  return !!deadline && new Date(deadline) <= new Date();
+}
+
+type LockMode = "auto" | "manual";
+
+type LockedDraft = {
+  league_id: number;
+  active: boolean;
+  paused_at: string | null;
+  current_pick_deadline_at: string | null;
+  pick_time_seconds: number;
+};
+
+/**
+ * Grabs a per-draft advisory lock and locks the draft row.
+ * - mode="auto": requires `active && !paused && isDue(deadline)`
+ * - mode="manual": requires `active && !paused` (deadline may be past; race will be decided by the slot UPDATE)
+ *
+ * Returns the locked draft row or null if preconditions fail (no throw).
+ */
+export async function lockDraftForTurn(
+  client: pg.PoolClient,
+  draftId: number,
+  mode: LockMode
+): Promise<LockedDraft | null> {
+  // Per-draft advisory lock (serialize all work on a draft)
+  const { rows: [lock] } = await client.query<{ locked: boolean }>(
+    `SELECT pg_try_advisory_xact_lock($1::bigint) AS locked;`,
+    [draftId]
+  );
+  if (!lock?.locked) return null;
+
+  // Lock the draft row
+  const { rows: [d] } = await client.query<LockedDraft>(
+    `SELECT league_id, active, paused_at, current_pick_deadline_at, pick_time_seconds
+       FROM DraftsV4
+      WHERE draft_id = $1
+      FOR UPDATE;`,
+    [draftId]
+  );
+  if (!d) return null;
+
+  // Shared guards
+  if (!d.active || d.paused_at) return null;
+
+  // Mode-specific guard
+  if (mode === "auto" && !nowDue(d.current_pick_deadline_at)) return null;
+
+  return d;
 }
