@@ -46,7 +46,6 @@ export default function AvailableCards({
   }, [searchTerm, sortedBy, filteredTypes]);
 
   const sortedCards = sortCards(sortedBy, undraftedCards);
-  console.log('Sorted cards:', sortedCards);
 
   const filteredCards = sortedCards.filter(
     (card: CardDetails) =>

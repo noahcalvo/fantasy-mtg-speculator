@@ -5,7 +5,6 @@ import pg from "pg";
 const qstash = new Client({ token: process.env.QSTASH_TOKEN! });
 
 export async function scheduleAutodraftOnce(client: pg.PoolClient, draftId: number, deadlineString: string) {
-  console.log(`Scheduling autopick for draft ${draftId}`);
   const deadline = new Date(deadlineString);
   if (!deadline) return null;
 
@@ -35,7 +34,6 @@ export async function scheduleAutodraftOnce(client: pg.PoolClient, draftId: numb
 }
 
 export async function cancelAutodraftIfScheduled(client: pg.PoolClient, draftId: number) {
-  console.log(`Cancelling autopick for draft ${draftId}`);
   const { rows: [d] } = await client.query(
     `SELECT qstash_message_id FROM DraftsV4 WHERE draft_id=$1`,
     [draftId]

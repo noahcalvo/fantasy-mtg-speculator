@@ -11,7 +11,6 @@ import { useDraftRealtime } from '@/app/lib/useDraftRealtime';
 import { createPickDeadline } from '@/app/lib/utils';
 
 function equalPicks(a: DraftPick[], b: DraftPick[]) {
-  console.log('equalPicks', a, b);
   if (a === b) return true;
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
@@ -98,10 +97,6 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
           );
           return next;
         });
-
-        console.log('pick time seconds', pickTime);
-        console.log('createPickDeadline', createPickDeadline(pickTime));
-        console.log('current_pick_deadline_at', deadlineAt);
 
         setDeadlineAt(createPickDeadline(pickTime));
         // fire-and-forget reconcile

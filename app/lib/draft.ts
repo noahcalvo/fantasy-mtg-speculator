@@ -269,8 +269,6 @@ export const redirectIfJoined = async (
 
 const addPicksTx = async (connection: pg.PoolClient, draftId: number, playerId: number, position: number, rounds: number) => {
   try {
-    console.log('Adding picks for draft:', draftId, 'for player:', playerId);
-    console.log('Draft rounds:', rounds, 'Pick number:', position);
     // add picks for each round for this player
     for (let i = 0; i < rounds; i++) {
       await connection.query(
@@ -352,7 +350,6 @@ export async function makePick(
     const slot = await getActivePickLocked(client, draftId);
     if (!slot) throw new Error('Draft complete');
     if (slot.player_id !== playerId) {
-      console.log('Not your turn:', playerId, 'vs', slot.player_id);
       throw new Error('Not your turn');
     }
 
@@ -724,7 +721,6 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     } else {
       await updateCollectionWithCompleteDraft(client, draftId);
     }
-    console.log("completed autodraft for", draftId, "pick:", pick.pick_id, "card:", ensuredCardId, "draftCompleted:", draftCompleted);
 
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { pickId, cardId: ensuredCardId, source: 'autodraft' });
