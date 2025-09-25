@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 const pool = new pg.Pool({ connectionString: process.env.POSTGRES_URL });
 
-export async function GET() {
+export async function POST() {
   const { rows } = await pool.query(
     `SELECT draft_id FROM DraftsV4
       WHERE active = true
