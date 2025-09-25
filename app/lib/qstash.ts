@@ -3,10 +3,7 @@ import { Client } from "@upstash/qstash";
 import pg from "pg";
 const pool = new pg.Pool({ connectionString: process.env.POSTGRES_URL });
 // Only instantiate if we’re in prod
-const qstash =
-  process.env.NODE_ENV === "development"
-    ? new Client({ token: process.env.QSTASH_TOKEN! })
-    : null;
+const qstash = new Client({ token: process.env.QSTASH_TOKEN! });
 
 export async function scheduleAutodraftOnce(draftId: number) {
   console.log(`Scheduling autopick for draft ${draftId}`);
