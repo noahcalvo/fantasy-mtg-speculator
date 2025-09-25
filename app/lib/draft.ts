@@ -719,8 +719,12 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     draftCompleted = await markCompleteIfNoOpen(client, draftId);
     if (!draftCompleted) {
       // advance deadline
-      await startNextTurn(client, draftId);
-      await scheduleAutodraftOnce(draftId);
+      const sideEffects = [
+        startNextTurn(client, draftId),
+        scheduleAutodraftOnce(draftId),
+        updateCollectionWithCompleteDraft(draftId)
+      ];
+      await Promise.all(sideEffects);
     }
 
     await client.query('COMMIT');
@@ -734,12 +738,11 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     // post-commit side effects (safe even if no-op)
     if (leagueId != null) {
       if (draftCompleted) {
-        await updateCollectionWithCompleteDraft(draftId);
-        await revalidateTag(`draft-${draftId}-info`);
+        revalidateTag(`draft-${draftId}-info`);
       }
-      await revalidateTag(`draft-${draftId}-picks`);
-      await revalidateTag(`draft-${draftId}-undrafted`);
-      await revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
+      revalidateTag(`draft-${draftId}-picks`);
+      revalidateTag(`draft-${draftId}-undrafted`);
+      revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
     }
   }
 }

@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { Receiver } from "@upstash/qstash";
 import { autopickIfDue } from "@/app/lib/draft"; // your tx from earlier
 
-export const runtime = "nodejs"; // we need Node to talk to Postgres
+export const runtime = 'nodejs';
+export const maxDuration = 30;
+
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
