@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const ok = await receiver.verify({
     signature,
     body: bodyText,
-    url: `${process.env.APP_BASE_URL}/api/makepick/poke`,
+    url: `${process.env.APP_BASE_URL}/api/autopick/poke`,
   });
   if (!ok) return new NextResponse("invalid signature", { status: 401 }); // hard fail
   const { draftId } = JSON.parse(bodyText) as { draftId: number };
