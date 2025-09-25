@@ -2,9 +2,7 @@ import {
   CardDetails,
   DraftPick,
   getCardTypesAbbreviation,
-  Player,
 } from '@/app/lib/definitions';
-import { fetchParticipantData } from '@/app/lib/player';
 import { fetchCard } from '@/app/lib/card';
 import PickCell from './pickCell';
 import { useEffect, useState } from 'react';
@@ -42,7 +40,7 @@ export default function DraftPickCell({
       cardType={cardType}
       paused={paused}
       timeLabel={timeLabel}
-      totalSeconds={totalSeconds}
+      low={false}
     />
   );
 }
