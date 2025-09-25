@@ -1,5 +1,6 @@
 'use server';
 import { sql } from '@vercel/postgres';
+import * as pg from 'pg';
 import {
   Card,
   CardDetails,
@@ -106,7 +107,7 @@ export async function fetchPlayerCollectionWithPerformance(
   }
 }
 
-export async function updateCollectionWithCompleteDraft(draftId: number) {
+export async function updateCollectionWithCompleteDraft(client: pg.PoolClient, draftId: number) {
   try {
     const leagueIdQuery =
       await sql`SELECT league_id FROM draftsV4 WHERE draft_id = ${draftId}`;
