@@ -718,12 +718,8 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     // done?
     draftCompleted = await markCompleteIfNoOpen(client, draftId);
     if (!draftCompleted) {
-      // advance deadline
-      const sideEffects = [
-        startNextTurn(client, draftId),
-        scheduleAutodraftOnce(draftId),
-      ];
-      await Promise.all(sideEffects);
+      await startNextTurn(client, draftId);
+      await scheduleAutodraftOnce(draftId);
     } else {
       await updateCollectionWithCompleteDraft(draftId)
     }
