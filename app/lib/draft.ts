@@ -368,7 +368,7 @@ export async function makePick(
     pickId = maybePickId;
 
     // Advance deadline for next turn
-    await startNextTurn(client, draftId);
+    const deadline = await startNextTurn(client, draftId);
 
     // If no more open picks, mark draft inactive
     const { rows: [remain] } = await client.query(
@@ -381,7 +381,7 @@ export async function makePick(
 
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
-    await scheduleAutodraftOnce(draftId);
+    await scheduleAutodraftOnce(draftId, deadline || "");
 
     // Post-commit side effects
     if (!remain.has_open) {
@@ -571,17 +571,18 @@ export async function resumeDraft(draftId: number) {
     if (!rows.length || !rows[0].paused_at) {
       await client.query('ROLLBACK'); return; // not paused
     }
-    await client.query(
+    const { rows: updatedRows } = await client.query<{ current_pick_deadline_at: string }>(
       `UPDATE DraftsV4
          SET current_pick_deadline_at = current_pick_deadline_at + (NOW() - paused_at),
              paused_at = NULL
-       WHERE draft_id = $1;`,
+       WHERE draft_id = $1
+       RETURNING current_pick_deadline_at;`,
       [draftId]
     );
     await client.query('COMMIT');
     revalidateTag(`draft-${draftId}-info`);
     await broadcastDraft(draftId, 'resumed', {});
-    await scheduleAutodraftOnce(draftId);           // <— add this
+    await scheduleAutodraftOnce(draftId, updatedRows[0]?.current_pick_deadline_at || "");
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -590,14 +591,16 @@ export async function resumeDraft(draftId: number) {
   }
 }
 
-async function startNextTurn(client: pg.PoolClient, draftId: number) {
+async function startNextTurn(client: pg.PoolClient, draftId: number): Promise<string | null> {
   // Use pick_time_seconds from the draft row
-  await client.query(
+  const { rows } = await client.query<{ current_pick_deadline_at: string }>(
     `UPDATE DraftsV4
        SET current_pick_deadline_at = NOW() + make_interval(secs => pick_time_seconds)
-     WHERE draft_id = $1;`,
+     WHERE draft_id = $1
+     RETURNING current_pick_deadline_at;`,
     [draftId]
   );
+  return rows[0]?.current_pick_deadline_at || null;
 }
 
 export async function getPausedStatus(draftId: number): Promise<string> {
@@ -718,8 +721,8 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     // done?
     draftCompleted = await markCompleteIfNoOpen(client, draftId);
     if (!draftCompleted) {
-      await startNextTurn(client, draftId);
-      await scheduleAutodraftOnce(draftId);
+      const deadline = await startNextTurn(client, draftId);
+      await scheduleAutodraftOnce(draftId, deadline || "");
     } else {
       await updateCollectionWithCompleteDraft(draftId)
     }

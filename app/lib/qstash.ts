@@ -5,13 +5,9 @@ const pool = new pg.Pool({ connectionString: process.env.POSTGRES_URL });
 // Only instantiate if we’re in prod
 const qstash = new Client({ token: process.env.QSTASH_TOKEN! });
 
-export async function scheduleAutodraftOnce(draftId: number) {
+export async function scheduleAutodraftOnce(draftId: number, deadlineString: string) {
   console.log(`Scheduling autopick for draft ${draftId}`);
-  const { rows: [d] } = await pool.query(
-    `SELECT current_pick_deadline_at FROM DraftsV4 WHERE draft_id=$1`,
-    [draftId]
-  );
-  const deadline = d?.current_pick_deadline_at && new Date(d.current_pick_deadline_at);
+  const deadline = new Date(deadlineString);
   if (!deadline) return null;
 
   // Add 2s grace
