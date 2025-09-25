@@ -381,7 +381,7 @@ export async function makePick(
 
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
-    await scheduleAutodraftOnce(draftId, deadline || "");
+    await scheduleAutodraftOnce(client, draftId, deadline || "");
 
     // Post-commit side effects
     if (!remain.has_open) {
@@ -550,7 +550,7 @@ export async function pauseDraft(draftId: number, leagueId: number) {
     await broadcastDraft(draftId, 'paused', {});
     if (rowCount) {
       revalidateTag(`draft-${draftId}-info`);
-      await cancelAutodraftIfScheduled(draftId);
+      await cancelAutodraftIfScheduled(client, draftId);
     }
   } catch (e) {
     await client.query('ROLLBACK');
@@ -582,7 +582,7 @@ export async function resumeDraft(draftId: number) {
     await client.query('COMMIT');
     revalidateTag(`draft-${draftId}-info`);
     await broadcastDraft(draftId, 'resumed', {});
-    await scheduleAutodraftOnce(draftId, updatedRows[0]?.current_pick_deadline_at || "");
+    await scheduleAutodraftOnce(client, draftId, updatedRows[0]?.current_pick_deadline_at || "");
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -677,9 +677,11 @@ export async function autopickIfDue(draftId: number): Promise<void> {
 
   try {
     await client.query('BEGIN');
+    console.log("begin autodraft for", draftId);
 
     const d = await lockDraftForTurn(client, draftId, "auto");
     if (!d) { await client.query('ROLLBACK'); return; }
+    console.log("locked draft for", draftId);
 
     leagueId = d.league_id as number;
 
@@ -690,6 +692,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
       await client.query('COMMIT');
       return;
     }
+    console.log("locked pick for", draftId, "pick:", pick.pick_id);
 
     const candidates = await fetchUndraftedWithPoints(draftId, leagueId);
     if (!candidates.length) {
@@ -699,6 +702,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
       await client.query('COMMIT');
       return;
     }
+    console.log("fetched candidates for", draftId, "count:", candidates.length);
 
     const sortedCandidates = sortCardsByPoints(candidates);
     const best = sortedCandidates[0];
@@ -708,6 +712,8 @@ export async function autopickIfDue(draftId: number): Promise<void> {
         ? best.card_id
         : await getOrCreateCardTx(client, { name: best.name, origin: best.set });
 
+    console.log("best candidate for", draftId, "is", best.name, "id:", ensuredCardId);
+
     if (!(ensuredCardId > 0)) {
       await client.query('ROLLBACK');
       throw new Error(`invalid card id for ${best.name}`);
@@ -715,6 +721,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
 
     const maybePickId = await assignPickIfStillOpen(client, draftId, pick, ensuredCardId);
     if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
+    console.log("assigned pick for", draftId, "pick:", pick.pick_id, "card:", ensuredCardId);
 
     pickId = maybePickId;
 
@@ -722,10 +729,11 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     draftCompleted = await markCompleteIfNoOpen(client, draftId);
     if (!draftCompleted) {
       const deadline = await startNextTurn(client, draftId);
-      await scheduleAutodraftOnce(draftId, deadline || "");
+      await scheduleAutodraftOnce(client, draftId, deadline || "");
     } else {
       await updateCollectionWithCompleteDraft(draftId)
     }
+    console.log("completed autodraft for", draftId, "pick:", pick.pick_id, "card:", ensuredCardId, "draftCompleted:", draftCompleted);
 
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { pickId, cardId, source: 'autodraft' });

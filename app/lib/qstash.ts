@@ -1,11 +1,10 @@
 // app/lib/qstash.ts
 import { Client } from "@upstash/qstash";
 import pg from "pg";
-const pool = new pg.Pool({ connectionString: process.env.POSTGRES_URL });
 // Only instantiate if we’re in prod
 const qstash = new Client({ token: process.env.QSTASH_TOKEN! });
 
-export async function scheduleAutodraftOnce(draftId: number, deadlineString: string) {
+export async function scheduleAutodraftOnce(client: pg.PoolClient, draftId: number, deadlineString: string) {
   console.log(`Scheduling autopick for draft ${draftId}`);
   const deadline = new Date(deadlineString);
   if (!deadline) return null;
@@ -28,16 +27,16 @@ export async function scheduleAutodraftOnce(draftId: number, deadlineString: str
     body: { draftId },
   });
 
-  await pool.query(
+  await client.query(
     `UPDATE DraftsV4 SET qstash_message_id = $2 WHERE draft_id = $1`,
     [draftId, res.messageId]
   );
   return res.messageId as string;
 }
 
-export async function cancelAutodraftIfScheduled(draftId: number) {
+export async function cancelAutodraftIfScheduled(client: pg.PoolClient, draftId: number) {
   console.log(`Cancelling autopick for draft ${draftId}`);
-  const { rows: [d] } = await pool.query(
+  const { rows: [d] } = await client.query(
     `SELECT qstash_message_id FROM DraftsV4 WHERE draft_id=$1`,
     [draftId]
   );
@@ -50,7 +49,7 @@ export async function cancelAutodraftIfScheduled(draftId: number) {
     return null;
   }
   try { await qstash.messages.delete(id); } catch { }
-  await pool.query(
+  await client.query(
     `UPDATE DraftsV4 SET qstash_message_id = NULL WHERE draft_id=$1`,
     [draftId]
   );

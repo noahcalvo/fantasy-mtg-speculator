@@ -12,6 +12,13 @@ const receiver = new Receiver({
 });
 
 export async function POST(req: Request) {
+  if (process.env.NODE_ENV === "development") {
+    const { searchParams } = new URL(req.url);
+    const draftId = Number(searchParams.get("draftId"));
+    await autopickIfDue(draftId);
+    return new NextResponse(null, { status: 204 });
+  }
+
   // 1) Verify signature from QStash
   const signature = req.headers.get("Upstash-Signature") ?? "";
   const bodyText = await req.text();
