@@ -215,52 +215,56 @@ export default function AvailableCards({
         <div className="grid grid-cols-2">
           <div>
             <div className="max-h-[25vh] overflow-scroll scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
-              {paginatedCards.map((card: CardDetailsWithPoints) => (
-                <div
-                  key={card.name}
-                  onClick={(e) => handleNameClicked(e, card)}
-                  className="cursor-pointer"
-                >
+              {paginatedCards.length == 0 ? (
+                <p className="p-4 text-gray-50">No cards available</p>
+              ) : (
+                paginatedCards.map((card: CardDetailsWithPoints) => (
                   <div
-                    className={`line-clamp-3 flex px-2 py-1 leading-6 ${
-                      expandedCard === card.name
-                        ? 'bg-gray-50 text-gray-950'
-                        : ''
-                    }`}
+                    key={card.name}
+                    onClick={(e) => handleNameClicked(e, card)}
+                    className="cursor-pointer"
                   >
-                    <div className="w-full">
-                      <div className="line-clamp-1 text-sm">{card.name}</div>
-                      {sortedBy === 'points' ? (
-                        card.points ? (
-                          <div className="flex w-full place-content-between text-sm">
-                            <div>
-                              pts:
-                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
-                                {card.points}
-                              </span>
+                    <div
+                      className={`line-clamp-3 flex px-2 py-1 leading-6 ${
+                        expandedCard === card.name
+                          ? 'bg-gray-50 text-gray-950'
+                          : ''
+                      }`}
+                    >
+                      <div className="w-full">
+                        <div className="line-clamp-1 text-sm">{card.name}</div>
+                        {sortedBy === 'points' ? (
+                          card.points ? (
+                            <div className="flex w-full place-content-between text-sm">
+                              <div>
+                                pts:
+                                <span className="rounded-md bg-red-900 px-1 text-gray-50">
+                                  {card.points}
+                                </span>
+                              </div>
+                              <div>
+                                week:
+                                <span className="rounded-md bg-red-900 px-1 text-gray-50">
+                                  {card.week == -1 ? 0 : card.week}
+                                </span>
+                              </div>
                             </div>
-                            <div>
-                              week:
-                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
-                                {card.week == -1 ? 0 : card.week}
-                              </span>
-                            </div>
-                          </div>
+                          ) : (
+                            <div className="text-sm">no point data found</div>
+                          )
                         ) : (
-                          <div className="text-sm">no point data found</div>
-                        )
-                      ) : (
-                        <div className="text-sm">
-                          {card.price.usd
-                            ? '$' + card.price.usd
-                            : 'no price data found'}
-                        </div>
-                      )}
+                          <div className="text-sm">
+                            {card.price.usd
+                              ? '$' + card.price.usd
+                              : 'no price data found'}
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    <hr className="my-2 border-gray-950" />
                   </div>
-                  <hr className="my-2 border-gray-950" />
-                </div>
-              ))}
+                ))
+              )}
             </div>
             <div className="mt-2 flex gap-2">
               <button

@@ -1,4 +1,3 @@
-// app/api/autodraft/poke/route.ts
 import { NextResponse } from "next/server";
 import { Receiver } from "@upstash/qstash";
 import { autopickIfDue } from "@/app/lib/draft"; // your tx from earlier
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
   const ok = await receiver.verify({
     signature,
     body: bodyText,
-    url: `${process.env.APP_BASE_URL}/api/autodraft/poke`,
+    url: `${process.env.APP_BASE_URL}/api/makepick/poke`,
   });
   if (!ok) return new NextResponse("invalid signature", { status: 401 }); // hard fail
   const { draftId } = JSON.parse(bodyText) as { draftId: number };

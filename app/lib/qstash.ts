@@ -28,7 +28,7 @@ export async function scheduleAutodraftOnce(draftId: number) {
   }
 
   const res = await qstash.publishJSON({
-    url: `${process.env.APP_BASE_URL}/api/autodraft/poke`,
+    url: `${process.env.APP_BASE_URL}/api/makepick/poke`,
     notBefore: Math.floor(scheduledAt.getTime() / 1000), // run at deadline
     method: "POST",
     body: { draftId },

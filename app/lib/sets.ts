@@ -42,6 +42,9 @@ export async function fetchSet(set: string): Promise<CardDetails[]> {
   );
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
     throw new Error(`HTTP error! status: ${response.status} set: ${set}`);
   }
 
