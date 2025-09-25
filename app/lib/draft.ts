@@ -722,9 +722,10 @@ export async function autopickIfDue(draftId: number): Promise<void> {
       const sideEffects = [
         startNextTurn(client, draftId),
         scheduleAutodraftOnce(draftId),
-        updateCollectionWithCompleteDraft(draftId)
       ];
       await Promise.all(sideEffects);
+    } else {
+      await updateCollectionWithCompleteDraft(draftId)
     }
 
     await client.query('COMMIT');
