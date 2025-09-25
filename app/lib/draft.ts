@@ -637,6 +637,8 @@ async function assignPickIfStillOpen(
   pick: DraftPick,
   cardId: number
 ): Promise<number | null> {
+  if (!(cardId > 0)) throw new Error('cardId must be > 0 before insert');
+
   const { rows, rowCount } = await client.query(
     `UPDATE PicksV5
         SET card_id = $1
@@ -698,13 +700,17 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     const sortedCandidates = sortCardsByPoints(candidates);
     const best = sortedCandidates[0];
     if (!best?.card_id) { await client.query('ROLLBACK'); return; }
-    cardId = best.card_id;
-    if (cardId === -1) {
-      // create the card
-      cardId = await getOrCreateCard(best.name, best.set);
+    const ensuredCardId =
+      best.card_id > 0
+        ? best.card_id
+        : await getOrCreateCardTx(client, { name: best.name, origin: best.set });
+
+    if (!(ensuredCardId > 0)) {
+      await client.query('ROLLBACK');
+      throw new Error(`invalid card id for ${best.name}`);
     }
 
-    const maybePickId = await assignPickIfStillOpen(client, draftId, pick, cardId);
+    const maybePickId = await assignPickIfStillOpen(client, draftId, pick, ensuredCardId);
     if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
 
     pickId = maybePickId;
