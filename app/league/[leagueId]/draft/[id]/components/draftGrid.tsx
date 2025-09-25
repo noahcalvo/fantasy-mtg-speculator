@@ -77,8 +77,6 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
         fetchData();
       },
       pick_made: (msg?: any) => {
-        // If your hook doesn't pass the payload through yet,
-        // change it so it forwards the server message.
         try {
           const { pickId, cardId } = msg || {};
           if (pickId) {

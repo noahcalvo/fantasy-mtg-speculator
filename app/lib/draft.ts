@@ -399,61 +399,64 @@ export async function makePick(
   }
 }
 
-export const getOrCreateCard = async (cardName: string, set: string) => {
-  console.error('Getting or creating card:', cardName, set);
-  try {
-    // Handle "front // back" with or without spaces around //
-    const frontSideName = cardName.split(/\s*\/\/\s*/)[0].trim();
-    console.error('one more shot', frontSideName);
+function frontSide(cardName: string) {
+  return cardName.split(/\s*\/\/\s*/)[0].trim();
+}
 
-    // 1) Try exact front side (common for DFCs stored as front only)
-    const existingCard = await pool.query<Card>(
-      `SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
-      [frontSideName],
-    );
-    console.error('Existing card:', existingCard);
-    if (existingCard.rows.length > 0) {
-      if (existingCard.rows[0].name !== cardName) {
-        // upgrade stored name to full DFC name
-        await pool.query(`UPDATE cards SET name = $1 WHERE card_id = $2;`, [
-          cardName,
-          existingCard.rows[0].card_id,
-        ]);
-      }
-      return existingCard.rows[0].card_id;
+export async function createCardTx(
+  connection: pg.PoolClient,
+  { name, origin }: { name: string; origin: string }
+): Promise<number> {
+  // If you can, add a UNIQUE constraint (see note below) and switch to ON CONFLICT.
+  const { rows } = await connection.query<{ card_id: number }>(
+    `INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id`,
+    [name, origin]
+  );
+  return rows[0].card_id;
+}
+
+/** Get by name (case-insensitive), upgrade to full DFC name if needed. */
+export async function getOrCreateCardTx(
+  connection: pg.PoolClient,
+  { name, origin }: { name: string; origin: string }
+): Promise<number> {
+  const front = frontSide(name);
+
+  // 1) Try exact front (typical when DB has only front side)
+  let q = await connection.query(
+    `SELECT card_id, name FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
+    [front]
+  );
+  if (q.rows.length) {
+    const row = q.rows[0] as { card_id: number; name: string };
+    if (row.name !== name) {
+      await connection.query(`UPDATE cards SET name = $1 WHERE card_id = $2`, [name, row.card_id]);
     }
-
-    // 2) If not a DFC name, just create it
-    if (frontSideName === cardName) {
-      const newCard = await pool.query<{ card_id: number }>(
-        `INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`,
-        [cardName, set],
-      );
-      console.debug('New card created:', newCard);
-      return newCard.rows[0].card_id; // ✅ return here
-    }
-
-    // 3) Try full DFC name
-    const existingDoubleFaceCard = await pool.query<Card>(
-      `SELECT * FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
-      [cardName],
-    );
-    if (existingDoubleFaceCard.rows.length > 0) {
-      return existingDoubleFaceCard.rows[0].card_id;
-    }
-
-    // 4) Create full DFC name
-    const newCard = await pool.query<{ card_id: number }>(
-      `INSERT INTO cards (name, origin) VALUES ($1, $2) RETURNING card_id;`,
-      [cardName, set],
-    );
-    console.debug('New card created:', newCard);
-    return newCard.rows[0].card_id; // ✅ THIS WAS MISSING
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error(`Failed to get or create card: ${error}`);
+    return row.card_id;
   }
-};
+
+  // 2) If not DFC (front === full), create new
+  if (front === name) return await createCardTx(connection, { name, origin });
+
+  // 3) Try full DFC name
+  q = await connection.query(
+    `SELECT card_id FROM cards WHERE LOWER(name) = LOWER($1) LIMIT 1`,
+    [name]
+  );
+  if (q.rows.length) return q.rows[0].card_id as number;
+
+  // 4) Create full DFC name
+  return await createCardTx(connection, { name, origin });
+}
+
+export async function getOrCreateCard(name: string, origin: string): Promise<number> {
+  const client = await pool.connect();
+  try {
+    return await getOrCreateCardTx(client, { name, origin });
+  } finally {
+    client.release();
+  }
+}
 
 export const getActivePick = async (
   draftId: number,
@@ -696,6 +699,10 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     const best = sortedCandidates[0];
     if (!best?.card_id) { await client.query('ROLLBACK'); return; }
     cardId = best.card_id;
+    if (cardId === -1) {
+      // create the card
+      cardId = await getOrCreateCard(best.name, best.set);
+    }
 
     const maybePickId = await assignPickIfStillOpen(client, draftId, pick, cardId);
     if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
