@@ -14,6 +14,7 @@ export default function PickCell({
   paused,
   timeLabel,
   totalSeconds,
+  low,
 }: {
   picksTilActive: number;
   cardData: CardDetails | null;
@@ -22,9 +23,9 @@ export default function PickCell({
   paused?: boolean;
   timeLabel?: string; // e.g., "0:43" or "Paused"
   totalSeconds?: number; // remaining seconds
+  low: boolean; // true if less than 30 seconds remaining
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const low = (totalSeconds ?? 0) <= 10; // go red in last 10s
   const isActive = picksTilActive == 0;
   return (
     (!pick?.card_id && (

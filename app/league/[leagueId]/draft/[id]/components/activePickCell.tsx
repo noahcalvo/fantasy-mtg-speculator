@@ -31,6 +31,10 @@ export default function ActivePickCell({
 
   const { totalSeconds, mmss } = useCountdown(deadlineAt, pausedAt);
 
+  const message = deadlineAt ? mmss : 'ready?';
+
+  const low = Boolean(deadlineAt && totalSeconds <= 30);
+
   const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
   return (
     <PickCell
@@ -39,8 +43,9 @@ export default function ActivePickCell({
       pick={pick}
       cardType={cardType}
       paused={pausedAt !== null}
-      timeLabel={mmss}
+      timeLabel={message}
       totalSeconds={totalSeconds}
+      low={low}
     />
   );
 }

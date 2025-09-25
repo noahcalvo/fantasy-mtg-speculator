@@ -1,6 +1,6 @@
 'use server';
 
-import { Card, CardDetails, CardDetailsWithPoints, Draft, DraftPick, num } from './definitions';
+import { CardDetails, CardDetailsWithPoints, Draft, DraftPick } from './definitions';
 import { z } from 'zod';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -319,6 +319,8 @@ const _fetchPicksUncached = async (draftId: number) => {
   }
 };
 
+export const fetchPicksUncached = _fetchPicksUncached;
+
 export const fetchPicks = (draftId: number) => {
   return unstable_cache(
     _fetchPicksUncached,
@@ -343,7 +345,6 @@ export async function makePick(
   try {
     await client.query('BEGIN');
 
-    // ✅ shared lock/guards (active + not paused). Manual does NOT require overdue.
     const d = await lockDraftForTurn(client, draftId, "manual");
     if (!d) throw new Error('Draft not available for picking (paused/inactive/locked)');
 
@@ -355,19 +356,16 @@ export async function makePick(
       throw new Error('Not your turn');
     }
 
-    cardId = await getOrCreateCard(cardName, set);
-    if (!cardId) throw new Error('Card not found/created');
+    cardId = await getOrCreateCardTx(client, { name: cardName, origin: set });
 
     // Race-safe assignment: if autopick (or another tab) won, this returns null
     const maybePickId = await assignPickIfStillOpen(client, draftId, slot, cardId);
     if (!maybePickId) {
       await client.query('ROLLBACK');
-      // Optionally fetch the winning pick for UX here
       return;
     }
     pickId = maybePickId;
 
-    // Advance deadline for next turn
     const deadline = await startNextTurn(client, draftId);
 
     // If no more open picks, mark draft inactive
@@ -514,7 +512,7 @@ const _fetchUndraftedCardsUncached = async (draftId: number) => {
 
     const undraftedCards = cards.filter(
       (card: CardDetails) =>
-        !draftedCardNames.includes(card.name) &&
+        !(draftedCardNames.includes(card.name) || draftedCardNames.includes(frontSide(card.name))) &&
         !alreadyOwnedCards.some((ownedCard) => ownedCard.name === card.name),
     );
     return undraftedCards;
@@ -671,7 +669,6 @@ async function markCompleteIfNoOpen(client: pg.PoolClient, draftId: number): Pro
 export async function autopickIfDue(draftId: number): Promise<void> {
   const client = await pool.connect();
   let pickId: number | null = null;
-  let cardId: number | null = null;
   let leagueId: number | null = null;
   let draftCompleted = false;
 
@@ -730,7 +727,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     console.log("completed autodraft for", draftId, "pick:", pick.pick_id, "card:", ensuredCardId, "draftCompleted:", draftCompleted);
 
     await client.query('COMMIT');
-    await broadcastDraft(draftId, 'pick_made', { pickId, cardId, source: 'autodraft' });
+    await broadcastDraft(draftId, 'pick_made', { pickId, cardId: ensuredCardId, source: 'autodraft' });
   } catch (e) {
     try { await client.query('ROLLBACK'); } catch { }
     throw e;

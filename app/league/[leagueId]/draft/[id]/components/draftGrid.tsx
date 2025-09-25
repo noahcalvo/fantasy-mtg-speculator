@@ -1,30 +1,51 @@
 'use client';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DraftPick, Player } from '@/app/lib/definitions';
 import DraftPickCell from './draftPickCell';
 import { getActivePick } from '@/app/lib/clientActions';
-import { fetchDraft, fetchPicks } from '@/app/lib/draft';
+import { fetchDraft, fetchPicks, fetchPicksUncached } from '@/app/lib/draft';
 import { notFound } from 'next/navigation';
 import { fetchMultipleParticipantData } from '@/app/lib/player';
 import ActivePickCell from './activePickCell';
 import { useDraftRealtime } from '@/app/lib/useDraftRealtime';
-import { set } from 'date-fns';
 import { createPickDeadline } from '@/app/lib/utils';
+
+function equalPicks(a: DraftPick[], b: DraftPick[]) {
+  console.log('equalPicks', a, b);
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    // compare stable fields that matter for rendering
+    if (
+      a[i].pick_id !== b[i].pick_id ||
+      a[i].card_id !== b[i].card_id ||
+      a[i].round !== b[i].round ||
+      a[i].pick_number !== b[i].pick_number ||
+      a[i].player_id !== b[i].player_id
+    )
+      return false;
+  }
+  return true;
+}
 
 const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [participants, setParticipants] = useState<Player[]>([]);
-  const [rounds, setRounds] = useState(0);
-  const [activePick, setActivePick] = useState<DraftPick | undefined>();
   const [connectionIssue, setConnectionIssue] = useState(false);
   const [deadlineAt, setDeadlineAt] = useState('0');
   const [pausedAt, setPausedAt] = useState<string | null>(null);
   const [pickTime, setPickTime] = useState(0);
 
+  const rounds = useMemo(
+    () => (picks.length ? Math.max(...picks.map((p) => p.round)) + 1 : 0),
+    [picks],
+  );
+  const activePick = useMemo(() => getActivePick(picks), [picks]);
+
   // Stable fetcher so our WS handlers don't capture stale closures
   const fetchData = useCallback(async () => {
     try {
-      const newPicks = await fetchPicks(draftId);
+      const newPicks = await fetchPicksUncached(draftId);
       const draft = await fetchDraft(draftId);
       if (!draft) notFound();
       setDeadlineAt(draft.current_pick_deadline_at);
@@ -34,16 +55,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
         draft.participants,
       );
 
-      // Update picks + derived state if changed
-      setPicks((prev) => {
-        if (JSON.stringify(newPicks) !== JSON.stringify(prev)) {
-          const newRounds = Math.max(0, ...newPicks.map((p) => p.round)) + 1;
-          setRounds(newRounds);
-          setActivePick(getActivePick(newPicks));
-          return newPicks;
-        }
-        return prev;
-      });
+      setPicks((prev) => (equalPicks(prev, newPicks) ? prev : newPicks));
 
       // Update participants if changed
       setParticipants((prev) => {
@@ -77,46 +89,23 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
         fetchData();
       },
       pick_made: (msg?: any) => {
-        try {
-          const { pickId, cardId } = msg || {};
-          if (pickId) {
-            // optimistic update immediately
-            let nextPickNumber = -1;
-            let nextPickRound = -1;
-            let updatedPicks = picks.map((p) => {
-              if (p.pick_id === pickId) {
-                nextPickNumber =
-                  p.pick_number === participants.length - 1
-                    ? 0
-                    : p.pick_number + 1;
-                nextPickRound =
-                  p.pick_number === participants.length - 1
-                    ? p.round + 1
-                    : p.round;
-                return {
-                  pick_id: p.pick_id,
-                  draft_id: p.draft_id,
-                  round: p.round,
-                  player_id: p.player_id,
-                  card_id: cardId,
-                  pick_number: p.pick_number,
-                };
-              }
-              if (
-                p.pick_number === nextPickNumber &&
-                p.round === nextPickRound
-              ) {
-                setActivePick(p);
-              }
-              return p;
-            });
-            setPicks(updatedPicks);
-            setDeadlineAt(createPickDeadline(pickTime));
-            fetchData();
-          }
-        } catch {
-          fetchData();
-        }
+        const { pickId, cardId } = msg || {};
+        if (!pickId) return fetchData();
+
+        setPicks((prev) => {
+          const next = prev.map((p) =>
+            p.pick_id === pickId ? { ...p, card_id: cardId } : p,
+          );
+          return next;
+        });
+
+        console.log('pick time seconds', pickTime);
+        console.log('createPickDeadline', createPickDeadline(pickTime));
+        console.log('current_pick_deadline_at', deadlineAt);
+
+        setDeadlineAt(createPickDeadline(pickTime));
+        // fire-and-forget reconcile
+        fetchData();
       },
       draft_complete: () => fetchData(),
       onConnectionIssue: setConnectionIssue,

@@ -46,6 +46,7 @@ export default function AvailableCards({
   }, [searchTerm, sortedBy, filteredTypes]);
 
   const sortedCards = sortCards(sortedBy, undraftedCards);
+  console.log('Sorted cards:', sortedCards);
 
   const filteredCards = sortedCards.filter(
     (card: CardDetails) =>
@@ -234,13 +235,21 @@ export default function AvailableCards({
                       <div className="w-full">
                         <div className="line-clamp-1 text-sm">{card.name}</div>
                         {sortedBy === 'points' ? (
-                          card.points ? (
+                          card.points != 0 || card.week > -1 ? (
                             <div className="flex w-full place-content-between text-sm">
                               <div>
-                                pts:
-                                <span className="rounded-md bg-red-900 px-1 text-gray-50">
-                                  {card.points}
-                                </span>
+                                {card.points != 0 ? (
+                                  <p>
+                                    pts:
+                                    <span className="rounded-md bg-red-900 px-1 text-gray-50">
+                                      {card.points}
+                                    </span>
+                                  </p>
+                                ) : (
+                                  <p className="mx-2 rounded-md bg-red-900 px-1 text-gray-50">
+                                    no points scored in your league settings
+                                  </p>
+                                )}
                               </div>
                               <div>
                                 week:

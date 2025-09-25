@@ -11,7 +11,7 @@ const receiver = new Receiver({
   nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY!,
 });
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   if (process.env.NODE_ENV === "development") {
     const { searchParams } = new URL(req.url);
     const draftId = Number(searchParams.get("draftId"));
