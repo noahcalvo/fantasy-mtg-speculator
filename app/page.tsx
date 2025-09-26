@@ -40,7 +40,7 @@ export default function Page() {
           <div>
             <p className="mb-4 w-full text-lg text-gray-800">Why Spec?</p>
             <p className="text-gray-600">
-              We bring MTG fans together through speculation, competition, and
+              We bring MTG fans together through meta analysis, competition, and
               community.
             </p>
           </div>

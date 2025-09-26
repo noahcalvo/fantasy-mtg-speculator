@@ -355,6 +355,11 @@ export async function makePick(
 
     cardId = await getOrCreateCardTx(client, { name: cardName, origin: set });
 
+    if (!(cardId > 0)) {
+      await client.query('ROLLBACK');
+      throw new Error(`invalid card id for ${cardName}`);
+    }
+
     // Race-safe assignment: if autopick (or another tab) won, this returns null
     const maybePickId = await assignPickIfStillOpen(client, draftId, slot, cardId);
     if (!maybePickId) {
@@ -712,33 +717,35 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
 
     pickId = maybePickId;
+    const deadline = await startNextTurn(client, draftId);
 
-    // done?
-    draftCompleted = await markCompleteIfNoOpen(client, draftId);
-    if (!draftCompleted) {
-      const deadline = await startNextTurn(client, draftId);
-      await scheduleAutodraftOnce(client, draftId, deadline || "");
-    } else {
-      await updateCollectionWithCompleteDraft(client, draftId);
+    // If no more open picks, mark draft inactive
+    const { rows: [remain] } = await client.query(
+      `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
+      [draftId]
+    );
+    if (!remain.has_open) {
+      await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
     }
 
     await client.query('COMMIT');
-    await broadcastDraft(draftId, 'pick_made', { pickId, cardId: ensuredCardId, source: 'autodraft' });
+    await broadcastDraft(draftId, 'pick_made', { ensuredCardId, pickId });
+    await scheduleAutodraftOnce(client, draftId, deadline || "");
+
+
+    // Post-commit side effects
+    if (!remain.has_open) {
+      await updateCollectionWithCompleteDraft(client, draftId);
+      revalidateTag(`draft-${draftId}-info`);
+    }
+    revalidateTag(`draft-${draftId}-picks`);
+    revalidateTag(`draft-${draftId}-undrafted`);
+    revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
   } catch (e) {
-    try { await client.query('ROLLBACK'); } catch { }
+    await client.query('ROLLBACK');
     throw e;
   } finally {
     client.release();
-
-    // post-commit side effects (safe even if no-op)
-    if (leagueId != null) {
-      if (draftCompleted) {
-        revalidateTag(`draft-${draftId}-info`);
-      }
-      revalidateTag(`draft-${draftId}-picks`);
-      revalidateTag(`draft-${draftId}-undrafted`);
-      revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
-    }
   }
 }
 

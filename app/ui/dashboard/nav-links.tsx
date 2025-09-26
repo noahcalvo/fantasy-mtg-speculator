@@ -50,7 +50,7 @@ export default function NavLinks({
         key={'Home'}
         href={'/dashboard'}
         className={clsx(
-          'flex h-[48px] grow items-center justify-center gap-2 rounded-md border p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+          'text-md flex h-[48px] grow items-center justify-center gap-2 rounded-md border p-3 font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
           {
             'border-gray-50 bg-gray-950 text-gray-50':
               pathname === '/dashboard',
@@ -65,7 +65,7 @@ export default function NavLinks({
         <button
           onClick={toggleDropdown}
           className={clsx(
-            'flex h-[48px] w-full items-center justify-center gap-2 rounded-md border p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+            'text-md flex h-[48px] w-full items-center justify-center gap-2 rounded-md border p-3 font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
             {
               'border-gray-50 bg-gray-950 text-gray-50':
                 pathname.includes('/league'),
@@ -89,14 +89,14 @@ export default function NavLinks({
           />
         </button>
         {isDropdownOpen && (
-          <div className="absolute z-10 mt-2 w-full space-y-2 md:relative">
+          <div className="absolute mt-2 w-full space-y-2 md:relative">
             {joinedLeagues.map((league) => (
               <Link
                 key={league.league_id}
                 href={`/league/${league.league_id}/standings`}
                 onClick={handleLeagueClick}
                 className={clsx(
-                  'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 text-md font-medium shadow-lg shadow-gray-950 hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                  'text-md z-60 ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 font-medium shadow-lg shadow-gray-950 hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
                   {
                     'border-gray-50 bg-gray-950 text-gray-50':
                       leagueId === league.league_id,
@@ -113,7 +113,7 @@ export default function NavLinks({
               href={`/league/new`}
               onClick={handleLeagueClick}
               className={clsx(
-                'ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border bg-gray-50 p-3 text-md font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
+                'text-md ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border bg-gray-50 p-3 font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',
                 {
                   'border-gray-50 bg-gray-950 text-gray-50':
                     pathname === '/league/new',
