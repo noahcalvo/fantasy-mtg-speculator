@@ -729,7 +729,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     }
 
     await client.query('COMMIT');
-    await broadcastDraft(draftId, 'pick_made', { ensuredCardId, pickId });
+    await broadcastDraft(draftId, 'pick_made', { cardId: ensuredCardId, pickId });
     await scheduleAutodraftOnce(client, draftId, deadline || "");
 
 
