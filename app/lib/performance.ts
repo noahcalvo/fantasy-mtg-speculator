@@ -528,8 +528,10 @@ export async function fetchCardPerformances(
     // Get the custom scoring options for this league
     const scoringOptions = await fetchScoringOptions(leagueId);
 
-    // Fetch raw performance data
-    const rawPerformanceData = await fetchRawPerformanceData(cardIds);
+    let rawPerformanceData: RawPerformanceData[] = []
+    if (scoringOptions.length > 0) {
+      rawPerformanceData = await fetchRawPerformanceData(cardIds);
+    }
 
     // Calculate points and format the response
     const cardsWithPoints = calculatePointsFromPerformances(

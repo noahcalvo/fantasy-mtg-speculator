@@ -18,7 +18,7 @@ export default function LeagueMenu({
     pathname,
   );
   return (
-    <div>
+    <div className="sticky top-0 z-30">
       <div className="flex max-w-full overflow-x-auto">
         <DarkNavTab
           name="League"

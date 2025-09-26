@@ -6,19 +6,18 @@ import {
 import { fetchCard } from '@/app/lib/card';
 import PickCell from './pickCell';
 import { useEffect, useState } from 'react';
+import { useCountdown } from './useCountdown';
 
-export default function DraftPickCell({
+export default function ActivePickCell({
   pick,
   picksTilActive,
-  paused,
-  timeLabel,
-  totalSeconds,
+  pausedAt,
+  deadlineAt,
 }: {
   pick: DraftPick;
   picksTilActive: number;
-  paused?: boolean;
-  timeLabel?: string; // e.g., "0:43" or "Paused"
-  totalSeconds?: number; // remaining seconds
+  pausedAt?: string | null;
+  deadlineAt?: string | null;
 }) {
   const [cardData, setCardData] = useState<CardDetails | null>(null);
 
@@ -30,17 +29,23 @@ export default function DraftPickCell({
     }
   }, [pick]);
 
-  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
+  const { totalSeconds, mmss } = useCountdown(deadlineAt, pausedAt);
 
+  const message = deadlineAt ? mmss : 'ready?';
+
+  const low = Boolean(deadlineAt && totalSeconds <= 30);
+
+  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
   return (
     <PickCell
       picksTilActive={picksTilActive}
       cardData={cardData}
       pick={pick}
       cardType={cardType}
-      paused={paused}
-      timeLabel={timeLabel}
-      low={false}
+      paused={pausedAt !== null}
+      timeLabel={message}
+      totalSeconds={totalSeconds}
+      low={low}
     />
   );
 }

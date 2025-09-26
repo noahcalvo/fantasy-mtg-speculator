@@ -85,6 +85,9 @@ export type Draft = {
   name: string;
   rounds: number;
   league_id: number;
+  paused_at: string;
+  current_pick_deadline_at: string;
+  pick_time_seconds: number;
 };
 
 export type DraftPick = {
@@ -391,3 +394,8 @@ export type format =
   | 'premodern';
 
 export const supportedFormats: format[] = ['modern', 'standard'];
+
+export function num(v: unknown, fallback = 0): number {
+  const n = typeof v === 'number' ? v : parseFloat(String(v ?? ''));
+  return Number.isFinite(n) ? n : fallback;
+}

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   CardDetails,
   CardDetailsWithPoints,
@@ -9,7 +9,9 @@ import {
 } from '@/app/lib/definitions';
 import Image from 'next/image';
 import { routeToCardPageById, routeToCardPageByName } from '@/app/lib/routing';
-import { makePick } from '@/app/lib/draft';
+import { getActivePick, makePick } from '@/app/lib/draft';
+import { useDraftRealtime } from './useDraftRealtime';
+import { sortCardsByPoints, sortCardsByPrice } from '@/app/lib/utils';
 
 type SortBy = 'price' | 'points';
 
@@ -20,6 +22,7 @@ export default function AvailableCards({
   draftId,
   set,
   leagueId,
+  isPaused,
 }: {
   undraftedCards: CardDetailsWithPoints[];
   playerId: number;
@@ -27,6 +30,7 @@ export default function AvailableCards({
   draftId: number;
   set: string;
   leagueId: number;
+  isPaused: boolean;
 }) {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +38,8 @@ export default function AvailableCards({
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const cardsPerPage = 15;
   const [filteredTypes, setFilteredTypes] = useState<string[]>([]);
+  const [paused, setPaused] = useState(isPaused);
+  const [isActiveDrafter, setIsActiveDrafter] = useState(activeDrafter);
 
   useEffect(() => {
     setPage(0);
@@ -54,10 +60,15 @@ export default function AvailableCards({
     page * cardsPerPage,
     (page + 1) * cardsPerPage,
   );
-
   const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
-
   const types = getRosterPositions();
+
+  const pickDisabled = !isActiveDrafter || paused;
+  const pickDisabledReason = !isActiveDrafter
+    ? 'Not your turn'
+    : paused
+      ? 'Draft paused'
+      : '';
 
   const expandedCardDisplay = expandedCard ? (
     undraftedCards
@@ -86,11 +97,12 @@ export default function AvailableCards({
             />
             <button
               className={`mx-2 mt-2 rounded-md border border-gray-950 p-2 text-gray-950 ${
-                activeDrafter
-                  ? 'bg-gray-50 hover:bg-red-800 hover:text-gray-50'
-                  : 'bg-gray-500 text-gray-50'
+                pickDisabled
+                  ? 'bg-gray-500 text-gray-50'
+                  : 'bg-gray-50 hover:bg-red-800 hover:text-gray-50'
               }`}
-              disabled={!activeDrafter}
+              disabled={pickDisabled}
+              title={pickDisabled ? pickDisabledReason : ''}
               onClick={() =>
                 makePick(draftId, playerId, card.name, set, leagueId)
               }
@@ -127,6 +139,27 @@ export default function AvailableCards({
     }
   }
 
+  // Stable fetcher so our WS handlers don't capture stale closures
+  const fetchData = useCallback(async () => {
+    try {
+      const activePick = await getActivePick(draftId);
+      setIsActiveDrafter(activePick?.player_id == playerId);
+    } catch (error) {
+      console.error('Error fetching active pick:', error);
+    }
+  }, [draftId, playerId]);
+
+  useDraftRealtime(
+    draftId,
+    {
+      paused: () => setPaused(true),
+      resumed: () => setPaused(false),
+      pick_made: (msg?: any) => {
+        fetchData();
+      },
+    },
+    'availableCards',
+  );
   return (
     <div className="h-full items-center justify-center overflow-auto bg-gray-950 p-2 text-gray-50">
       <div className="h-full w-full overflow-auto shadow-md">
@@ -182,52 +215,64 @@ export default function AvailableCards({
         <div className="grid grid-cols-2">
           <div>
             <div className="max-h-[25vh] overflow-scroll scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
-              {paginatedCards.map((card: CardDetailsWithPoints) => (
-                <div
-                  key={card.name}
-                  onClick={(e) => handleNameClicked(e, card)}
-                  className="cursor-pointer"
-                >
+              {paginatedCards.length == 0 ? (
+                <p className="p-4 text-gray-50">No cards available</p>
+              ) : (
+                paginatedCards.map((card: CardDetailsWithPoints) => (
                   <div
-                    className={`line-clamp-3 flex px-2 py-1 leading-6 ${
-                      expandedCard === card.name
-                        ? 'bg-gray-50 text-gray-950'
-                        : ''
-                    }`}
+                    key={card.name}
+                    onClick={(e) => handleNameClicked(e, card)}
+                    className="cursor-pointer"
                   >
-                    <div className="w-full">
-                      <div className="line-clamp-1 text-sm">{card.name}</div>
-                      {sortedBy === 'points' ? (
-                        card.points ? (
-                          <div className="flex w-full place-content-between">
-                            <div>
-                              pts:
-                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
-                                {card.points}
-                              </span>
+                    <div
+                      className={`line-clamp-3 flex px-2 py-1 leading-6 ${
+                        expandedCard === card.name
+                          ? 'bg-gray-50 text-gray-950'
+                          : ''
+                      }`}
+                    >
+                      <div className="w-full">
+                        <div className="line-clamp-1 text-sm">{card.name}</div>
+                        {sortedBy === 'points' ? (
+                          card.points != 0 || card.week > -1 ? (
+                            <div className="flex w-full place-content-between text-sm">
+                              <div>
+                                {card.points != 0 ? (
+                                  <p>
+                                    pts:
+                                    <span className="rounded-md bg-red-900 px-1 text-gray-50">
+                                      {card.points}
+                                    </span>
+                                  </p>
+                                ) : (
+                                  <p className="mx-2 rounded-md bg-red-900 px-1 text-gray-50">
+                                    no points scored in your league settings
+                                  </p>
+                                )}
+                              </div>
+                              <div>
+                                week:
+                                <span className="rounded-md bg-red-900 px-1 text-gray-50">
+                                  {card.week == -1 ? 0 : card.week}
+                                </span>
+                              </div>
                             </div>
-                            <div>
-                              week:
-                              <span className="rounded-md bg-red-900 px-1 text-gray-50">
-                                {card.week == -1 ? 0 : card.week}
-                              </span>
-                            </div>
-                          </div>
+                          ) : (
+                            <div className="text-sm">no point data found</div>
+                          )
                         ) : (
-                          'no point data found'
-                        )
-                      ) : (
-                        <div className="text-sm">
-                          {card.price.usd
-                            ? '$' + card.price.usd
-                            : 'no price data found'}
-                        </div>
-                      )}
+                          <div className="text-sm">
+                            {card.price.usd
+                              ? '$' + card.price.usd
+                              : 'no price data found'}
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    <hr className="my-2 border-gray-950" />
                   </div>
-                  <hr className="my-2 border-gray-950" />
-                </div>
-              ))}
+                ))
+              )}
             </div>
             <div className="mt-2 flex gap-2">
               <button
@@ -254,44 +299,12 @@ export default function AvailableCards({
 }
 
 function sortCards(sortBy: SortBy, cards: CardDetailsWithPoints[]) {
-  return cards.sort((a: CardDetailsWithPoints, b: CardDetailsWithPoints) => {
-    // When sorting by points, consider week as part of the sorting criteria
-    if (sortBy === 'points') {
-      // First, compare by week, descending (latest week is most valuable)
-      if (a.week !== b.week) {
-        return b.week - a.week; // Sort by week in descending order
-      }
-      // If weeks are the same, then sort by points, descending
-      return b.points - a.points;
-    } else if (sortBy === 'price') {
-      // Sorting by price logic remains unchanged
-      if (a.price.usd === null && b.price.usd === null) {
-        return 0;
-      } else if (a.price.usd === null) {
-        return 1;
-      } else if (b.price.usd === null) {
-        return -1;
-      } else {
-        return b.price.usd - a.price.usd;
-      }
-    }
-    // Default to sorting by points if sortBy is not recognized
-    return b.points - a.points;
-  });
+  if (sortBy === 'points') {
+    return sortCardsByPoints(cards);
+  } else if (sortBy === 'price') {
+    return sortCardsByPrice(cards);
+  } else {
+    console.error('Invalid sortBy value:', sortBy);
+    return cards;
+  }
 }
-
-// async function makePickAPICall(
-//   draftId: number,
-//   playerId: number,
-//   cardName: string,
-//   set: string,
-// ) {
-//   const res = await fetch('/api/makePick', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({ draftId, playerId, cardName, set }),
-//   });
-//   const json = await res.json();
-// }

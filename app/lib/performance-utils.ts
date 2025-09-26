@@ -1,9 +1,16 @@
 import {
+  CardDetails,
   CardPoint,
+  num,
   RawPerformanceData,
   ScoringOption,
   WeeklyLeaguePerformances,
 } from './definitions';
+
+
+export function priceUsd(card: CardDetails): number {
+  return num(card?.price?.usd);
+}
 
 export type TwoWeekStatus = {
   thisWeek: number;
@@ -91,7 +98,7 @@ function calculatePointsForPerformance(
   if (typeKey in performance) {
     return (
       parseInt(performance[typeKey as keyof RawPerformanceData] as string) *
-        scoringRule.points || 0
+      scoringRule.points || 0
     );
   } else {
     console.log(
