@@ -18,7 +18,7 @@ export default async function Layout({
   const playerId = player.player_id;
 
   return (
-    <div className="flex h-[calc(100vh-114px)] w-full flex-col overflow-auto md:h-full">
+    <div className="flex h-[calc(100vh-114px-env(safe-area-inset-top))] w-full flex-col overflow-auto md:h-full">
       {/* 🚩 STICKY TOP BAR */}
       <div className="sticky top-0 border-b-2 border-gray-50 md:top-0">
         <LeagueMenu leagueId={leagueId} playerId={playerId} />

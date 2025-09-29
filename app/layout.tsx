@@ -29,8 +29,8 @@ export default async function RootLayout({
         <div className="flex min-h-[100dvh] flex-col md:flex-row">
           <aside
             className="
-              z-30 w-full flex-none bg-gray-950 p-4
-              md:relative md:w-64 md:pr-0 lg:sticky lg:top-[env(safe-area-inset-top)]
+              sticky top-[env(safe-area-inset-top)] z-30 w-full flex-none
+              bg-gray-950 p-4 md:relative md:w-64 md:pr-0
               lg:h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]
               lg:w-72 lg:overflow-hidden
               lg:pl-8
