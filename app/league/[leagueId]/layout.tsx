@@ -18,13 +18,12 @@ export default async function Layout({
   const playerId = player.player_id;
 
   return (
-    <div className="flex h-[calc(100vh-114px-env(safe-area-inset-top))] w-full flex-col overflow-auto md:h-full">
-      {/* 🚩 STICKY TOP BAR */}
-      <div className="sticky top-0 border-b-2 border-gray-50 md:top-0">
+    <div className="flex h-[calc(100dvh-114px)] w-full flex-col">
+      <div className="sticky top-0 z-20 border-b-2 border-gray-50 bg-gray-950">
         <LeagueMenu leagueId={leagueId} playerId={playerId} />
       </div>
 
-      <main className="min-h-0 flex-1 overflow-y-auto bg-gray-50">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-gray-50 pb-[env(safe-area-inset-bottom)]">
         {children}
       </main>
     </div>
