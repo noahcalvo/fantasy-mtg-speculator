@@ -39,10 +39,7 @@ export default async function RootLayout({
           >
             <SideNav />
           </aside>
-          <main
-            className="h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom))] min-w-0 flex-1 overflow-hidden p-4
-                 lg:p-8"
-          >
+          <main className="h-[calc(100dvh-114px)] min-w-0 flex-1 overflow-auto p-4 pb-[env(safe-area-inset-bottom)] md:h-[100dvh] lg:p-8">
             {children}
           </main>
         </div>
