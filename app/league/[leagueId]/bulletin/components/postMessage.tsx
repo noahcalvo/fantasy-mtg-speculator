@@ -20,19 +20,24 @@ export default function PostMessage({
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => {
-          setMessage(e.target.value);
-          console.debug(message);
-        }}
-        className="mr-2 rounded p-2"
-        placeholder="Type your message here..."
-      />
-      <button type="submit" className="rounded bg-red-900 p-2 text-gray-50">
-        Send
-      </button>
+      <div className="flex">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            console.debug(message);
+          }}
+          className="max-w-64 mr-2 w-full rounded border-2 border-gray-950 p-2"
+          placeholder="Type your message here..."
+        />
+        <button
+          type="submit"
+          className="rounded bg-red-900 px-4 py-2 text-gray-50"
+        >
+          Send
+        </button>
+      </div>
     </form>
   );
 }

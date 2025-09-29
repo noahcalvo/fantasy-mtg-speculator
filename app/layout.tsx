@@ -2,11 +2,18 @@ import './ui/global.css';
 import SideNav from './ui/dashboard/sidenav';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
   title: 'Fantasy MTG Speculator',
   description: 'Build your fantasy MTG lineup',
+};
+
+// Make sure mobile viewport behaves and uses safe areas
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default async function RootLayout({
@@ -16,17 +23,32 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" className="bg-gray-950 font-mono">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body>
+      <body className="min-h-[100dvh] bg-gray-950">
         <SpeedInsights />
         <Analytics />
-        <div className="flex h-screen flex-col overflow-auto bg-gray-950 md:flex-row">
-          <div className="sticky top-0 z-30 w-full flex-none bg-gray-950 p-4 md:relative md:w-64 md:pr-0 lg:w-72 lg:pl-8 lg:pt-8">
+        <div className="flex min-h-[100dvh] flex-col md:flex-row">
+          <aside
+            className="
+              z-30 w-full flex-none bg-gray-950 p-4
+              md:relative md:w-64 md:pr-0 lg:sticky lg:top-[env(safe-area-inset-top)]
+              lg:h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]
+              lg:w-72 lg:overflow-hidden
+              lg:pl-8
+              lg:pt-8
+            "
+          >
             <SideNav />
-          </div>
-          <div className="min-w-0 flex-grow p-4 lg:p-8">{children}</div>
+          </aside>
+          <main
+            className="
+              min-w-0 flex-1
+              overflow-y-auto overscroll-y-contain
+              p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]
+              lg:p-8
+            "
+          >
+            {children}
+          </main>
         </div>
       </body>
     </html>

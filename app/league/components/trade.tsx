@@ -100,79 +100,48 @@ export default function Trade({
 
   return (
     <div className="w-full">
-      <div className="m-2 w-full border border-x-0 bg-gray-950 p-2 text-md font-bold text-gray-50">
+      <div className="text-md m-2 w-full border border-x-0 bg-gray-950 p-2 font-bold text-gray-50">
         Send a Trade Offer
       </div>
       <form>
-        <div className="mb-2 flex place-content-between px-2 md:place-content-around">
-          <div className="mt-2 text-center text-md font-semibold">
+        <div className="flex items-start justify-between gap-4">
+          <div className="-mr-4 min-w-0 flex-1 basis-0 text-center">
             {player.name}
           </div>
-          <select
-            name="leagueId"
-            onChange={handleTeamChange}
-            className="appearance-none bg-none px-1 py-0 text-center text-md font-semibold focus:border-red-800 focus:ring-red-800"
-          >
-            <ChevronDownIcon className="h-5 w-5" />
-
-            <option value="" disabled>
-              Select a team
-            </option>
-            {teamsInLeague.map((team: Player) => (
-              <option
-                key={team.player_id}
-                value={team.player_id}
-                className="text-center text-lg font-bold"
-              >
-                {team.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex place-content-between items-start md:place-content-around">
-          <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {playerCollection.map((card, index) => {
-              const position = getCardTypesAbbreviationString(card.typeLine);
-              return (
-                <div key={index} className="flex items-center">
-                  <div
-                    onClick={(e) => handleCardClicked(e, card.card_id, true)}
-                    className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-gray-950'} mx-2 mb-2 rounded-xl border-4`}
-                  >
-                    <SmallCard
-                      availablePosition={position}
-                      card={card}
-                      score={0}
-                      onClick={false}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-center">
-            <button
-              className={`rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-gray-950 bg-red-800 hover:border-red-400'}`}
-              onClick={() => makeOffer()}
-              disabled={
-                ownedSelectedCards.length === 0 ||
-                wantSelectedCards.length === 0
-              }
+          <div className="w-12 flex-none"></div>
+          <div className="-ml-4 min-w-0 flex-1 basis-0 text-center">
+            <select
+              name="leagueId"
+              onChange={handleTeamChange}
+              className="text-md appearance-none bg-none px-1 py-0 text-center font-semibold focus:border-red-800 focus:ring-red-800"
             >
-              Make offer
-            </button>
-          </div>
+              <ChevronDownIcon className="h-5 w-5" />
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {leagueCollections
-              .filter((collection) => collection.player_id == tradePartner)[0]
-              ?.cards.map((card, index) => {
+              <option value="" disabled>
+                Select a team
+              </option>
+              {teamsInLeague.map((team: Player) => (
+                <option
+                  key={team.player_id}
+                  value={team.player_id}
+                  className="text-center text-lg font-bold"
+                >
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex items-start justify-between gap-4">
+          <div className="-mr-4 min-w-0 flex-1 basis-0">
+            <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {playerCollection.map((card, index) => {
                 const position = getCardTypesAbbreviationString(card.typeLine);
                 return (
-                  <div key={index} className="flex items-center">
+                  <div key={index} className="m-auto justify-center">
                     <div
-                      onClick={(e) => handleCardClicked(e, card.card_id, false)}
-                      className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-800' : 'border-gray-950'} mx-2 mb-2 rounded-xl border-4`}
+                      onClick={(e) => handleCardClicked(e, card.card_id, true)}
+                      className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
                     >
                       <SmallCard
                         availablePosition={position}
@@ -184,6 +153,47 @@ export default function Trade({
                   </div>
                 );
               })}
+            </div>
+          </div>
+          <div className="flex-none">
+            <button
+              className={`rounded-md border px-2 py-1 text-gray-50 ${ownedSelectedCards.length === 0 || wantSelectedCards.length === 0 ? 'border-gray-400 bg-gray-400 hover:border-gray-950' : 'border-gray-950 bg-red-800 hover:border-red-400'}`}
+              onClick={() => makeOffer()}
+              disabled={
+                ownedSelectedCards.length === 0 ||
+                wantSelectedCards.length === 0
+              }
+            >
+              Make offer
+            </button>
+          </div>
+          <div className="-ml-4 min-w-0 flex-1 basis-0">
+            <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {leagueCollections
+                .filter((collection) => collection.player_id == tradePartner)[0]
+                ?.cards.map((card, index) => {
+                  const position = getCardTypesAbbreviationString(
+                    card.typeLine,
+                  );
+                  return (
+                    <div key={index} className="flex sm:justify-center">
+                      <div
+                        onClick={(e) =>
+                          handleCardClicked(e, card.card_id, false)
+                        }
+                        className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
+                      >
+                        <SmallCard
+                          availablePosition={position}
+                          card={card}
+                          score={0}
+                          onClick={false}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
       </form>

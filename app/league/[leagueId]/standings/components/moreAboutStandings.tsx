@@ -53,7 +53,7 @@ export default function MoreAboutStandings({
       className="rounded-xl bg-gray-950 p-2 text-gray-50"
       onClick={() => setShowInfo((prev) => !prev)}
     >
-      <div className="flex p-2 text-md">
+      <div className="text-md flex p-2">
         <InformationCircleIcon className="mr-2 h-5 w-5 text-gray-50" />
         Key
       </div>
@@ -63,11 +63,11 @@ export default function MoreAboutStandings({
         </p>
       )}
       <div
-        className={`inline-block ${showInfo ? '' : 'h-0 lg:h-full'} overflow-hidden text-md`}
+        className={`inline-block ${showInfo ? '' : 'h-0 lg:h-full'} text-md overflow-hidden`}
       >
         <table className="inline-block place-content-center rounded-lg">
           <div className="h-1 w-full bg-gray-800" />
-          <tbody className="rounded-lg">
+          <tbody className="rounded-lg text-sm">
             {keyItems.map((item: KeyItem, idx: number) => (
               <tr key={idx} className="rounded-lg">
                 <td className={`${getFirstCellClasses(item)} px-4 py-2`}>

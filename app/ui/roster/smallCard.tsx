@@ -14,17 +14,12 @@ export default function SmallCard({
   onClick?: boolean;
 }) {
   return (
-    <div className="w-30 sm:w-50 overflow-auto rounded-md border text-sm">
+    <div className="overflow-auto rounded-md text-sm">
       <div className="h-full w-full overflow-auto">
         <div className="flex justify-center overflow-auto">
-          <div>{availablePosition}</div>
+          <div className="mt-1 bg-gray-50 px-1">{availablePosition}</div>
         </div>
         <div className="flex md:p-2">
-          {/* <div className="w-2/3">
-            <p className="line-clamp-2 text-ellipsis text-center">
-              {card ? card.name : 'empty'}
-            </p>
-          </div> */}
           <div>
             {card ? (
               <Image
