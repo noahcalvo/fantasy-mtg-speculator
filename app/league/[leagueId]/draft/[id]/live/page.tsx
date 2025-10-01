@@ -48,7 +48,7 @@ export default async function Page({
 
   return (
     <main className="flex flex-col content-start justify-center gap-2 py-0">
-      {isLeagueCommissioner && draft.active && (
+      {isLeagueCommissioner && draft.auto_draft && draft.active && (
         <PauseResumeDraft
           draftId={draftId}
           leagueId={leagueId}

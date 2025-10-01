@@ -45,36 +45,51 @@ export default function CreateDraftForm({
 
   return (
     <form action={dispatch} className="flex flex-col gap-y-4 bg-gray-50">
-      <h2 className="mt-4 text-lg text-gray-950">New Draft</h2>
+      <h2 className="text-xl font-bold text-gray-950">New Draft</h2>
       <div className="flex flex-col gap-x-2 gap-y-4">
         <div className="flex flex-col gap-x-2 gap-y-2 xl:flex-row">
-          <select
-            id="set"
-            name="set"
-            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
-            defaultValue={'all'}
-          >
-            <option value="">select a set</option>
-            {sets.map((set, index) => (
-              <option key={index} value={set}>
-                {set}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            id="rounds"
-            name="rounds"
-            placeholder="rounds"
-            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
-          />
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="draft name"
-            className="peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
-          />
+          <div>
+            <label htmlFor="set" className="ml-2 text-sm text-gray-950">
+              Set
+            </label>
+            <select
+              id="set"
+              name="set"
+              className="text-md peer block h-[42px] w-full rounded-md border border-black py-[9px] pl-5 outline-2 placeholder:text-gray-500 hover:cursor-pointer focus:border-red-800 focus:ring-red-800"
+              defaultValue={'all'}
+            >
+              <option value="">select a set</option>
+              {sets.map((set, index) => (
+                <option key={index} value={set}>
+                  {set}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="rounds" className="ml-2 text-sm text-gray-950">
+              Rounds
+            </label>
+            <input
+              type="number"
+              id="rounds"
+              name="rounds"
+              placeholder="rounds"
+              className="text-md peer block h-[42px] w-full rounded-md border border-black py-[9px] pl-5 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+            />
+          </div>
+          <div>
+            <label htmlFor="name" className="ml-2 text-sm text-gray-950">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="draft name"
+              className="text-md peer block h-[42px] w-full rounded-md border border-black py-[9px] pl-5 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-x-2 gap-y-2 xl:flex-row">
           <div className="flex items-center gap-x-2">
@@ -82,12 +97,12 @@ export default function CreateDraftForm({
               type="checkbox"
               id="autodraft"
               name="autodraft"
-              className="h-4 w-4 rounded border-black text-red-900 checked:bg-red-900 focus:ring-red-900"
+              className="h-6 w-6 cursor-pointer appearance-none rounded-md bg-gray-50 text-gray-950 outline-none ring-2 checked:bg-green-600 focus:ring-gray-950"
               checked={autodraft}
               onChange={(e) => setAutodraft(e.target.checked)}
             />
             <label htmlFor="autodraft" className="text-sm text-gray-950">
-              Enable Autodraft (doesn&apos;t actually work yet 🤫)
+              Pick Timer
             </label>
           </div>
           <div>
@@ -100,7 +115,7 @@ export default function CreateDraftForm({
             <select
               id="pickTime"
               name="pickTime"
-              className={`${autodraft ? '' : 'hidden'} peer block h-[42px] rounded-md border border-black py-[9px] pl-5 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800`}
+              className={`${autodraft ? '' : 'hidden'} text-md peer block h-[42px] rounded-md border border-black py-[9px] pl-5 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800`}
               defaultValue={60}
             >
               {pickTimeOptions.map((option) => (
@@ -112,7 +127,7 @@ export default function CreateDraftForm({
           </div>
           <button
             type="submit"
-            className="rounded border-2 border-gray-950 bg-red-800 px-4 py-2 text-gray-50 hover:bg-red-950 hover:text-gray-50"
+            className="mt-2 rounded border-2 border-gray-950 bg-red-800 px-4 py-2 text-gray-50 hover:cursor-pointer hover:bg-red-950 hover:text-gray-50"
           >
             Create
           </button>

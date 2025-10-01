@@ -12,7 +12,10 @@ export default function ClickableCard({
   name: string;
 }) {
   return (
-    <button onClick={() => routeToCardPageById(id)}>
+    <button
+      onClick={() => routeToCardPageById(id)}
+      className="hover:cursor-pointer"
+    >
       <Image
         src={source}
         alt={name}

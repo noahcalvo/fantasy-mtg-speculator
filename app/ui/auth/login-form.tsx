@@ -37,7 +37,7 @@ export default function LoginForm({ announce }: { announce?: string }) {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+                  className="text-md peer block w-full rounded-md border border-black py-[9px] pl-10 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="email"
                   type="email"
                   name="email"
@@ -56,7 +56,7 @@ export default function LoginForm({ announce }: { announce?: string }) {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+                  className="text-md peer block w-full rounded-md border border-black py-[9px] pl-10 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="password"
                   type="password"
                   name="password"

@@ -133,7 +133,7 @@ export const fetchDrafts = async (
 const _fetchDraftUncached = async (draftId: number): Promise<Draft> => {
   try {
     const res = await pool.query<Draft>(
-      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at, current_pick_deadline_at, pick_time_seconds FROM draftsV4 WHERE draft_id = $1;`,
+      `SELECT draft_id, CAST(participants AS INT[]) as participants, active, set, name, rounds, league_id, paused_at, current_pick_deadline_at, pick_time_seconds, auto_draft FROM draftsV4 WHERE draft_id = $1;`,
       [draftId],
     );
     return res.rows[0];
@@ -368,7 +368,10 @@ export async function makePick(
     }
     pickId = maybePickId;
 
-    const deadline = await startNextTurn(client, draftId);
+    let deadline: string | null = null;
+    if (d.auto_draft) {
+      deadline = await startNextTurn(client, draftId);
+    }
 
     // If no more open picks, mark draft inactive
     const { rows: [remain] } = await client.query(
@@ -381,7 +384,9 @@ export async function makePick(
 
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { cardId, pickId });
-    await scheduleAutodraftOnce(client, draftId, deadline || "");
+    if (deadline) {
+      await scheduleAutodraftOnce(client, draftId, deadline);
+    }
 
     // Post-commit side effects
     if (!remain.has_open) {
@@ -656,23 +661,10 @@ async function assignPickIfStillOpen(
   return rowCount ? (rows[0].pick_id as number) : null;
 }
 
-async function markCompleteIfNoOpen(client: pg.PoolClient, draftId: number): Promise<boolean> {
-  const { rows: [remain] } = await client.query(
-    `SELECT EXISTS(SELECT 1 FROM PicksV5 WHERE draft_id=$1 AND card_id IS NULL) AS has_open;`,
-    [draftId]
-  );
-  if (!remain.has_open) {
-    await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
-    return true;
-  }
-  return false;
-}
-
 export async function autopickIfDue(draftId: number): Promise<void> {
   const client = await pool.connect();
   let pickId: number | null = null;
   let leagueId: number | null = null;
-  let draftCompleted = false;
 
   try {
     await client.query('BEGIN');
@@ -684,7 +676,6 @@ export async function autopickIfDue(draftId: number): Promise<void> {
 
     const pick = await getActivePickLocked(client, draftId);
     if (!pick) {
-      draftCompleted = true;
       await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id = $1;`, [draftId]);
       await client.query('COMMIT');
       return;
@@ -692,7 +683,6 @@ export async function autopickIfDue(draftId: number): Promise<void> {
 
     const candidates = await fetchUndraftedWithPoints(draftId, leagueId);
     if (!candidates.length) {
-      draftCompleted = true;
       console.error('No cards left to draft for draftId:', draftId);
       await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id = $1;`, [draftId]);
       await client.query('COMMIT');
@@ -736,11 +726,11 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     // Post-commit side effects
     if (!remain.has_open) {
       await updateCollectionWithCompleteDraft(client, draftId);
-      revalidateTag(`draft-${draftId}-info`);
     }
     revalidateTag(`draft-${draftId}-picks`);
     revalidateTag(`draft-${draftId}-undrafted`);
     revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
+    revalidatePath(`draft-${draftId}-info`);
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -762,6 +752,7 @@ type LockedDraft = {
   paused_at: string | null;
   current_pick_deadline_at: string | null;
   pick_time_seconds: number;
+  auto_draft: boolean;
 };
 
 /**
@@ -785,7 +776,7 @@ export async function lockDraftForTurn(
 
   // Lock the draft row
   const { rows: [d] } = await client.query<LockedDraft>(
-    `SELECT league_id, active, paused_at, current_pick_deadline_at, pick_time_seconds
+    `SELECT league_id, active, paused_at, current_pick_deadline_at, pick_time_seconds, auto_draft
        FROM DraftsV4
       WHERE draft_id = $1
       FOR UPDATE;`,

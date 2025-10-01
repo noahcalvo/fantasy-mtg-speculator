@@ -93,7 +93,7 @@ export default function NavLinks({
             {joinedLeagues.map((league) => (
               <Link
                 key={league.league_id}
-                href={`/league/${league.league_id}/standings`}
+                href={`/league/${league.league_id}/dashboard`}
                 onClick={handleLeagueClick}
                 className={clsx(
                   'text-md z-60 ml-2 flex h-[48px] items-center justify-start gap-2 rounded-md border p-3 font-medium shadow-lg shadow-gray-950 hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:p-2 md:px-3',

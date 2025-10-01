@@ -36,11 +36,11 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+                  className="text-md peer block w-full rounded-md border border-black py-[9px] pl-10 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="name"
                   type="name"
                   name="name"
-                  placeholder="Enter your name"
+                  placeholder="Liliana Vess"
                   required
                 />
                 <CheckBadgeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
@@ -56,11 +56,11 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+                  className="text-md peer block w-full rounded-md border border-black py-[9px] pl-10 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="Enter your email address"
+                  placeholder="lily@oftheveil.com"
                   required
                 />
                 <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
@@ -75,11 +75,11 @@ export default function SignupForm() {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
+                  className="text-md peer block w-full rounded-md border border-black py-[9px] pl-10 outline-2 placeholder:text-gray-500 focus:border-red-800 focus:ring-red-800"
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="Enter password"
+                  placeholder="******"
                   required
                   minLength={6}
                 />

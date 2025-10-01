@@ -2,10 +2,6 @@ import Link from 'next/link';
 import DraftInfoHeader from './components/draftInfoHeader';
 import { fetchDraft } from '@/app/lib/draft';
 import notFound from './not-found';
-import PauseResumeDraft from './components/pauseResumeDraft';
-import { auth } from '@/auth';
-import { fetchPlayerByEmail } from '@/app/lib/player';
-import { isCommissioner } from '@/app/lib/leagues';
 
 export default async function Layout({
   children,

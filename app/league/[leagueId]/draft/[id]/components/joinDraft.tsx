@@ -19,7 +19,7 @@ const JoinDraft: React.FC<JoinDraftProps> = ({
     <div className="mx-2 mt-4">
       <button
         type="submit"
-        className="rounded border-2 border-gray-950 bg-red-900 px-4 py-2 text-gray-50 hover:bg-red-800 hover:text-gray-50"
+        className="rounded border-2 border-gray-950 bg-red-900 px-4 py-2 text-gray-50 hover:cursor-pointer hover:bg-red-800 hover:text-gray-50"
         onClick={() => joinDraft(draftId, playerId, leagueId)}
       >
         Join Draft

@@ -128,8 +128,11 @@ export default function LargeCard({
       {isModalVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/50">
           <div className="m-4 max-h-[80lvh] overflow-scroll rounded bg-gray-950 p-4">
-            <h2 className="text-lg font-bold">
-              Select a card to swap to your {position} slot
+            <h2 className="mb-2 text-lg font-bold">
+              <span className="md:text-lg">Select a card</span>{' '}
+              <div className="text-md font-semibold">
+                for your {position} slot
+              </div>
             </h2>
             {/* Add card selection options here */}
             {replacements.map((replacement) => (

@@ -88,6 +88,7 @@ export type Draft = {
   paused_at: string;
   current_pick_deadline_at: string;
   pick_time_seconds: number;
+  auto_draft: boolean;
 };
 
 export type DraftPick = {

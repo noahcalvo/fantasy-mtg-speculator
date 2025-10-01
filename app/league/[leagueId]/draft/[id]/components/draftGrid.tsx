@@ -32,8 +32,14 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [participants, setParticipants] = useState<Player[]>([]);
   const [connectionIssue, setConnectionIssue] = useState(false);
   const [deadlineAt, setDeadlineAt] = useState('0');
-  const [pausedAt, setPausedAt] = useState<string | null>(null);
-  const [pickTime, setPickTime] = useState(0);
+  const [fetchedDraft, setDraft] = useState(
+    {} as {
+      paused_at: string | null;
+      current_pick_deadline_at: string | null;
+      pick_time_seconds: number | null;
+      participants: number[];
+    },
+  );
 
   const rounds = useMemo(
     () => (picks.length ? Math.max(...picks.map((p) => p.round)) + 1 : 0),
@@ -47,9 +53,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
       const newPicks = await fetchPicksUncached(draftId);
       const draft = await fetchDraft(draftId);
       if (!draft) notFound();
-      setDeadlineAt(draft.current_pick_deadline_at);
-      setPausedAt(draft.paused_at);
-      setPickTime(draft.pick_time_seconds || 0);
+      setDraft(draft);
       const participantsData = await fetchMultipleParticipantData(
         draft.participants,
       );
@@ -98,7 +102,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
           return next;
         });
 
-        setDeadlineAt(createPickDeadline(pickTime));
+        setDeadlineAt(createPickDeadline(fetchedDraft.pick_time_seconds ?? 0));
         // fire-and-forget reconcile
         fetchData();
       },
@@ -148,8 +152,10 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
                     key={participantIndex}
                     pick={pick as DraftPick}
                     picksTilActive={picksTilActive}
-                    pausedAt={pausedAt}
-                    deadlineAt={deadlineAt}
+                    pausedAt={fetchedDraft.paused_at}
+                    deadlineAt={
+                      fetchedDraft.pick_time_seconds ? deadlineAt : null
+                    }
                   />
                 ) : (
                   <DraftPickCell

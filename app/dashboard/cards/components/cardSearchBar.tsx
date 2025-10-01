@@ -36,11 +36,11 @@ const CardSearchBar = () => {
   }, [debouncedQuery]);
 
   return (
-    <div className="relative flex items-center justify-center">
+    <div className="relative flex items-center justify-center hover:cursor-pointer">
       <input
         type="text"
         placeholder="Search for a card"
-        className="h-8 rounded-lg border-gray-950 bg-gray-50 px-2"
+        className="text-md h-8 rounded-lg border-gray-950 bg-gray-50 px-2"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

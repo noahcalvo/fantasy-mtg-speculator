@@ -172,7 +172,7 @@ export default function AvailableCards({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search cards"
-            className="max-w-48 mx-2 self-center border-gray-950 bg-gray-50 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
+            className="max-w-48 text-md mx-2 self-center border-gray-950 bg-gray-50 px-2 py-1 text-gray-950 focus:border-red-800 focus:ring-red-800"
           />
         </div>
         <div className="flex flex-wrap">
@@ -182,7 +182,7 @@ export default function AvailableCards({
                 <div key={type} className="inline">
                   <button
                     id={type}
-                    className={`m-2 rounded-md border px-1 py-1  text-sm
+                    className={`m-2 rounded-md border px-1 py-1  text-sm hover:cursor-pointer
                   ${filteredTypes.includes(type) ? 'border-gray-950 bg-red-800 text-gray-50' : 'border-gray-950 bg-gray-50 text-gray-950'}
                 `}
                     onClick={() => {
@@ -202,7 +202,7 @@ export default function AvailableCards({
           )}
           <div className="inline">
             <button
-              className="m-2 rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50"
+              className="m-2 rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50 hover:cursor-pointer"
               onClick={() =>
                 setSortedBy(sortedBy === 'price' ? 'points' : 'price')
               }

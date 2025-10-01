@@ -27,9 +27,9 @@ export default async function BestPerformerBadge({
         <div className="w-5">
           <StarIcon className="h-5 w-5" />
         </div>
-        <p className="ml-2 text-md">Top Card This Week</p>
+        <p className="text-md ml-2">Top Card This Week</p>
       </div>
-      <div className="flex h-full flex-row items-center justify-center rounded-xl shadow-sm">
+      <div className="flex h-full flex-row items-center justify-center gap-2 rounded-xl shadow-sm">
         {cardData?.image.length > 0 && (
           <ClickableCard
             source={cardData?.image[0]}
