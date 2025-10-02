@@ -27,10 +27,16 @@ export function useCountdown(deadlineAt?: string | Date | null, pausedAt?: strin
     return ms > 0 ? ms : 0;
   }, [deadlineMs, now, deadlineAt, pausedAt]);
 
+  // console.log('remainingMs', remainingMs);
+  // console.log('deadlineAt', deadlineAt);
+  // console.log('now', now);
+
   const totalSeconds = Math.ceil(remainingMs / 1000);
   const mm = Math.floor(totalSeconds / 60);
   const ss = totalSeconds % 60;
   const mmss = `${mm}:${ss.toString().padStart(2, '0')}`;
+  // console.log('mmss', mmss);
+
 
   return { remainingMs, totalSeconds, mmss };
 }

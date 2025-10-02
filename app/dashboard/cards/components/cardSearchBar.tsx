@@ -1,6 +1,7 @@
 'use client';
 import { ScryfallSearchResponse } from '@/app/lib/definitions';
 import { routeToCardPageByName } from '@/app/lib/routing';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect } from 'react';
 
 const CardSearchBar = () => {
@@ -40,10 +41,11 @@ const CardSearchBar = () => {
       <input
         type="text"
         placeholder="Search for a card"
-        className="text-md h-8 rounded-lg border-gray-950 bg-gray-50 px-2"
+        className="text-md h-8 rounded-lg border border-gray-950 bg-gray-50 p-2 pl-8 focus:outline-none"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-950" />
       {results && results.data.length > 0 && (
         <ul className="absolute top-full z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border-2 border-black bg-gray-50">
           {results.data.map((card) => (

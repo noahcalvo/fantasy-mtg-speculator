@@ -12,13 +12,6 @@ const receiver = new Receiver({
 });
 
 export async function POST(req: Request) {
-  if (process.env.NODE_ENV === "development") {
-    const { searchParams } = new URL(req.url);
-    const draftId = Number(searchParams.get("draftId"));
-    await autopickIfDue(draftId);
-    return new NextResponse(null, { status: 204 });
-  }
-
   // 1) Verify signature from QStash
   const signature = req.headers.get("Upstash-Signature") ?? "";
   const bodyText = await req.text();
@@ -36,4 +29,16 @@ export async function POST(req: Request) {
   await autopickIfDue(draftId);
 
   return new NextResponse(null, { status: 204 });
+}
+
+export async function GET(req: Request) {
+  console.log("Autopick poke received");
+  if (process.env.NODE_ENV === "development") {
+    console.log("Development mode: skipping signature verification");
+    const { searchParams } = new URL(req.url);
+    const draftId = Number(searchParams.get("draftId"));
+    await autopickIfDue(draftId);
+    console.log("Autopick poke processed");
+    return new NextResponse(null, { status: 204 });
+  }
 }

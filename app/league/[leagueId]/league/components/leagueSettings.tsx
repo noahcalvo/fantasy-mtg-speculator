@@ -5,6 +5,7 @@ import { closeLeague, openLeague, createInviteCode } from '@/app/lib/leagues';
 import {
   LockOpenIcon,
   ArrowRightStartOnRectangleIcon,
+  LockClosedIcon,
 } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 import { Copy } from 'lucide-react';
@@ -48,7 +49,7 @@ export default function LeagueSettings({
 
   return (
     <div className="mb-4 rounded-xl bg-gray-950 p-4 text-gray-50">
-      <h2 className="mx-2 mb-4 text-center text-md">General</h2>
+      <h2 className="text-md mx-2 mb-4 text-center">General</h2>
       <div className="flex flex-col items-start justify-center">
         <SettingDisplayName settingKey="Name" settingValue={league.name} />
 
@@ -63,16 +64,21 @@ export default function LeagueSettings({
         {isCommissioner && (
           <div className="flex gap-4 px-8 py-4">
             <button
-              className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:bg-red-900"
+              className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:cursor-pointer hover:bg-red-900"
               onClick={() => {
                 setOpenLeagueModalDisplay(!openLeagueModalDisplay);
               }}
             >
-              <LockOpenIcon className="w-5" /> {league.open ? 'Close' : 'Open'}
+              {league.open ? (
+                <LockClosedIcon className="w-5" />
+              ) : (
+                <LockOpenIcon className="w-5" />
+              )}
+              {league.open ? ' Close' : ' Open'}
             </button>
             {!league.open && (
               <button
-                className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:bg-red-900"
+                className="flex items-center justify-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-sm text-gray-50 hover:cursor-pointer hover:bg-red-900"
                 onClick={() => {
                   setGenerateInviteCodeModalDisplay(
                     !generateInviteCodeModalDisplay,
@@ -143,12 +149,12 @@ function OpenCloseLeagueModal({
         <button
           onClick={close}
           aria-label="Close modal"
-          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+          className="text-md static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white leading-none text-black hover:cursor-pointer focus:outline-none"
         >
           ×
         </button>
 
-        <h2 className="my-2 text-md font-semibold">
+        <h2 className="text-md my-2 font-semibold">
           Would you like to make this league {open ? 'public' : 'private'}?
         </h2>
         <p className="text-sm">
@@ -158,7 +164,7 @@ function OpenCloseLeagueModal({
         </p>
         <button
           onClick={saveChange}
-          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
+          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950 hover:cursor-pointer"
         >
           Yes
         </button>
@@ -180,12 +186,12 @@ function GenerateInviteCodeModal({
         <button
           onClick={close}
           aria-label="Close modal"
-          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+          className="text-md static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white leading-none text-black hover:cursor-pointer focus:outline-none"
         >
           ×
         </button>
 
-        <h2 className="my-2 text-md font-semibold">
+        <h2 className="text-md my-2 font-semibold">
           Generate a code to invite a new leaguemate
         </h2>
         <p className="text-sm">
@@ -193,7 +199,7 @@ function GenerateInviteCodeModal({
         </p>
         <button
           onClick={generateCode}
-          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950"
+          className="float-right mt-4 rounded border border-gray-50 bg-gray-50 p-2 text-gray-950 hover:cursor-pointer"
         >
           Generate
         </button>
@@ -227,7 +233,7 @@ function DisplayInviteCode({
         <button
           onClick={close}
           aria-label="Close modal"
-          className="static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white text-md leading-none text-black focus:outline-none"
+          className="text-md static right-2 top-2 flex h-4 w-4 items-center justify-center rounded bg-white leading-none text-black hover:cursor-pointer focus:outline-none"
         >
           ×
         </button>
@@ -237,7 +243,7 @@ function DisplayInviteCode({
           <button
             onClick={handleCopy}
             aria-label="Copy code"
-            className="rounded p-1 hover:bg-gray-500"
+            className="rounded p-1 hover:cursor-pointer hover:bg-gray-500"
           >
             <Copy size={16} />
           </button>

@@ -28,12 +28,12 @@ export default function PostMessage({
             setMessage(e.target.value);
             console.debug(message);
           }}
-          className="max-w-64 mr-2 w-full rounded border-2 border-gray-950 p-2"
+          className="max-w-70 mr-2 w-full rounded border-2 border-gray-950 p-2"
           placeholder="Type your message here..."
         />
         <button
           type="submit"
-          className="rounded bg-red-900 px-4 py-2 text-gray-50"
+          className="rounded border-2 border-gray-950 px-4 py-2 text-gray-950 hover:cursor-pointer hover:bg-red-900 hover:text-gray-50"
         >
           Send
         </button>

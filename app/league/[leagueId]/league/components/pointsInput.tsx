@@ -11,19 +11,24 @@ interface PointsInputProps {
 
 export function PointsInput({ value, onChange, showIcon }: PointsInputProps) {
   return (
-    <div className="flex items-center gap-2">
-      <FormControl size="small" fullWidth sx={muiStyles}>
-        <InputLabel>Points</InputLabel>
-        <OutlinedInput
-          type="number"
-          value={value}
-          onChange={(e) =>
-            onChange(e.target.value === '' ? '' : parseFloat(e.target.value))
-          }
-          label="Points"
-        />
-      </FormControl>
-      {showIcon && <FontAwesomeIcon icon={faClone} className="w-6" />}
+    <div>
+      <div className="flex items-center gap-2">
+        <FormControl size="small" fullWidth sx={muiStyles}>
+          <InputLabel>Points</InputLabel>
+          <OutlinedInput
+            type="number"
+            value={value}
+            onChange={(e) =>
+              onChange(e.target.value === '' ? '' : parseFloat(e.target.value))
+            }
+            label="Points"
+          />
+        </FormControl>
+        {showIcon && <FontAwesomeIcon icon={faClone} className="w-6" />}
+      </div>
+      <div className="mt-2 w-full text-center text-sm">
+        <FontAwesomeIcon icon={faClone} className="w-4" /> = points per copy
+      </div>
     </div>
   );
 }

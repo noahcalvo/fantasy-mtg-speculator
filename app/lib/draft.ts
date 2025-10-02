@@ -509,7 +509,7 @@ const _fetchUndraftedCardsUncached = async (draftId: number) => {
     const cards = await fetchSet(draft.set);
     // get all owned cards
     const alreadyOwnedCards = await fetchOwnedCards(draft.set, draft.league_id);
-    const picks = await fetchPicks(draftId);
+    const picks = await fetchPicksUncached(draftId);
 
     const draftedCardNames = await Promise.all(
       picks.map((pick: DraftPick) =>
@@ -676,6 +676,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
 
     const pick = await getActivePickLocked(client, draftId);
     if (!pick) {
+      console.error('No active pick found for draftId:', draftId);
       await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id = $1;`, [draftId]);
       await client.query('COMMIT');
       return;
@@ -697,11 +698,11 @@ export async function autopickIfDue(draftId: number): Promise<void> {
         ? best.card_id
         : await getOrCreateCardTx(client, { name: best.name, origin: best.set });
 
-
     if (!(ensuredCardId > 0)) {
       await client.query('ROLLBACK');
       throw new Error(`invalid card id for ${best.name}`);
     }
+
 
     const maybePickId = await assignPickIfStillOpen(client, draftId, pick, ensuredCardId);
     if (!maybePickId) { await client.query('ROLLBACK'); return; } // lost race
@@ -717,7 +718,6 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     if (!remain.has_open) {
       await client.query(`UPDATE DraftsV4 SET active=false WHERE draft_id=$1;`, [draftId]);
     }
-
     await client.query('COMMIT');
     await broadcastDraft(draftId, 'pick_made', { cardId: ensuredCardId, pickId });
     await scheduleAutodraftOnce(client, draftId, deadline || "");
@@ -730,7 +730,7 @@ export async function autopickIfDue(draftId: number): Promise<void> {
     revalidateTag(`draft-${draftId}-picks`);
     revalidateTag(`draft-${draftId}-undrafted`);
     revalidatePath(`/league/${leagueId}/draft/${draftId}/live`);
-    revalidatePath(`draft-${draftId}-info`);
+    revalidateTag(`draft-${draftId}-info`);
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;

@@ -31,9 +31,18 @@ export default function ActivePickCell({
 
   const { totalSeconds, mmss } = useCountdown(deadlineAt, pausedAt);
 
-  const message = deadlineAt ? mmss : 'ready?';
-
-  const low = Boolean(deadlineAt && totalSeconds <= 30);
+  let message = 'Active';
+  let low = false;
+  if (deadlineAt) {
+    if (deadlineAt === '0') {
+      // If the deadline is '0', it means the draft has not started
+      message = 'Start Draft';
+    } else {
+      // Otherwise, show the countdown timer
+      message = mmss;
+      low = Boolean(deadlineAt && totalSeconds <= 30);
+    }
+  }
 
   const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
   return (

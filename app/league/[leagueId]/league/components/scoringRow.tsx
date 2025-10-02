@@ -40,7 +40,7 @@ export function ScoringRow({
           </div>
           {isCommissioner && (
             <button
-              className="hidden bg-red-900 px-2 py-1 text-gray-50 hover:bg-red-950 md:block"
+              className="hidden rounded-md bg-red-900 px-2 py-1 text-gray-50 hover:cursor-pointer hover:bg-red-950 md:block"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(option);

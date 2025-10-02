@@ -7,23 +7,30 @@ import bcrypt from 'bcrypt';
 import { redirect } from 'next/navigation';
 
 export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
+  _prevState: string | undefined,
+  formData: FormData
 ) {
   try {
-    await signIn('credentials', formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    await signIn('credentials', {
+      email,
+      password,
+      redirectTo: '/dashboard',   // <-- critical
+    });
+
+    // If signIn succeeds and doesn't redirect (rare), just return no error
+    return undefined;
+  } catch (err) {
+    if (err instanceof AuthError) {
+      if (err.type === 'CredentialsSignin') return 'Invalid credentials.';
+      throw err;
     }
-    throw error;
+    throw err;
   }
 }
+
 
 const FormSchema = z.object({
   player_id: z.string(),

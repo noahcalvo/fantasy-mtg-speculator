@@ -82,7 +82,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
       <div className="mb-4 flex justify-end">
         <a
           href="/league/new/create"
-          className="flex items-center rounded-md border border-black bg-gray-50 px-4 py-2 text-sm font-medium text-gray-950"
+          className="text-md flex items-center rounded-md border border-black bg-gray-50 px-4 py-2 font-medium text-gray-950 hover:bg-red-900 hover:text-gray-50"
         >
           <PlusIcon className="mr-1 inline-block h-4 w-4" />
           Create League
@@ -110,7 +110,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
           )}
           <button
             onClick={() => handleJoinPrivate(inviteCode)}
-            className="text-md mt-auto h-8 w-full rounded-md border border-black bg-gray-50 px-2 py-1 text-gray-950 hover:bg-red-800 hover:text-gray-50"
+            className="text-md mt-auto h-8 w-full rounded-md border border-black bg-gray-50 px-2 py-1 text-gray-950 hover:bg-red-900 hover:text-gray-50"
           >
             Join
           </button>
@@ -145,7 +145,7 @@ export default function JoinLeague({ leagues, userId }: JoinLeagueProps) {
               </p>
               <button
                 onClick={() => handleJoin(league.league_id)}
-                className="mt-auto rounded-md border border-black bg-gray-50 px-2 py-1 text-sm text-gray-950 hover:bg-red-800 hover:text-gray-50"
+                className="mt-auto rounded-md border border-black bg-gray-50 px-2 py-1 text-sm text-gray-950 hover:bg-red-900 hover:text-gray-50"
               >
                 Join
               </button>

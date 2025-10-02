@@ -46,15 +46,19 @@ export default async function Page({
     leagueId,
   );
 
+  console.log(isLeagueCommissioner, draft);
+
   return (
     <main className="flex flex-col content-start justify-center gap-2 py-0">
-      {isLeagueCommissioner && draft.auto_draft && draft.active && (
-        <PauseResumeDraft
-          draftId={draftId}
-          leagueId={leagueId}
-          commissioner={isLeagueCommissioner}
-        />
-      )}
+      {isLeagueCommissioner &&
+        draft.current_pick_deadline_at &&
+        draft.active && (
+          <PauseResumeDraft
+            draftId={draftId}
+            leagueId={leagueId}
+            commissioner={isLeagueCommissioner}
+          />
+        )}
       <div className="flex flex-col justify-center gap-2 xl:flex-row">
         <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
           <DraftGrid draftId={draftId} />

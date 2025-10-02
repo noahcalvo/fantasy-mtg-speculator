@@ -50,7 +50,7 @@ export default function NavLinks({
         key={'Home'}
         href={'/dashboard'}
         className={clsx(
-          'text-md flex h-[48px] grow items-center justify-center gap-2 rounded-md border p-3 font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+          'text-md flex h-[48px] grow items-center justify-center gap-2 rounded-md border p-3 font-medium hover:cursor-pointer hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
           {
             'border-gray-50 bg-gray-950 text-gray-50':
               pathname === '/dashboard',
@@ -65,7 +65,7 @@ export default function NavLinks({
         <button
           onClick={toggleDropdown}
           className={clsx(
-            'text-md flex h-[48px] w-full items-center justify-center gap-2 rounded-md border p-3 font-medium hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
+            'text-md flex h-[48px] w-full items-center justify-center gap-2 rounded-md border p-3 font-medium hover:cursor-pointer hover:border-gray-50 hover:bg-red-800 hover:text-gray-50 md:flex-none md:justify-start md:p-2 md:px-3',
             {
               'border-gray-50 bg-gray-950 text-gray-50':
                 pathname.includes('/league'),
@@ -79,7 +79,7 @@ export default function NavLinks({
             {leagueMatchObj
               ? leagueMatchObj.name
               : pathname === '/league/new'
-                ? 'League'
+                ? 'New League'
                 : 'League'}
           </p>
           <ChevronRightIcon

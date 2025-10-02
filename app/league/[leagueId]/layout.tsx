@@ -1,6 +1,8 @@
 import { auth } from '@/auth';
 import { fetchPlayerByEmail } from '../../lib/player';
 import LeagueMenu from './../components/leagueMenu';
+import { isPlayerInLeague } from '@/app/lib/leagues';
+import { redirect } from 'next/navigation';
 
 export default async function Layout({
   children,
@@ -16,6 +18,10 @@ export default async function Layout({
   const userEmail = user?.email || '';
   const player = await fetchPlayerByEmail(userEmail);
   const playerId = player.player_id;
+  const isValidUser = await isPlayerInLeague(playerId, leagueId);
+  if (!isValidUser) {
+    redirect('/league/new');
+  }
 
   return (
     <div className="flex h-[calc(100dvh-114px)] w-full flex-col md:h-[calc(100dvh-64px)]">

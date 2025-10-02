@@ -11,7 +11,7 @@ const BackButton = () => {
   return (
     <button
       onClick={goBack}
-      className="rounded-lg border-2 border-red-900 bg-gray-50 pl-1 pr-1.5 text-gray-950 hover:cursor-pointer"
+      className="rounded-lg border-red-900 bg-gray-50 pl-2 pr-2.5 text-gray-950 hover:cursor-pointer hover:bg-red-900 hover:text-gray-50"
     >
       ← back
     </button>

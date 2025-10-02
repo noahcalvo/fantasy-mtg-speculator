@@ -40,14 +40,15 @@ export default function CurrentScoringSettings({
 
   return (
     <div className="mb-4 rounded-xl bg-gray-950 p-4 text-gray-50">
-      <h2 className="mx-2 text-center text-md">Current Scoring</h2>
+      <h2 className="text-md mx-2 text-center">Current Scoring</h2>
       <div className="mb-4 text-center text-sm">
         (<FontAwesomeIcon icon={faClone} className="w-4" /> = points per copy)
       </div>
       <div>
         {scoringOptions.length == 0 ? (
           <p className="text-sm">
-            No scoring options found. Please add scoring rules to your league.
+            No scoring options found. Please add scoring rules to your league
+            below.
           </p>
         ) : (
           <div>

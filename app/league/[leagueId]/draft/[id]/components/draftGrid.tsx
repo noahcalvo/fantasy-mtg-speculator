@@ -31,7 +31,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [participants, setParticipants] = useState<Player[]>([]);
   const [connectionIssue, setConnectionIssue] = useState(false);
-  const [deadlineAt, setDeadlineAt] = useState('0');
+  const [deadlineAt, setDeadlineAt] = useState<string | null>(null);
   const [fetchedDraft, setDraft] = useState(
     {} as {
       paused_at: string | null;
@@ -54,9 +54,12 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
       const draft = await fetchDraft(draftId);
       if (!draft) notFound();
       setDraft(draft);
+      setDeadlineAt(draft.current_pick_deadline_at);
       const participantsData = await fetchMultipleParticipantData(
         draft.participants,
       );
+      console.log('deadlineAt grid:', draft.current_pick_deadline_at);
+      console.log('now grid:', new Date().toISOString());
 
       setPicks((prev) => (equalPicks(prev, newPicks) ? prev : newPicks));
 
@@ -102,7 +105,11 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
           return next;
         });
 
-        setDeadlineAt(createPickDeadline(fetchedDraft.pick_time_seconds ?? 0));
+        setDeadlineAt(
+          fetchedDraft.pick_time_seconds
+            ? createPickDeadline(fetchedDraft.pick_time_seconds)
+            : null,
+        );
         // fire-and-forget reconcile
         fetchData();
       },

@@ -96,7 +96,7 @@ export default function AvailableCards({
               }}
             />
             <button
-              className={`mx-2 mt-2 rounded-md border border-gray-950 p-2 text-gray-950 ${
+              className={`mx-2 mt-2 rounded-md border border-gray-950 p-2 text-gray-950 hover:cursor-pointer ${
                 pickDisabled
                   ? 'bg-gray-500 text-gray-50'
                   : 'bg-gray-50 hover:bg-red-800 hover:text-gray-50'
@@ -278,14 +278,14 @@ export default function AvailableCards({
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page === 0}
-                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages - 1}
-                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-md border border-gray-50 px-2 py-1 text-sm hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>

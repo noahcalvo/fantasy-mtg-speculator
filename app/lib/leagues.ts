@@ -3,7 +3,8 @@
 import { sql } from '@vercel/postgres';
 import { League, Player, ScoringOption } from './definitions';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import OpenAI from "openai";
+import { moderateNameOrThrow } from './moderation';
 
 export async function fetchLeagues(userId: number): Promise<League[]> {
   try {
@@ -181,17 +182,18 @@ export async function addCommissioner(userId: number, leagueId: number) {
 }
 
 export async function createLeague(leagueName: string, userId: number, isPrivate: boolean) {
-  let resp;
   try {
-    resp =
-      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open) VALUES (${leagueName}, array[]::int[], array[]::int[], ${!isPrivate}) RETURNING league_id;`;
-    joinLeagueUnsafe(userId, resp.rows[0].league_id);
-    addCommissioner(userId, resp.rows[0].league_id);
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error(`Failed to create League ${leagueName}`);
-  } finally {
-    return resp?.rows[0].league_id;
+    const name = await moderateNameOrThrow(leagueName);  // may throw
+    const resp =
+      await sql`INSERT INTO leaguesV3 (name, participants, commissioners, open)
+                VALUES (${name}, array[]::int[], array[]::int[], ${!isPrivate})
+                RETURNING league_id;`;
+    const leagueId = resp.rows[0].league_id;
+    await joinLeagueUnsafe(userId, leagueId);
+    await addCommissioner(userId, leagueId);
+    return { ok: true as const, leagueId };
+  } catch (e: any) {
+    return { ok: false as const, error: e?.message ?? "Failed to create League" };
   }
 }
 

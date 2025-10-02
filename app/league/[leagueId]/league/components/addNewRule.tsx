@@ -42,7 +42,7 @@ export function AddNewRule({ leagueId }: { leagueId: number }) {
 
   return (
     <div className="mb-4 rounded-xl bg-gray-950 px-2 py-4 text-gray-50">
-      <h2 className="mx-2 mb-4 text-center text-md">New Rule</h2>
+      <h2 className="text-md mx-2 mb-4 text-center">New Rule</h2>
       <div className="flex w-full md:block">
         <div className="grid w-full grid-cols-1 gap-4 p-2 text-sm md:grid-cols-3">
           <DropdownField
@@ -66,7 +66,7 @@ export function AddNewRule({ leagueId }: { leagueId: number }) {
       </div>
       <button
         onClick={handleAddScoringOption}
-        className="mx-auto mt-4 flex items-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-gray-50 hover:bg-red-900"
+        className="mx-auto mt-4 flex items-center gap-2 rounded-sm border border-gray-50 bg-gray-950 px-3 py-1 text-gray-50 hover:cursor-pointer hover:bg-red-900"
       >
         <PlusIcon className="w-5" />
         Add
