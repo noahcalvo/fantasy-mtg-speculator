@@ -5,6 +5,7 @@ import { AuthError } from 'next-auth';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import { redirect } from 'next/navigation';
+import { moderateNameOrThrow } from './moderation';
 
 export async function authenticate(
   _prevState: string | undefined,
@@ -58,7 +59,7 @@ export type State = {
 };
 
 export async function createAccount(
-  prevState: string | undefined,
+  _prevState: string | undefined,
   formData: FormData,
 ): Promise<string> {
   // validate data from form
@@ -73,9 +74,18 @@ export async function createAccount(
     return 'Missing Fields. Failed to Create Account.';
   }
 
+  const { name, email, password } = validatedFields.data;
+
+
+  try {
+    await moderateNameOrThrow(name);
+  } catch (e: any) {
+    return e?.message || "That username isn’t allowed."
+  }
+
   try {
     // Check if the email already exists in the database
-    const existingUser = await sql`SELECT * FROM users WHERE email = ${validatedFields.data.email}`;
+    const existingUser = await sql`SELECT * FROM users WHERE email = ${email}`;
     if (existingUser.rowCount > 0) {
       return 'Email already in use. Please try logging in.';
     }
@@ -84,7 +94,6 @@ export async function createAccount(
     return 'Failed to check existing accounts.';
   }
 
-  const { name, email, password } = validatedFields.data;
   const encrpatedPassword = await bcrypt.hash(password, 10);
 
   try {
