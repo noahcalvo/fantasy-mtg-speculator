@@ -17,7 +17,7 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get('created');
   const announce = success
-    ? `Account successfully created for ${success}!`
+    ? `Account successfully created for ${success}! Let's try logging in.`
     : undefined;
 
   return (

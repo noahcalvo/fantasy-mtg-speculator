@@ -16,13 +16,15 @@ export default function SignupForm() {
 
   return (
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-      <a href="/login">
-        <Button className="float-right mb-4 justify-between">
-          <ArrowLeftIcon className="mr-2 h-5 w-5" />
-          Login
-        </Button>
-      </a>
-      <h1 className="mb-4 w-full text-2xl">Create Account</h1>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h1 className="text-2xl">Create Account</h1>
+        <a
+          href="/login"
+          className="hover:pointer-cursor whitespace-nowrap text-sm underline hover:text-red-900"
+        >
+          back to login
+        </a>
+      </div>
 
       <form action={dispatch}>
         <div>
@@ -110,7 +112,10 @@ function SignupButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button className="mt-4 w-full" aria-disabled={pending}>
+    <Button
+      className="text-md mt-4 w-full hover:cursor-pointer"
+      aria-disabled={pending}
+    >
       Sign up <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
     </Button>
   );

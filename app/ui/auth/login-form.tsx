@@ -9,6 +9,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '../button';
 import { useFormState, useFormStatus } from 'react-dom';
 import { authenticate } from '@/app/lib/accountAuth';
+import { ArrowLeftIcon } from 'lucide-react';
 
 export default function LoginForm({ announce }: { announce?: string }) {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
@@ -17,7 +18,8 @@ export default function LoginForm({ announce }: { announce?: string }) {
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-6">
       {!announce && (
         <a href="/signup">
-          <Button className="mb-8 w-full bg-red-800 hover:bg-red-950">
+          <Button className="text-md mb-8 w-full bg-red-800 hover:bg-red-950">
+            <ArrowLeftIcon className="mr-auto h-5 w-5 text-gray-50" />
             Create New Account
           </Button>
         </a>
@@ -41,7 +43,7 @@ export default function LoginForm({ announce }: { announce?: string }) {
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="Enter email address"
+                  placeholder="lily@oftheveil.com"
                   required
                 />
                 <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-black" />
@@ -60,7 +62,7 @@ export default function LoginForm({ announce }: { announce?: string }) {
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="Enter password"
+                  placeholder="******"
                   required
                   minLength={6}
                 />
@@ -91,7 +93,7 @@ function LoginButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button className="mt-10 w-full" aria-disabled={pending}>
+    <Button className="text-md mt-10 w-full" aria-disabled={pending}>
       Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
     </Button>
   );
