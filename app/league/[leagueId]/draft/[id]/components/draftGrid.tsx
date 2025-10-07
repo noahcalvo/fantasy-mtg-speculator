@@ -40,6 +40,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
       participants: number[];
     },
   );
+  const [showCards, setShowCards] = useState(true);
 
   const rounds = useMemo(
     () => (picks.length ? Math.max(...picks.map((p) => p.round)) + 1 : 0),
@@ -58,8 +59,6 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
       const participantsData = await fetchMultipleParticipantData(
         draft.participants,
       );
-      console.log('deadlineAt grid:', draft.current_pick_deadline_at);
-      console.log('now grid:', new Date().toISOString());
 
       setPicks((prev) => (equalPicks(prev, newPicks) ? prev : newPicks));
 
@@ -163,12 +162,14 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
                     deadlineAt={
                       fetchedDraft.pick_time_seconds ? deadlineAt : null
                     }
+                    showCard={showCards}
                   />
                 ) : (
                   <DraftPickCell
                     key={participantIndex}
                     pick={pick as DraftPick}
                     picksTilActive={picksTilActive}
+                    showCard={showCards}
                   />
                 );
               })}

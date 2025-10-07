@@ -13,17 +13,17 @@ export default function PickCell({
   cardType,
   paused,
   timeLabel,
-  totalSeconds,
   low,
+  showCard,
 }: {
   picksTilActive: number;
   cardData: CardDetails | null;
   pick: DraftPick;
-  cardType: string;
+  cardType: string[];
   paused?: boolean;
   timeLabel?: string; // e.g., "0:43" or "Paused"
-  totalSeconds?: number; // remaining seconds
   low: boolean; // true if less than 30 seconds remaining
+  showCard: boolean;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const isActive = picksTilActive == 0;
@@ -97,36 +97,50 @@ export default function PickCell({
       </td>
     )) || (
       <td
-        className="h-40 w-24 cursor-pointer overflow-auto border-4 border-gray-950 bg-gray-50 bg-clip-padding px-1 py-2 text-center text-xs text-gray-950 shadow-inner-shadow hover:underline"
         onClick={() => routeToCardPageById(cardData?.card_id ?? -1)}
-      >
-        <div className="inline-block hover:no-underline">
-          {pick ? pick.round + 1 + '.' + (pick.pick_number + 1) : ''}
-        </div>
-        <div className="no-scrollbar w-24 overflow-auto font-bold">
-          {cardData?.name}
-        </div>
-        <div className="text-wrap w-24">{cardType}</div>
-        {cardData?.image && (
-          <div className="relative">
-            <Image
-              src={cardData?.image[0] ?? ''}
-              alt={cardData?.name ?? ''}
-              width={200}
-              height={100}
-              className={`w-full transition-opacity duration-200 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
-              onLoad={() => setImageLoaded(true)}
-            />
-            {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-xs font-medium text-gray-600">
-                {cardData?.name}
-              </div>
-            )}
-          </div>
+        className={clsx(
+          'max-w-29 min-w-29 cursor-pointer border-4 border-gray-950 bg-gray-50 px-1 py-2 text-center align-top text-xs text-gray-950 shadow-inner-shadow',
+          cardData?.image && showCard && 'h-38 bg-cover bg-center',
         )}
+        style={{
+          backgroundImage:
+            cardData?.image && showCard
+              ? `url(${cardData.image[0]})`
+              : undefined,
+        }}
+      >
+        <div className="relative top-2 z-10 flex items-start justify-between px-1 text-gray-950">
+          <div className="flex flex-col gap-1">
+            {cardType.map((type, i) => {
+              const color =
+                abbrevColors[type] ??
+                'bg-gray-100 border-gray-400 text-gray-800';
+              return (
+                <div
+                  key={i}
+                  className={clsx(
+                    'rounded-sm border px-1.5 text-[0.7rem] font-semibold shadow-sm',
+                    color,
+                  )}
+                >
+                  {type}
+                </div>
+              );
+            })}
+          </div>
+          <div className="rounded-sm border border-gray-950 bg-gray-50 px-1.5">
+            {pick ? `${pick.round + 1}.${pick.pick_number + 1}` : ''}
+          </div>
+        </div>
       </td>
     )
   );
 }
+
+const abbrevColors: Record<string, string> = {
+  Cre: 'bg-lime-300 border-lime-700 text-lime-950', // Creature → earthy green
+  'Ins/Sor': 'bg-sky-200 border-sky-500 text-sky-950', // Instant/Sorcery → light blue
+  'Art/Enc': 'bg-amber-200 border-amber-500 text-amber-950', // Artifact/Enchantment → warm orange
+  Land: 'bg-lime-200 border-lime-600 text-lime-950', // Land → yellow-green
+  Flex: 'bg-gray-200 border-gray-500 text-gray-800', // Flex → neutral gray
+};

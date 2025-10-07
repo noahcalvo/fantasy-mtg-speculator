@@ -12,13 +12,13 @@ export default function DraftPickCell({
   picksTilActive,
   paused,
   timeLabel,
-  totalSeconds,
+  showCard,
 }: {
   pick: DraftPick;
   picksTilActive: number;
   paused?: boolean;
   timeLabel?: string; // e.g., "0:43" or "Paused"
-  totalSeconds?: number; // remaining seconds
+  showCard: boolean;
 }) {
   const [cardData, setCardData] = useState<CardDetails | null>(null);
 
@@ -30,7 +30,7 @@ export default function DraftPickCell({
     }
   }, [pick]);
 
-  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
+  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '');
 
   return (
     <PickCell
@@ -41,6 +41,7 @@ export default function DraftPickCell({
       paused={paused}
       timeLabel={timeLabel}
       low={false}
+      showCard={showCard}
     />
   );
 }
