@@ -13,11 +13,13 @@ export default function ActivePickCell({
   picksTilActive,
   pausedAt,
   deadlineAt,
+  showCard,
 }: {
   pick: DraftPick;
   picksTilActive: number;
   pausedAt?: string | null;
   deadlineAt?: string | null;
+  showCard: boolean;
 }) {
   const [cardData, setCardData] = useState<CardDetails | null>(null);
 
@@ -44,7 +46,7 @@ export default function ActivePickCell({
     }
   }
 
-  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '').join('/');
+  const cardType = getCardTypesAbbreviation(cardData?.typeLine ?? '');
   return (
     <PickCell
       picksTilActive={picksTilActive}
@@ -53,8 +55,8 @@ export default function ActivePickCell({
       cardType={cardType}
       paused={pausedAt !== null}
       timeLabel={message}
-      totalSeconds={totalSeconds}
       low={low}
+      showCard={showCard}
     />
   );
 }
