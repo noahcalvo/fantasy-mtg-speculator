@@ -59,11 +59,11 @@ export default async function Page({
             commissioner={isLeagueCommissioner}
           />
         )}
-      <div className="flex flex-col justify-center gap-2 xl:flex-row">
-        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap xl:max-h-[80vh]">
+      <div className="flex flex-col justify-center gap-2 lg:flex-row">
+        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap lg:max-h-[80vh]">
           <DraftGrid draftId={draftId} />
         </div>
-        <div>
+        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap lg:max-h-[80vh]">
           <AvailableCards
             undraftedCards={undraftedCardsWithPoints}
             playerId={player.player_id}

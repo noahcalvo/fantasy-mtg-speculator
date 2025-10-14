@@ -165,7 +165,7 @@ export default function AvailableCards({
       <div className="h-full w-full overflow-auto shadow-md">
         <div className="mb-2 grid lg:grid-cols-2">
           <h1 className="mx-2 my-2 text-2xl font-bold lg:text-3xl">
-            Available Cards
+            Available
           </h1>
           <input
             type="text"
@@ -214,7 +214,7 @@ export default function AvailableCards({
         <hr className="my-2 border-gray-50" />
         <div className="grid grid-cols-2">
           <div>
-            <div className="max-h-[25vh] overflow-scroll scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 xl:max-h-[60vh]">
+            <div className="max-h-[25vh] overflow-scroll scrollbar scrollbar-track-gray-50 scrollbar-thumb-gray-50 lg:max-h-[60vh]">
               {paginatedCards.length == 0 ? (
                 <p className="p-4 text-gray-50">No cards available</p>
               ) : (
@@ -274,7 +274,7 @@ export default function AvailableCards({
                 ))
               )}
             </div>
-            <div className="mt-2 flex gap-2">
+            <div className="flex gap-2">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page === 0}

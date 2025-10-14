@@ -9,12 +9,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function FullscreenFrame({
-  leagueId,
-  draftId,
-  header,
-  children,
-}: Props) {
+export default function FullscreenFrame({ leagueId, header, children }: Props) {
   const [fs, setFs] = useState(false);
 
   // 1) read once from URL (no Next navigation)
@@ -45,7 +40,7 @@ export default function FullscreenFrame({
     () =>
       [
         'p-2',
-        fs && 'fixed inset-0 z-50 h-dvh w-dvw bg-gray-50', // use fixed, not absolute
+        fs && 'fixed inset-0 z-50 h-dvh w-dvw bg-gray-50 overflow-y-auto', // use fixed, not absolute
       ]
         .filter(Boolean)
         .join(' '),
