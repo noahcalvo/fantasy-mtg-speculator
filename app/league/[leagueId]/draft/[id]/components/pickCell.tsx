@@ -99,8 +99,8 @@ export default function PickCell({
       <td
         onClick={() => routeToCardPageById(cardData?.card_id ?? -1)}
         className={clsx(
-          'max-w-29 min-w-29 cursor-pointer border-4 border-gray-950 bg-gray-50 px-1 py-2 text-center align-top text-xs text-gray-950 shadow-inner-shadow',
-          cardData?.image && showCard && 'h-38 bg-cover bg-center',
+          'max-w-24 cursor-pointer border-4 border-gray-950 bg-gray-50 px-1 py-2 text-center align-top text-xs text-gray-950 shadow-inner-shadow',
+          cardData?.image && showCard && 'h-30 bg-cover bg-center bg-no-repeat',
         )}
         style={{
           backgroundImage:
@@ -109,28 +109,26 @@ export default function PickCell({
               : undefined,
         }}
       >
-        <div className="relative top-2 z-10 flex items-start justify-between px-1 text-gray-950">
-          <div className="flex flex-col gap-1">
-            {cardType.map((type, i) => {
-              const color =
-                abbrevColors[type] ??
-                'bg-gray-100 border-gray-400 text-gray-800';
-              return (
-                <div
-                  key={i}
-                  className={clsx(
-                    'rounded-sm border px-1.5 text-[0.7rem] font-semibold shadow-sm',
-                    color,
-                  )}
-                >
-                  {type}
-                </div>
-              );
-            })}
-          </div>
+        <div className="max-w-24 relative top-2 z-10 flex flex-wrap items-start justify-between gap-1 px-1 text-gray-950">
           <div className="rounded-sm border border-gray-950 bg-gray-50 px-1.5">
             {pick ? `${pick.round + 1}.${pick.pick_number + 1}` : ''}
           </div>
+
+          {cardType.map((type, i) => {
+            const color =
+              abbrevColors[type] ?? 'bg-gray-100 border-gray-400 text-gray-800';
+            return (
+              <div
+                key={i}
+                className={clsx(
+                  'rounded-sm border px-1.5 text-[0.7rem] font-semibold shadow-sm',
+                  color,
+                )}
+              >
+                {type}
+              </div>
+            );
+          })}
         </div>
       </td>
     )

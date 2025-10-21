@@ -4,7 +4,7 @@ import { DraftPick, Player } from '@/app/lib/definitions';
 import DraftPickCell from './draftPickCell';
 import { getActivePick } from '@/app/lib/clientActions';
 import { fetchDraft, fetchPicks, fetchPicksUncached } from '@/app/lib/draft';
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import { fetchMultipleParticipantData } from '@/app/lib/player';
 import ActivePickCell from './activePickCell';
 import { useDraftRealtime } from '@/app/lib/useDraftRealtime';
@@ -41,6 +41,8 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
     },
   );
   const [showCards, setShowCards] = useState(true);
+  const searchParams = useSearchParams();
+  const fullscreen = searchParams.get('fullscreen');
 
   const rounds = useMemo(
     () => (picks.length ? Math.max(...picks.map((p) => p.round)) + 1 : 0),
@@ -119,16 +121,20 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
   );
 
   return (
-    <div className="h-fit max-h-[40vh] overflow-auto border-2 border-gray-950 lg:max-h-[80vh]">
+    <div
+      className={`${fullscreen ? 'max-h-[calc(50dvh-70px)] md:max-h-[calc(100dvh-66px)]' : 'max-h-[calc(50dvh-104px)] md:max-h-[calc(100dvh-136px)]'} inline-block overflow-auto border-2 border-gray-950`}
+    >
       <table className="table-fixed divide-y divide-gray-950 border-gray-950 bg-gray-950">
-        <thead className="sticky top-0 z-30">
+        <thead className="z-25 sticky top-0">
           <tr>
             {participants.map((participant, index) => (
               <th
                 key={index}
-                className="no-scrollbar text-responsive overflow-auto border-gray-950 bg-gray-950 px-1 py-2 text-center text-xs capitalize text-gray-50"
+                className="border-gray-950 bg-gray-950 px-1 py-2 text-center text-xs capitalize text-gray-50"
               >
-                <div className="w-24">{participant.name}</div>
+                <div className="max-w-16 no-scrollbar overflow-auto">
+                  {participant.name}
+                </div>
               </th>
             ))}
           </tr>

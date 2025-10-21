@@ -40,7 +40,9 @@ export default function FullscreenFrame({ leagueId, header, children }: Props) {
     () =>
       [
         'p-2',
-        fs && 'fixed inset-0 z-50 h-dvh w-dvw bg-gray-50 overflow-y-auto', // use fixed, not absolute
+        fs
+          ? 'fixed inset-0 z-50 h-dvh w-dvw bg-gray-50 overflow-y-auto'
+          : 'md:h-[calc(100dvh-74px)] h-[calc(100dvh-154px)] ',
       ]
         .filter(Boolean)
         .join(' '),
@@ -60,7 +62,7 @@ export default function FullscreenFrame({ leagueId, header, children }: Props) {
             </Link>
           </div>
 
-          <div className="inline-flex flex-1 content-center justify-center text-center">
+          <div className="line-clamp-1 inline-flex flex-1 content-center justify-center text-center">
             {header}
           </div>
 

@@ -24,7 +24,7 @@ export default async function Layout({
   }
 
   return (
-    <div className="flex h-[calc(100dvh-114px)] w-full flex-col md:h-[calc(100dvh-64px)]">
+    <div className="flex h-[calc(100dvh-112px)] w-full flex-col md:h-[calc(100dvh-32px)]">
       <div className="sticky top-0 z-20 border-b-2 border-gray-50 bg-gray-950">
         <LeagueMenu leagueId={leagueId} playerId={playerId} />
       </div>

@@ -59,21 +59,17 @@ export default async function Page({
             commissioner={isLeagueCommissioner}
           />
         )}
-      <div className="flex flex-col justify-center gap-2 lg:flex-row">
-        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap lg:max-h-[80vh]">
-          <DraftGrid draftId={draftId} />
-        </div>
-        <div className="flex max-h-[40vh] max-w-full justify-center overflow-x-auto whitespace-nowrap lg:max-h-[80vh]">
-          <AvailableCards
-            undraftedCards={undraftedCardsWithPoints}
-            playerId={player.player_id}
-            activeDrafter={activeDrafter == player.player_id}
-            draftId={draft.draft_id}
-            set={draft.set}
-            leagueId={leagueId}
-            isPaused={draft.paused_at !== null}
-          />
-        </div>
+      <div className="grid grid-cols-1 items-start justify-around justify-items-center gap-2 md:grid-cols-2">
+        <DraftGrid draftId={draftId} />
+        <AvailableCards
+          undraftedCards={undraftedCardsWithPoints}
+          playerId={player.player_id}
+          activeDrafter={activeDrafter == player.player_id}
+          draftId={draft.draft_id}
+          set={draft.set}
+          leagueId={leagueId}
+          isPaused={draft.paused_at !== null}
+        />
       </div>
     </main>
   );

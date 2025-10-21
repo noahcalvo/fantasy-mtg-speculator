@@ -33,13 +33,11 @@ export default async function RootLayout({
               bg-gray-950 p-4 md:relative md:w-64 md:pr-0
               lg:h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))]
               lg:w-72 lg:overflow-hidden
-              lg:pl-8
-              lg:pt-8
             "
           >
             <SideNav />
           </aside>
-          <main className="h-[calc(100dvh-114px)] min-w-0 flex-1 overflow-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))] md:h-[100dvh] lg:p-8">
+          <main className="h-[calc(100dvh-112px)] min-w-0 flex-1 overflow-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))] md:h-[100dvh]">
             {children}
           </main>
         </div>
