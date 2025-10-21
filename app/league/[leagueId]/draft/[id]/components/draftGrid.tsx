@@ -122,7 +122,7 @@ const DraftGrid = ({ draftId }: { draftId: number }) => {
 
   return (
     <div
-      className={`${fullscreen ? 'max-h-[calc(50dvh-70px)] md:max-h-[calc(100dvh-66px)]' : 'max-h-[calc(50dvh-104px)] md:max-h-[calc(100dvh-136px)]'} inline-block overflow-auto border-2 border-gray-950`}
+      className={`${fullscreen ? 'max-h-[calc(50dvh-70px)] md:max-h-[calc(100dvh-66px)]' : 'max-h-[calc(50dvh-104px)] md:max-h-[calc(100dvh-136px)]'} max-w-full overflow-auto border-2 border-gray-950`}
     >
       <table className="table-fixed divide-y divide-gray-950 border-gray-950 bg-gray-950">
         <thead className="z-25 sticky top-0">

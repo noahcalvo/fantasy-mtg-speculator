@@ -59,7 +59,7 @@ export default async function Page({
             commissioner={isLeagueCommissioner}
           />
         )}
-      <div className="grid grid-cols-1 items-start justify-around justify-items-center gap-2 md:grid-cols-2">
+      <div className="flex flex-col items-center justify-center gap-2 md:flex-row">
         <DraftGrid draftId={draftId} />
         <AvailableCards
           undraftedCards={undraftedCardsWithPoints}

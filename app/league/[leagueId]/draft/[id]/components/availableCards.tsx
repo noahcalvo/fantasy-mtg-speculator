@@ -119,7 +119,7 @@ export default function AvailableCards({
   ) : (
     <div className="flex flex-col items-center justify-center">
       <div
-        className={`${fullscreen ? 'h-[50vh] max-h-[30vh] w-[30vw] md:max-h-[175px] md:max-w-[125px]' : 'h-[calc(50dvh-254px)] w-[calc((50dvh-254px)_*_0.7)] sm:h-[calc(100dvh-300px)] sm:w-[calc(100dvh-320px)]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
+        className={`${fullscreen ? 'h-[50vh] max-h-[30vh] w-[30vw] md:max-h-[175px] md:max-w-[125px]' : 'h-[calc(50dvh-254px)] w-[calc((50dvh-254px)_*_0.7)] md:h-[calc(100dvh-300px)] md:max-h-[175px] md:w-[calc(100dvh-320px)] md:max-w-[125px]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
       />
       <button
         className={`mx-2 mt-1 rounded-md border border-gray-950 p-1 text-gray-950 hover:cursor-pointer ${
