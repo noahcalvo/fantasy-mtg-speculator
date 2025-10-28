@@ -5,11 +5,15 @@ import Link from 'next/link';
 type Props = {
   leagueId: number;
   draftId: number;
-  header: React.ReactNode;
+  draftName: string;
   children: React.ReactNode;
 };
 
-export default function FullscreenFrame({ leagueId, header, children }: Props) {
+export default function FullscreenFrame({
+  leagueId,
+  draftName,
+  children,
+}: Props) {
   const [fs, setFs] = useState(false);
 
   // 1) read once from URL (no Next navigation)
@@ -52,24 +56,34 @@ export default function FullscreenFrame({ leagueId, header, children }: Props) {
   return (
     <div className={wrapperClass}>
       <main>
-        <div className="mb-2 flex w-full flex-wrap items-center gap-2">
-          <div>
-            <Link
-              href={`/league/${leagueId}/draft`}
-              className="rounded-md border border-gray-950 bg-gray-50 px-1 py-1 text-xs text-gray-950 transition-colors hover:bg-red-800 hover:text-gray-50"
-            >
-              All drafts
-            </Link>
-          </div>
+        <div className="mb-2 flex w-full items-center gap-2">
+          <Link
+            href={`/league/${leagueId}/draft`}
+            className="rounded-md border border-gray-950 bg-gray-50 p-1 text-xs text-gray-950 transition-colors hover:bg-red-800 hover:text-gray-50"
+          >
+            All drafts
+          </Link>
 
-          <div className="line-clamp-1 inline-flex flex-1 content-center justify-center text-center">
-            {header}
+          {/* center flexible title cell (CSS-only, no JS) */}
+          <div className="min-w-0 flex-1">
+            {/* scroller: text-align centers when content fits; allows left-start when it overflows */}
+            <div className="w-full overflow-x-auto text-center">
+              {/* this equals the viewport width so centering works when small */}
+              <div className="inline-block min-w-full">
+                {/* actual content: won't shrink, will overflow and be scrollable from the left */}
+                <div className="inline-block min-w-max whitespace-nowrap px-3">
+                  <p className="text-2xl leading-none md:text-3xl">
+                    {draftName}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={toggle}
-            className="rounded-md border border-gray-950 bg-gray-50 px-1 py-1 text-xs text-gray-950 transition-colors hover:bg-red-800 hover:text-gray-50"
+            className="rounded-md border border-gray-950 bg-gray-50 p-1 text-xs text-gray-950 transition-colors hover:bg-red-800 hover:text-gray-50"
           >
             {fs ? 'Exit Fullscreen' : 'Fullscreen'}
           </button>

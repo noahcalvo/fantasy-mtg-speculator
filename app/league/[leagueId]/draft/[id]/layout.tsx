@@ -1,4 +1,3 @@
-import DraftInfoHeader from './components/draftInfoHeader';
 import { fetchDraft } from '@/app/lib/draft';
 import notFound from './not-found';
 import FullscreenFrame from './components/fullscreenFrame';
@@ -21,7 +20,7 @@ export default async function Layout({
     <FullscreenFrame
       leagueId={leagueId}
       draftId={draftId}
-      header={<DraftInfoHeader draft={draft} />}
+      draftName={draft.name}
     >
       {children}
     </FullscreenFrame>

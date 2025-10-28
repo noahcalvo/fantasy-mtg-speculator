@@ -71,41 +71,23 @@ export async function fetchTradeOffers(
   playerId: number,
   leagueId: number,
 ): Promise<TradeOffer[]> {
+  console.log("leagueId in fetchTradeOffers:", leagueId);
   try {
-    // complicated query that chat gpt made
-    // only selects on entry if there are multiple of the same playerIds and cards
-    // ranks them based on state, where active is the highest priority
     const query = `
-        WITH RankedTrades AS (
-            SELECT
-                *,
-                ROW_NUMBER() OVER (
-                    PARTITION BY offerer, recipient, offered, requested
-                    ORDER BY
-                        CASE state
-                            WHEN 'pending' THEN 1
-                            WHEN 'completed' THEN 2
-                            WHEN 'expired' THEN 3
-                            WHEN 'declined' THEN 4
-                            ELSE 5
-                        END
-                ) AS rank
-            FROM
-                TradesV2
-            WHERE
-                offerer = $1 OR recipient = $1
-            AND
-                league_id = $2
-        )
         SELECT
-            trade_id, offerer, recipient, offered, requested, state, expires
+            trade_id, offerer, recipient, offered, requested, state, expires, league_id
         FROM
-            RankedTrades
+            TradesV2
         WHERE
-            rank = 1;
+            state = 'pending'
+        AND
+            league_id = $2
+        AND
+            (offerer = $1 OR recipient = $1);
     `;
 
     const data = await pool.query(query, [playerId, leagueId]);
+    console.log('Fetched trade offers:', data.rows);
     return data.rows;
   } catch (error) {
     console.error('Database Error:', error);

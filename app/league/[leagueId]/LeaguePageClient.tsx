@@ -7,7 +7,7 @@ export default function LeaguePageClient({
   league: { name: string } | null;
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between bg-white pt-24">
+    <main className="min-h-dvh flex flex-col items-center justify-between bg-white pt-24">
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-950">Welcome to</h1>
         <h1 className="text-center text-4xl font-bold text-red-900">
