@@ -48,7 +48,7 @@ export default function TradeOffers({
             )}
             {offersReceivedByPlayer.length > 0 && (
               <div>
-                <div className="m-2 text-md font-semibold">
+                <div className="text-md m-2 font-semibold">
                   Incoming offers:
                 </div>
                 <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
@@ -77,7 +77,7 @@ export default function TradeOffers({
 
             {offersMadeByPlayer.length > 0 && (
               <div>
-                <div className="m-2 text-md font-semibold">
+                <div className="text-md m-2 font-semibold">
                   Outgoing offers:
                 </div>
                 <div className="mb-8 grid grid-cols-1 gap-2 xl:grid-cols-2">
@@ -117,16 +117,13 @@ function Trade({
   const giving = outgoing ? trade.offeredCards : trade.requestedCards;
   const getting = outgoing ? trade.requestedCards : trade.offeredCards;
   return (
-    <div className="border border-black">
-      <div className="w-full bg-gray-950 text-center text-gray-50">
+    <div className="border border-black bg-gray-950 py-4 text-gray-50">
+      <div className="w-full  text-center">
         {outgoing ? trade.recipient.name : trade.offerer.name}
       </div>
-      <div className="flex place-content-around items-center border-b">
-        <div className="text-center">You give</div>
-        <div>You get</div>
-      </div>
-      <div className="m-2 flex place-content-around">
-        <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+      <div className="flex items-start justify-between gap-4">
+        <div className="grid sm:grid-cols-2">
+          <div className="w-full text-center sm:col-span-2">Giving</div>
           {giving.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine);
             return (
@@ -163,7 +160,8 @@ function Trade({
             </div>
           )}
         </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+        <div className="grid sm:grid-cols-2">
+          <div className="w-full text-center sm:col-span-2">Recieving</div>
           {getting.map((card, index) => {
             const position = getCardTypesAbbreviationString(card.typeLine);
             return (

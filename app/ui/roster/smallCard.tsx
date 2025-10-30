@@ -17,7 +17,7 @@ export default function SmallCard({
     <div className="overflow-auto rounded-md text-sm">
       <div className="h-full w-full overflow-auto">
         <div className="flex justify-center overflow-auto">
-          <div className="mt-1 bg-gray-50 px-1">{availablePosition}</div>
+          <div className="mt-1 px-1">{availablePosition}</div>
         </div>
         <div className="flex md:p-2">
           <div>

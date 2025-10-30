@@ -10,19 +10,13 @@ type FeatureKey =
   | 'trade'
   | 'performance';
 
-const pictureFeatureMap: Record<
-  FeatureKey,
-  { desktop: string; mobile: string }
-> = {
-  draft: { desktop: '/draft.desktop.png', mobile: '/draft.mobile.png' },
-  lineup: { desktop: '/roster.desktop.png', mobile: '/roster.mobile.png' },
-  standings: {
-    desktop: '/standings.desktop.png',
-    mobile: '/standings.mobile.png',
-  },
-  chat: { desktop: '/chat.png', mobile: '/chat.png' },
-  trade: { desktop: '/trade.desktop.png', mobile: '/trade.mobile.png' },
-  performance: { desktop: '/performance.png', mobile: '/performance.png' },
+const pictureFeatureMap: Record<FeatureKey, string> = {
+  draft: '/draft.png',
+  lineup: '/roster.png',
+  standings: '/standings.png',
+  chat: '/chat.png',
+  trade: '/trade.png',
+  performance: '/performance.png',
 };
 
 const featureLabels: Record<FeatureKey, string> = {
@@ -79,19 +73,11 @@ export function FeaturesCarousel() {
   return (
     <div className="border-3 w-[300px] rounded-xl border-gray-900">
       <div className="group relative aspect-square w-full overflow-hidden rounded-t-lg">
-        {/* Images for desktop and mobile */}
         <Image
-          src={currentImages.desktop}
+          src={currentImages}
           alt={currentKey}
           fill
-          className="hidden object-cover md:block"
-          priority={currentFeatureIdx === 0} // Only prioritize the first image
-        />
-        <Image
-          src={currentImages.mobile}
-          alt={currentKey}
-          fill
-          className="block object-cover md:hidden"
+          className="block object-cover"
           priority={currentFeatureIdx === 0} // Only prioritize the first image
         />
         {/* Navigation arrows */}

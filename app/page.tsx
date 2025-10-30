@@ -19,8 +19,8 @@ export default function Page() {
               </p>
             </div>
             <Link
-              href="/login"
-              className="text-mdkey flex max-w-xs items-center justify-between gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-gray-50 transition-colors hover:bg-red-800 md:text-base"
+              href="/signup"
+              className="text-md key flex max-w-xs items-center justify-between gap-5 self-start rounded-lg bg-gray-950 px-6 py-3 text-gray-50 transition-colors hover:bg-red-800 md:text-base"
             >
               <span>Sign up</span>
               <ArrowRightIcon className="w-5 md:w-6" />

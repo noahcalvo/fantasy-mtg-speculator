@@ -82,7 +82,7 @@ export default function AvailableCards({
           card, // Step 2: Map over filtered cards
         ) => (
           <div
-            className={`${fullscreen ? 'max-h-[30vh] sm:max-h-[70vh]' : 'max-h-[20vh] sm:max-h-[50vh]'} flex flex-col items-center justify-center`}
+            className={`${fullscreen ? 'max-h-[30dvh] sm:max-h-[70dvh]' : 'max-h-[20dvh] sm:max-h-[50dvh]'} flex flex-col items-center justify-center`}
             key={card.name}
           >
             <Image
@@ -90,7 +90,7 @@ export default function AvailableCards({
               alt={card.name}
               width={fullscreen ? 125 : 125}
               height={fullscreen ? 175 : 175}
-              className={`${fullscreen ? 'max-h-[50vh] max-w-[30vw] md:max-w-[20vw]' : 'max-h-[calc(50dvh-254px)] max-w-[calc((50dvh-254px)_*_0.6)] sm:max-h-[calc(100dvh-300px)] sm:max-w-[calc(100dvh-320px)]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
+              className={`${fullscreen ? 'max-h-[50dvh] max-w-[30vw] md:max-w-[20vw]' : 'max-h-[calc(50dvh-254px)] max-w-[calc((50dvh-254px)_*_0.6)] sm:max-h-[calc(100dvh-300px)] sm:max-w-[calc(100dvh-320px)]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
               onClick={() => {
                 if (card.card_id !== -1) {
                   routeToCardPageById(card.card_id);
@@ -119,7 +119,7 @@ export default function AvailableCards({
   ) : (
     <div className="flex flex-col items-center justify-center">
       <div
-        className={`${fullscreen ? 'h-[50vh] max-h-[30vh] w-[30vw] md:max-h-[175px] md:max-w-[125px]' : 'h-[calc(50dvh-254px)] w-[calc((50dvh-254px)_*_0.7)] md:h-[calc(100dvh-300px)] md:max-h-[175px] md:w-[calc(100dvh-320px)] md:max-w-[125px]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
+        className={`${fullscreen ? 'h-[50dvh] max-h-[30dvh] w-[30vw] md:max-h-[175px] md:max-w-[125px]' : 'h-[calc(50dvh-255px)] w-[calc((50dvh-255px)_*_0.7)] md:h-[calc(100dvh-300px)] md:max-h-[175px] md:w-[calc(100dvh-320px)] md:max-w-[125px]'} cursor-pointer border-2 border-amber-500 shadow-xl shadow-amber-500 `}
       />
       <button
         className={`mx-2 mt-1 rounded-md border border-gray-950 p-1 text-gray-950 hover:cursor-pointer ${
@@ -175,7 +175,7 @@ export default function AvailableCards({
     'availableCards',
   );
   return (
-    <div className="max-w-[400px] items-center justify-center overflow-scroll bg-gray-950 px-2 py-1 text-gray-50">
+    <div className="max-w-[400px] items-center justify-center overflow-scroll border-y-2 border-gray-950 bg-gray-950 px-2 py-1 text-gray-50">
       <div className="w-full overflow-auto shadow-md">
         <input
           type="text"
@@ -212,7 +212,7 @@ export default function AvailableCards({
             )}
             <div className="inline">
               <button
-                className="rounded-md border border-gray-950 bg-red-800  px-1 py-1 text-sm text-gray-50 hover:cursor-pointer"
+                className="whitespace-nowrap rounded-md border border-gray-950  bg-red-800 px-1 py-1 text-sm text-gray-50 hover:cursor-pointer"
                 onClick={() =>
                   setSortedBy(sortedBy === 'price' ? 'points' : 'price')
                 }

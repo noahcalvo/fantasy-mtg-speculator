@@ -141,7 +141,7 @@ export default function Trade({
                   <div key={index} className="m-auto justify-center">
                     <div
                       onClick={(e) => handleCardClicked(e, card.card_id, true)}
-                      className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
+                      className={`${ownedSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800 text-gray-50' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
                     >
                       <SmallCard
                         availablePosition={position}
@@ -181,7 +181,7 @@ export default function Trade({
                         onClick={(e) =>
                           handleCardClicked(e, card.card_id, false)
                         }
-                        className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
+                        className={`${wantSelectedCards.includes(card.card_id) ? 'border-red-500 bg-red-800 text-gray-50' : 'border-gray-50'} mx-2 mb-2 rounded-xl border-4`}
                       >
                         <SmallCard
                           availablePosition={position}
