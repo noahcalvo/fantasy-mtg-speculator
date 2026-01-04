@@ -251,12 +251,6 @@ python main.py 5 6 7
 
 We ❤️ community help! Here’s how to jump in:
 
-* **Report Bugs**: Open an issue with:
-
-  * What you did (steps + expected vs. actual)
-  * Screenshots/logs if relevant
-  * Your environment (browser, OS, dev/prod)
-* **Propose Features**: Start a discussion or issue. Describe the user story and the smallest viable slice.
-* **Pick Up Tasks**:
-
-  * We label approachable items as
+* **Report Bugs**
+* **Propose Features**
+* **Pick Up Tasks**
