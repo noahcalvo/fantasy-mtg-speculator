@@ -249,8 +249,4 @@ python main.py 5 6 7
 
 ## Contributing
 
-We ❤️ community help! Here’s how to jump in:
-
-* **Report Bugs**
-* **Propose Features**
-* **Pick Up Tasks**
+Make a PR I dare you
